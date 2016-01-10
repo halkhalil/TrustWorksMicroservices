@@ -1,7 +1,14 @@
 package dk.trustworks.bimanager;
 
+import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import dk.trustworks.bimanager.handler.ProjectBudgetHandler;
 import dk.trustworks.bimanager.handler.ReportHandler;
+import dk.trustworks.bimanager.handler.StatisticHandler;
 import dk.trustworks.bimanager.handler.TaskBudgetHandler;
 import dk.trustworks.bimanager.jobs.WorkItemMonthlyJob;
 import dk.trustworks.bimanager.jobs.enums.Event;
@@ -12,10 +19,12 @@ import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.cache.DirectBufferCache;
-import io.undertow.server.handlers.resource.CachingResourceManager;
-import io.undertow.server.handlers.resource.ClassPathResourceManager;
-import io.undertow.server.handlers.resource.ResourceHandler;
-import io.undertow.server.handlers.resource.ResourceManager;
+import io.undertow.server.handlers.resource.*;
+import io.undertow.servlet.Servlets;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.ListenerInfo;
+import io.undertow.servlet.api.ServletInfo;
 import io.undertow.util.Headers;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -32,10 +41,14 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.xnio.Options;
 
+import java.io.File;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Properties;
 
+import static io.undertow.servlet.Servlets.defaultContainer;
+import static io.undertow.servlet.Servlets.deployment;
+import static io.undertow.servlet.Servlets.servlet;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -51,13 +64,27 @@ public class BiApplication {
         new BiApplication(Integer.parseInt(args[0]));
     }
 
+    @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
+    public static class MyServlet extends VaadinServlet {
+
+    }
+
+    @Theme("valo")
+    public static class MyUI extends UI {
+
+        @Override
+        protected void init(VaadinRequest request) {
+            setContent(new Label("HelloWorld!"));
+        }
+
+    }
+
     public BiApplication(int port) throws Exception {
         log.info("LOG00800: BiManager on port " + port);
         Properties properties = new Properties();
         try (InputStream in = Helper.class.getResourceAsStream("server.properties")) {
             properties.load(in);
         }
-
 
         Undertow.builder()
                 .addHttpListener(port, properties.getProperty("web.host"))
@@ -68,10 +95,10 @@ public class BiApplication {
                 .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
                 //.setHandler(resource(new ClassPathResourceManager(Web.class.getClassLoader(), "dk/trustworks/bimanager/web")).setDirectoryListingEnabled(true))
                 .setHandler(Handlers.header(Handlers.path()
-                                .addPrefixPath("/", createStaticResourceHandler())
                                 .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
                                 .addPrefixPath("/api/taskbudgets", new TaskBudgetHandler())
                                 .addPrefixPath("/api/reports", new ReportHandler())
+                                .addPrefixPath("/api/statistics", new StatisticHandler())
                         , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()

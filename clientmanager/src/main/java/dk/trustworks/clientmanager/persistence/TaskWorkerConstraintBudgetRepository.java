@@ -52,9 +52,29 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
                     "inner join( " +
                     "select uuid, month, year, taskworkerconstraintuuid, max(created) created " +
                     "from taskworkerconstraintbudget WHERE month = :month and year = :year " +
-                    "group by taskworkerconstraintuuid " +
+                    "group by month, year, taskworkerconstraintuuid " +
                     ") ss on yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
                     .addParameter("month", month)
+                    .addParameter("year", year)
+                    .executeAndFetchTable().asList());
+        } catch (Exception e) {
+            log.error("LOG00480:", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Map<String, Object>> findByYear(int year) {
+        log.debug("TaskWorkerConstraintBudgetRepository.findByYear");
+        log.debug("year = [" + year + "]");
+        try (org.sql2o.Connection con = database.open()) {
+            return getEntitiesFromMapSet(con.createQuery("" +
+                    "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
+                    "from taskworkerconstraintbudget yt " +
+                    "inner join( " +
+                    "select uuid, month, year, taskworkerconstraintuuid, max(created) created " +
+                    "from taskworkerconstraintbudget WHERE year = :year " +
+                    "group by month, year, taskworkerconstraintuuid " +
+                    ") ss on yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
                     .addParameter("year", year)
                     .executeAndFetchTable().asList());
         } catch (Exception e) {

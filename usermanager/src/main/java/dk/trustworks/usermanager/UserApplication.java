@@ -10,10 +10,7 @@ import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.cache.DirectBufferCache;
-import io.undertow.server.handlers.resource.CachingResourceManager;
-import io.undertow.server.handlers.resource.ClassPathResourceManager;
-import io.undertow.server.handlers.resource.ResourceHandler;
-import io.undertow.server.handlers.resource.ResourceManager;
+import io.undertow.server.handlers.resource.*;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
@@ -27,9 +24,14 @@ import org.apache.curator.x.discovery.ServiceProvider;
 import org.apache.curator.x.discovery.UriSpec;
 import org.xnio.Options;
 
+import java.io.File;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Properties;
+
+import static io.undertow.servlet.Servlets.defaultContainer;
+import static io.undertow.servlet.Servlets.deployment;
+import static io.undertow.servlet.Servlets.servlet;
 
 /**
  * Created by hans on 16/03/15.
@@ -63,8 +65,23 @@ public class UserApplication {
 
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
         manager.deploy();
-        //PathHandler path = Handlers.path(Handlers.redirect("/myapp")).addPrefixPath("/myapp", manager.start());
 
+        //PathHandler path = Handlers.path(Handlers.redirect("/myapp")).addPrefixPath("/myapp", manager.start());
+/*
+        DeploymentInfo servletBuilder = deployment()
+                .setClassLoader(this.getClass().getClassLoader())
+                .setContextPath("/myapp")
+                .setDeploymentName("test.war")
+                .setResourceManager(new FileResourceManager(new File("src/main/webapp"), 1024))
+                .addServlets(
+                        servlet("VaadinServlet", VaadinServlet.class)
+                                .addInitParam("ui", "dk.trustworks.bimanager.web")
+                                .addMapping("/*").addMapping("/VAADIN")
+                );
+
+        DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
+        manager.deploy();
+*/
         Undertow.builder()
                 .addHttpListener(port, properties.getProperty("web.host"))
                 .setBufferSize(1024 * 16)

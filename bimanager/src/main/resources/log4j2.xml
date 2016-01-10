@@ -12,13 +12,13 @@
         </Async>
     </Appenders>
     <Loggers>
-        <Logger name="org.jboss.logging" level="info">
+        <Logger name="org.jboss.logging" level="debug">
             <AppenderRef ref="MyFile"/>
         </Logger>
         <Logger name="dk.trustworks" level="debug" additivity="false">
             <AppenderRef ref="MyFile"/>
         </Logger>
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="MyFile"/>
         </Root>
     </Loggers>

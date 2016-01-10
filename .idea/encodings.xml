@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/adminportal" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/bimanager" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/clientmanager" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cronmanager" charset="UTF-8" />
@@ -9,6 +10,7 @@
     <file url="file://$PROJECT_DIR$/timemanager" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/trustworks-framework" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/usermanager" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/webadmin" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

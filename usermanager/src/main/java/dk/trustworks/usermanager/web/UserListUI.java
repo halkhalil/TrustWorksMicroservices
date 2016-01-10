@@ -4,10 +4,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.*;
 import dk.trustworks.usermanager.dto.User;
 import dk.trustworks.usermanager.persistence.UserRepository;
 import org.apache.commons.beanutils.BeanUtils;
@@ -40,11 +37,11 @@ public class UserListUI extends UI {
 
         setContent(userList);
 
-        /*
-        newContact.addClickListener(e -> userForm.edit(new User()));
 
-        filter.setInputPrompt("Filter contacts...");
-        filter.addTextChangeListener(e -> refreshContacts(e.getText()));
+        //newContact.addClickListener(e -> userForm.edit(new User()));
+
+        //filter.setInputPrompt("Filter contacts...");
+        //filter.addTextChangeListener(e -> refreshContacts(e.getText()));
         List<Map<String, Object>> mapList = userRepository.findByActiveTrue();
 
         ArrayList<User> users = getUsers(mapList);
@@ -76,7 +73,6 @@ public class UserListUI extends UI {
 
         // Split and allow resizing
         setContent(mainLayout);
-        */
     }
 
     private ArrayList<User> getUsers(List<Map<String, Object>> mapList) {

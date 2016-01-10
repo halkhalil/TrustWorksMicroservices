@@ -73,8 +73,23 @@
         <processorPath useClasspath="true" />
         <module name="trustworks-framework" />
       </profile>
+      <profile default="false" name="Annotation profile for adminportal" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="adminportal" />
+      </profile>
+      <profile default="false" name="Annotation profile for webadmin" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="webadmin" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="adminportal" target="1.8" />
       <module name="bimanager" target="1.8" />
       <module name="clientmanager" target="1.8" />
       <module name="cronmanager" target="1.8" />
@@ -83,6 +98,7 @@
       <module name="timemanager" target="1.8" />
       <module name="trustworks-framework" target="1.8" />
       <module name="usermanager" target="1.8" />
+      <module name="webadmin" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

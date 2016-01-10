@@ -4,6 +4,14 @@ import java.util.Date;
 
 /**
  * Created by hans on 16/03/15.
+ *
+ * A = Active
+ * D = Deceased
+ * L = On Non-Pay Leave
+ * N = Status Not Yet Processed
+ * P = Processing
+ * R = Retired
+ * T = Terminated
  */
 public class User {
 

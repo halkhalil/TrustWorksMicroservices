@@ -10,6 +10,7 @@ import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.framework.network.Locator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -102,8 +103,7 @@ public class RestClient {
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {
-            });
+            List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {});
             log.exit(result);
             return result;
         } catch (UnirestException | IOException e) {
@@ -111,6 +111,31 @@ public class RestClient {
         }
         log.exit(new ArrayList<>());
         return new ArrayList<>();
+    }
+
+    public int[] getCapacityPerMonthByYear(int year) {
+        log.entry(year);
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/capacitypermonth")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonth");
+            ArrayList<Integer> list = new ArrayList<>();
+            int[] result = new int[12];
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i=0;i<len;i++){
+                    result[i] = jsonArray.getInt(i);
+                }
+            }
+            return result;
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            log.catching(e);
+        }
+        log.exit(new int[12]);
+        return new int[12];
     }
 
     public List<Work> getRegisteredWorkByUserAndYear(String userUUID, int year) {
@@ -196,7 +221,6 @@ public class RestClient {
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets/search/findByMonthAndYear")
                     .queryString("month", month)
                     .queryString("year", year)
-                    //.queryString("projection", "taskworkerconstraintuuid")
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -206,6 +230,25 @@ public class RestClient {
         } catch (Exception e) {
             log.throwing(e);
             throw new RuntimeException("Kunne ikke loade: TaskWorkerConstraint", e);
+        }
+    }
+
+    public List<TaskWorkerConstraintBudget> getBudgetsByYear(int year) {
+        log.debug("RestClient.getBudgetsByYear");
+        log.debug("year = [" + year + "]");
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets/search/findByYear")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
+            });
+            return taskBudgets;
+        } catch (Exception e) {
+            log.throwing(e);
+            throw new RuntimeException("Kunne ikke loade: TaskWorkerConstraintBudget", e);
         }
     }
 
@@ -377,6 +420,22 @@ public class RestClient {
         } catch (Exception e) {
             log.throwing(e);
             throw new RuntimeException("Kunne ikke loade: projects ", e);
+        }
+    }
+
+    public List<Client> getClients() {
+        log.debug("RestClient.getClients");
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/clients")
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Client>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.throwing(e);
+            throw new RuntimeException("Kunne ikke loade: clients ", e);
         }
     }
 
