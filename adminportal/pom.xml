@@ -220,7 +220,7 @@
 				<version>${jetty.plugin.version}</version>
 				<configuration>
                     <httpConnector>
-                        <host>52.28.153.205</host>
+                        <host>172-31-20-150</host>
                         <port>9099</port>
                     </httpConnector>
 				    <scanIntervalSeconds>2</scanIntervalSeconds>
