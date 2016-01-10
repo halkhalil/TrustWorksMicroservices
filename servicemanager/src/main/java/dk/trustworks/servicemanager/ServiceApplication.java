@@ -39,6 +39,7 @@ public class ServiceApplication {
         ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
         ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
         ClientProxyZookeeper biManagerProxy = new ClientProxyZookeeper("biservice");
+        ClientProxyZookeeper adminPortalProxy = new ClientProxyZookeeper("adminportal");
 
         final Map<String, char[]> users = new HashMap<>(2);
         users.put("userOne", "passwordOne".toCharArray());
@@ -54,8 +55,8 @@ public class ServiceApplication {
                         .addPrefixPath("/userservice", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                        .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404)))
-                //.addPrefixPath("/", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404)))
+                        .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                        .addPrefixPath("/", new ProxyHandler(adminPortalProxy, 30000, ResponseCodeHandler.HANDLE_404)))
                 .build();
         try {
             reverseProxy.start();
@@ -69,8 +70,8 @@ public class ServiceApplication {
                             .addPrefixPath("/userservice", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                            .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404)))
-                    //.addPrefixPath("/", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404)))
+                            .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/", new ProxyHandler(adminPortalProxy, 30000, ResponseCodeHandler.HANDLE_404)))
                     .build();
             reverseProxy.start();
             System.out.println("Running on port 9090");

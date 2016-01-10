@@ -124,6 +124,17 @@
     </dependencies>
 
 	<build>
+        <filters>
+            <filter>profiles/${build.profile.id}/config.properties</filter>
+        </filters>
+
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -210,7 +221,7 @@
 				<configuration>
                     <httpConnector>
                         <!--host>localhost</host-->
-                        <port>9095</port>
+                        <port>9099</port>
                     </httpConnector>
 				    <scanIntervalSeconds>2</scanIntervalSeconds>
 				</configuration>
@@ -277,6 +288,31 @@
 				</pluginRepository>
 			</pluginRepositories>
 		</profile>
+
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<build.profile.id>dev</build.profile.id>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>prod</id>
+			<properties>
+				<build.profile.id>prod</build.profile.id>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>raspi</id>
+			<properties>
+				<build.profile.id>raspi</build.profile.id>
+			</properties>
+		</profile>
 	</profiles>
+
 
 </project>
