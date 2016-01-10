@@ -13,8 +13,10 @@ import io.undertow.security.handlers.SecurityInitialHandler;
 import io.undertow.security.idm.IdentityManager;
 import io.undertow.security.impl.BasicAuthenticationMechanism;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.proxy.ProxyHandler;
+import io.undertow.util.Headers;
 import org.apache.curator.x.discovery.ServiceProvider;
 
 import java.util.Collections;
@@ -56,6 +58,7 @@ public class ServiceApplication {
                         .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                        .addPrefixPath("/version", new VersionHandler())
                         .addPrefixPath("/", new ProxyHandler(adminPortalProxy, 30000, ResponseCodeHandler.HANDLE_404)))
                 .build();
         try {
@@ -71,6 +74,7 @@ public class ServiceApplication {
                             .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/version", new VersionHandler())
                             .addPrefixPath("/", new ProxyHandler(adminPortalProxy, 30000, ResponseCodeHandler.HANDLE_404)))
                     .build();
             reverseProxy.start();
@@ -86,5 +90,13 @@ public class ServiceApplication {
         handler = new AuthenticationMechanismsHandler(handler, mechanisms);
         handler = new SecurityInitialHandler(AuthenticationMode.PRO_ACTIVE, identityManager, handler);
         return handler;
+    }
+
+    class VersionHandler implements HttpHandler {
+        @Override
+        public void handleRequest(final HttpServerExchange exchange) throws Exception {
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+            exchange.getResponseSender().send("{version:2.0.5}");
+        }
     }
 }
