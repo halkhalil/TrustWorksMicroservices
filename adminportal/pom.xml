@@ -220,7 +220,7 @@
 				<version>${jetty.plugin.version}</version>
 				<configuration>
                     <httpConnector>
-                        <!--host>localhost</host-->
+                        <host>ws.trustworks.dk</host>
                         <port>9099</port>
                     </httpConnector>
 				    <scanIntervalSeconds>2</scanIntervalSeconds>
