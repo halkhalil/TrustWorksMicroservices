@@ -124,7 +124,7 @@
     padding: 60px 60px 60px 60px;
   }
 
-  &[width-range~="321px-900px"] {
+  &[width-range~="321px-400px"] {
     .dashboard-layout{
       padding: 10px;
     }
@@ -159,7 +159,7 @@
   }
 }
 
-.navigation-template-vaadin[width-range~="321px-900px"]{
+.navigation-template-vaadin[width-range~="321px-400px"]{
   visibility: visible;
 }
 .root-layout.dashboard-view-template-vaadin {
@@ -218,7 +218,7 @@
     }
   }
 
-  &[width-range~="321px-900px"]{
+  &[width-range~="321px-400px"]{
     padding: 10px;
 
     .dashboard-layout{
@@ -233,6 +233,6 @@
   }
 }
 
-.dashboard-view-template-vaadin[width-range~="321px-900px"]{
+.dashboard-view-template-vaadin[width-range~="321px-400px"]{
   visibility: visible;
 }

@@ -25,7 +25,7 @@ public class MenuDesign extends VerticalLayout {
     public MenuDesign() {
         Design.read(this);
         DashboardDesign dashboardDesign = new DashboardDesign();
-        dashboardDesign.setSizeFull();
+        //dashboardDesign.setSizeFull();
 
         menuButton2.addClickListener((Button.ClickListener) event -> {
             menuButton2.addStyleName("selected");

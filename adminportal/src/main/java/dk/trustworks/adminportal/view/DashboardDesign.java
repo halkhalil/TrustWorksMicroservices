@@ -47,7 +47,7 @@ public class DashboardDesign extends CssLayout {
     protected CssLayout dashboard_item28;
 
 	public DashboardDesign() {
-        this.setSizeFull();
+        //this.setSizeFull();
 		Design.read(this);
         Double[] revenuePerDay = getRevenuePerDay();
         final int[] intArray = new int[revenuePerDay.length];
