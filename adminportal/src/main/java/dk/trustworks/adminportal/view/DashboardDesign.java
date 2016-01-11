@@ -148,25 +148,16 @@ public class DashboardDesign extends CssLayout {
             avgRevenueList.setPlotOptions(options2);
 
             int i = 0;
-            double sumOfRemainingProjects = 0.0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
-                //if(i<10) {
-                    revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
-                    avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
-                    StringBuilder shortname = new StringBuilder();
-                    for (String s : amountPerItem.description.split(" ")) {
-                        shortname.append(s.charAt(0));
-                    }
-                    categories[i] = shortname.toString();
-            /*
-            } else {
-                    sumOfRemainingProjects += amountPerItem.amount;
-                    categories[10] = "Remaining projects";
-                }*/
-
-                i++;
+                revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
+                avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
+                StringBuilder shortname = new StringBuilder();
+                for (String s : amountPerItem.description.split(" ")) {
+                    shortname.append(s.charAt(0));
+                }
+                categories[i++] = shortname.toString();
             }
-            revenueList.add(new DataSeriesItem("Remaining projects", sumOfRemainingProjects));
+            //revenueList.add(new DataSeriesItem("Remaining projects", sumOfRemainingProjects));
             getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueList);
             getConfiguration().addSeries(avgRevenueList);
