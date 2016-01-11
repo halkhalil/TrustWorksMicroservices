@@ -150,7 +150,7 @@ public class DashboardDesign extends CssLayout {
             int i = 0;
             double sumOfRemainingProjects = 0.0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
-                if(i<10) {
+                //if(i<10) {
                     revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
                     avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
                     StringBuilder shortname = new StringBuilder();
@@ -158,10 +158,11 @@ public class DashboardDesign extends CssLayout {
                         shortname.append(s.charAt(0));
                     }
                     categories[i] = shortname.toString();
-                } else {
+            /*
+            } else {
                     sumOfRemainingProjects += amountPerItem.amount;
                     categories[10] = "Remaining projects";
-                }
+                }*/
 
                 i++;
             }
