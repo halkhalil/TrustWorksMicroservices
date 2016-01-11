@@ -16,9 +16,11 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.server.handlers.proxy.ProxyHandler;
+import io.undertow.server.handlers.proxy.SimpleProxyClientProvider;
 import io.undertow.util.Headers;
 import org.apache.curator.x.discovery.ServiceProvider;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,7 @@ public class ServiceApplication {
                         .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/version", new VersionHandler())
-                        .addPrefixPath("/", new ProxyHandler(adminPortalProxy, 30000, ResponseCodeHandler.HANDLE_404)))
+                        .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
                 .build();
         try {
             reverseProxy.start();
@@ -75,7 +77,7 @@ public class ServiceApplication {
                             .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/version", new VersionHandler())
-                            .addPrefixPath("/", new ProxyHandler(adminPortalProxy, 30000, ResponseCodeHandler.HANDLE_404)))
+                            .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
                     .build();
             reverseProxy.start();
             System.out.println("Running on port 9090");
