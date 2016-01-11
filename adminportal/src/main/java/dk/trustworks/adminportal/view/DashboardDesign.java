@@ -17,6 +17,7 @@ import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.component.SparklineChart;
 import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.framework.network.Locator;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 
 import java.text.DateFormatSymbols;
@@ -363,7 +364,7 @@ public class DashboardDesign extends CssLayout {
             int i = 0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
-                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round((amountPerItem.amount / 52.177457f) * 100.0) / 100.0)));
+                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round((amountPerItem.amount / (new DateTime().getDayOfYear() * 7)) * 100.0) / 100.0)));
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
