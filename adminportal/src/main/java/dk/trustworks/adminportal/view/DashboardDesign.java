@@ -290,6 +290,7 @@ public class DashboardDesign extends CssLayout {
             YAxis yaxis = new YAxis();
             yaxis.setTitle("Capacity");
             yaxis.setOpposite(true);
+            yaxis.setMin(0);
             getConfiguration().addyAxis(yaxis);
 
             PlotOptionsLine options3 = new PlotOptionsLine();
