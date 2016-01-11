@@ -111,6 +111,8 @@ public class StatisticHandler extends DefaultHandler {
         }
 
         for (int i = 0; i < 12; i++) {
+            if(capacityPerMonth[i] == 0) continue;
+            if(revenuepermonth[i] == 0) continue;
             revenuepermonth[i] = Math.round((revenuepermonth[i] / capacityPerMonth[i]) * 37);
         }
 
