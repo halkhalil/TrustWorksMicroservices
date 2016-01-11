@@ -44,6 +44,7 @@ public class DashboardDesign extends CssLayout {
 	protected CssLayout dashboard_item26;
 	protected CssLayout dashboard_item27;
     protected CssLayout dashboard_item28;
+    protected CssLayout dashboard_item29;
     protected HorizontalLayout sparkline_horizontal;
 
 
@@ -94,6 +95,10 @@ public class DashboardDesign extends CssLayout {
         RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart(year);
         dashboard_item28.removeAllComponents();
         dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
+
+        BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year);
+        dashboard_item29.removeAllComponents();
+        dashboard_item29.addComponent(billableHoursPerEmployeesChart);
     }
 
     /*
@@ -310,6 +315,73 @@ public class DashboardDesign extends CssLayout {
         }
     }
 
+    public class BillableHoursPerEmployeesChart extends Chart {
+
+        public BillableHoursPerEmployeesChart(int year) {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("Billable Hours per Employee");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(true);
+
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            List<AmountPerItem> amountPerItemList = getBillableHoursPerUser(year);
+            double sumHours = 0.0;
+            for (AmountPerItem amountPerItem : amountPerItemList) {
+                sumHours += amountPerItem.amount;
+            }
+            double avgRevenue = sumHours / amountPerItemList.size();
+
+            Collections.sort(amountPerItemList);
+            String[] categories = new String[amountPerItemList.size()];
+            DataSeries revenueList = new DataSeries("Hours");
+            DataSeries avgRevenueList = new DataSeries("Average Hours");
+            PlotOptionsLine options2 = new PlotOptionsLine();
+            options2.setColor(SolidColor.BLACK);
+            options2.setMarker(new Marker(false));
+            avgRevenueList.setPlotOptions(options2);
+
+            DataSeries series2 = new DataSeries("Average per week");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Avg per week");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            series2.setPlotOptions(options3);
+
+            int i = 0;
+            for (AmountPerItem amountPerItem : amountPerItemList) {
+                revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
+                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round((amountPerItem.amount / 52.177457f) * 100.0) / 100.0)));
+                avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
+                StringBuilder shortname = new StringBuilder();
+                for (String s : amountPerItem.description.split(" ")) {
+                    shortname.append(s.charAt(0));
+                }
+                categories[i++] = shortname.toString();
+            }
+            //revenueList.add(new DataSeriesItem("Remaining projects", sumOfRemainingProjects));
+            getConfiguration().getxAxis().setCategories(categories);
+            getConfiguration().addSeries(revenueList);
+            getConfiguration().addSeries(avgRevenueList);
+            getConfiguration().addSeries(series2);
+            series2.setyAxis(yaxis);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
+
     public Double[] getRevenuePerDay() {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenueperday")
@@ -439,9 +511,21 @@ public class DashboardDesign extends CssLayout {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
         } catch (Exception e) {
-            throw new RuntimeException("Kunne ikke loade: ProjectYearEconomy ", e);
+            throw new RuntimeException("Kunne ikke loade: AmountPerItem ", e);
         }
     }
 
-
+    public List<AmountPerItem> getBillableHoursPerUser(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/billablehoursperuser")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
+        } catch (Exception e) {
+            throw new RuntimeException("Kunne ikke loade: AmountPerItem ", e);
+        }
+    }
 }

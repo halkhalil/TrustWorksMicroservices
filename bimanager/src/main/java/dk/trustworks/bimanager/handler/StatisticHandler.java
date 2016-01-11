@@ -43,6 +43,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("revenuepermonth");
         addCommand("budgetpermonth");
         addCommand("revenuepermonthbycapacity");
+        addCommand("billablehoursperuser");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -162,6 +163,37 @@ public class StatisticHandler extends DefaultHandler {
             if (taskWorkerConstraint == null) continue;
             if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
             revenuePerUser.put(work.getUserUUID(), revenuePerUser.get(work.getUserUUID()) + (work.getWorkDuration() * taskWorkerConstraint.getPrice()));
+        }
+
+        for (String userUUID : revenuePerUser.keySet()) {
+            if(!userMap.containsKey(userUUID)) continue;
+            listOfUsers.add(new AmountPerItem(userUUID, userMap.get(userUUID).getFirstname() + " " + userMap.get(userUUID).getLastname(), revenuePerUser.get(userUUID)));
+        }
+
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfUsers));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void billablehoursperuser(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("StatisticHandler.billablehoursperuser");
+        List<Work> allWork = getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        Map<String, User> userMap = getAllUsersMap();
+
+        Map<String, Double> revenuePerUser = new HashMap<>();
+        List<AmountPerItem> listOfUsers = new ArrayList<>();
+
+        for (Work work : allWork) {
+            //if (!(work.getYear() == 2015)) continue;//new DateTime().getYear())) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
+            if (taskWorkerConstraint == null) continue;
+            if (taskWorkerConstraint.getPrice() <= 0) continue;
+            if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
+            revenuePerUser.put(work.getUserUUID(), revenuePerUser.get(work.getUserUUID()) + (work.getWorkDuration()));
         }
 
         for (String userUUID : revenuePerUser.keySet()) {
