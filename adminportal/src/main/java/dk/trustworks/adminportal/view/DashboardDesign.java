@@ -364,7 +364,7 @@ public class DashboardDesign extends CssLayout {
             int i = 0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
-                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round((amountPerItem.amount / (new DateTime().getDayOfYear() * 7)) * 100.0) / 100.0)));
+                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round((amountPerItem.amount / (new DateTime().getDayOfYear() / 7)) * 100.0) / 100.0)));
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
