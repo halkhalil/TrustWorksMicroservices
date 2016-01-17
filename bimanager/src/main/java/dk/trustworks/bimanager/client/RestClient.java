@@ -252,6 +252,27 @@ public class RestClient {
         }
     }
 
+    public List<TaskWorkerConstraintBudget> getBudgetsByYearAndUser(int year, String userUUID) {
+        log.debug("RestClient.getBudgetsByYearAndUser");
+        log.debug("year = [" + year + "]");
+        log.debug("userUUID = [" + userUUID + "]");
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets/search/findByYearAndUser")
+                    .queryString("year", year)
+                    .queryString("useruuid", userUUID)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
+            });
+            return taskBudgets;
+        } catch (Exception e) {
+            log.throwing(e);
+            throw new RuntimeException("Kunne ikke loade: TaskWorkerConstraintBudget", e);
+        }
+    }
+
     public List<TaskWorkerConstraintBudget> getBudgetsByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(TaskWorkerConstraint taskWorkerConstraint, int month, int year, Long datetime) {
         log.debug("RestClient.getBudgetsByTaskWorkerConstraintUUIDAndMonthAndYearAndDate");
         log.debug("taskWorkerConstraint = [" + taskWorkerConstraint + "], month = [" + month + "], year = [" + year + "], datetime = [" + datetime + "]");

@@ -7,22 +7,28 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.*;
+import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.annotations.DesignRoot;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.grid.HeightMode;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.declarative.Design;
+import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.adminportal.domain.User;
 import dk.trustworks.adminportal.domain.UserStatusEnum;
 import dk.trustworks.framework.network.Locator;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -34,17 +40,14 @@ import java.util.List;
 public class UserDesign extends VerticalLayout {
 
     protected Grid userGrid;
+    protected CssLayout user_item1;
 
     public UserDesign() {
         Design.read(this);
-        userGrid.setSizeFull();
         setSizeFull();
         ArrayList<User> users = (ArrayList<User>) getUsers();
-        System.out.println("users.size() = " + users.size());
 
         BeanItemContainer<User> container = new BeanItemContainer<>(User.class, users);
-        System.out.println("container.size() = " + container.size());
-
 
         userGrid.setContainerDataSource(container);
         userGrid.setEditorEnabled(true);
@@ -93,6 +96,36 @@ public class UserDesign extends VerticalLayout {
                 }
             }
         });
+
+        createGraphs(2015);
+    }
+
+    private void createGraphs(int year) {
+        TopGrossingEmployeesChart topGrossingEmployeesChart = new TopGrossingEmployeesChart(year);
+        user_item1.removeAllComponents();
+        user_item1.addComponent(topGrossingEmployeesChart);
+    }
+
+    public class TopGrossingEmployeesChart extends Chart {
+
+        public TopGrossingEmployeesChart(int year) {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("Top Grossing Employees");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(true);
+
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
     }
 
     public List<User> getUsers() {

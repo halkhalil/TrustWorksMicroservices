@@ -27,14 +27,31 @@ public class MenuDesign extends VerticalLayout {
         DashboardDesign dashboardDesign = new DashboardDesign();
         //dashboardDesign.setSizeFull();
 
+        menuButton1.addClickListener((Button.ClickListener) event -> {
+            menuButton1.addStyleName("selected");
+            menuButton2.removeStyleName("selected");
+            menuButton3.removeStyleName("selected");
+
+            DashboardDesign currentDesign = new DashboardDesign();
+            scroll_panel.setContent(currentDesign);
+        });
+
         menuButton2.addClickListener((Button.ClickListener) event -> {
             menuButton2.addStyleName("selected");
             menuButton1.removeStyleName("selected");
             menuButton3.removeStyleName("selected");
 
-            UserDesign userDesign = new UserDesign();
-            userDesign.setSizeFull();
-            scroll_panel.setContent(userDesign);
+            UserPerformanceDesign currentDesign = new UserPerformanceDesign();
+            scroll_panel.setContent(currentDesign);
+        });
+
+        menuButton3.addClickListener((Button.ClickListener) event -> {
+            menuButton3.addStyleName("selected");
+            menuButton1.removeStyleName("selected");
+            menuButton2.removeStyleName("selected");
+
+            UserDesign currentDesign = new UserDesign();
+            scroll_panel.setContent(currentDesign);
         });
 
         scroll_panel.setContent(dashboardDesign);

@@ -83,6 +83,29 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
         return new ArrayList<>();
     }
 
+    public List<Map<String, Object>> findByYearAndUser(int year, String userUUID) {
+        log.debug("TaskWorkerConstraintBudgetRepository.findByYear");
+        log.debug("year = [" + year + "]");
+        log.debug("userUUID = [" + userUUID + "]");
+        try (org.sql2o.Connection con = database.open()) {
+            return getEntitiesFromMapSet(con.createQuery("" +
+                    "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid  " +
+                    "from taskworkerconstraintbudget yt " +
+                    "inner join( " +
+                    "select uuid, month, year, taskworkerconstraintuuid, max(created) created " +
+                    "from taskworkerconstraintbudget WHERE year = :year " +
+                    "group by month, year, taskworkerconstraintuuid " +
+                    ") ss on yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid " +
+                    "INNER JOIN (select * from taskworkerconstraint twc where twc.useruuid LIKE :useruuid) r ON r.uuid = ss.taskworkerconstraintuuid;")
+                    .addParameter("year", year)
+                    .addParameter("useruuid", userUUID)
+                    .executeAndFetchTable().asList());
+        } catch (Exception e) {
+            log.error("LOG00480:", e);
+        }
+        return new ArrayList<>();
+    }
+
     public List<Map<String, Object>> findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(String taskWorkerConstraintUUID, int month, int year, Date datetime) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate");
         log.debug("taskWorkerConstraintUUID = [" + taskWorkerConstraintUUID + "], month = [" + month + "], year = [" + year + "], ldt = [" + datetime + "]");

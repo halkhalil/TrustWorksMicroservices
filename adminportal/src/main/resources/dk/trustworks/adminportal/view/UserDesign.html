@@ -4,8 +4,15 @@
     <meta charset="UTF-8" name="design-properties" content="{&quot;RULERS_VISIBLE&quot;:true,&quot;GUIDELINES_VISIBLE&quot;:false,&quot;SNAP_TO_OBJECTS&quot;:true,&quot;SNAP_TO_GRID&quot;:true,&quot;SNAPPING_DISTANCE&quot;:10,&quot;JAVA_SOURCES_ROOT&quot;:&quot;src&quot;,&quot;THEME&quot;:&quot;usermanagement&quot;}">
 </head>
 <body>
-<vaadin-vertical-layout size-full="true">
-    <vaadin-grid size-full="true" :expand="1.0" _id="userGrid"></vaadin-grid>
-</vaadin-vertical-layout>
+<vaadin-css-layout style-name="root-layout dashboard-view-template-vaadin" responsive="true" width-full="true" _id="root_layout">
+    <vaadin-label style-name="header-label" plain-text="" _id="billing_header_label">
+        General TrustWorks Statistics
+    </vaadin-label>
+    <!--<vaadin-css-layout style-name="dashboard-item" width="100%" height="400px">
+
+    </vaadin-css-layout>-->
+    <vaadin-css-layout style-name="dashboard-item" width="550" height="350px" _id="user_item1"></vaadin-css-layout>
+    <vaadin-grid width="100%" :expand="" _id="userGrid" height="400px"></vaadin-grid>
+</vaadin-css-layout>
 </body>
 </html>

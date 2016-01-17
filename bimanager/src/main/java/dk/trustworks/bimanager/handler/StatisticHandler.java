@@ -44,6 +44,9 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("budgetpermonth");
         addCommand("revenuepermonthbycapacity");
         addCommand("billablehoursperuser");
+        addCommand("billablehoursperuserperday");
+        addCommand("revenuepermonthperuser");
+        addCommand("budgetpermonthperuser");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -73,9 +76,37 @@ public class StatisticHandler extends DefaultHandler {
         }
     }
 
+    public void billablehoursperuserperday(HttpServerExchange exchange, String[] params) {
+        System.out.println("StatisticHandler.billablehoursperuserperday");
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("year = " + year);
+        String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
+        System.out.println("userUUID = " + userUUID);
+        List<Work> allWork = getAllWork(year);
+
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+
+        double billablehoursperday[] = new double[7];
+
+        for (Work work : allWork) {
+            if(!userUUID.equals(work.getUserUUID())) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null || taskWorkerConstraint.getPrice() <= 0) continue;
+            DateTime dateTime = new DateTime(work.getYear(), work.getMonth()+1, work.getDay(), 0, 0);
+            billablehoursperday[dateTime.getDayOfWeek()-1] += work.getWorkDuration();
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("billablehoursperday", billablehoursperday);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void revenuepermonth(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        //int year = 2015;//new DateTime().getYear();
         List<Work> allWork = getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
 
@@ -83,6 +114,32 @@ public class StatisticHandler extends DefaultHandler {
 
         for (Work work : allWork) {
             //if (work.getYear()!=year) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null) continue;
+            revenuepermonth[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("revenuepermonth", revenuepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void revenuepermonthperuser(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("year = " + year);
+        String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
+        System.out.println("userUUID = " + userUUID);
+        List<Work> allWork = getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+
+        double revenuepermonth[] = new double[12];
+
+        for (Work work : allWork) {
+            if(!work.getUserUUID().equals(userUUID)) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
             if(taskWorkerConstraint==null) continue;
             revenuepermonth[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
@@ -128,13 +185,11 @@ public class StatisticHandler extends DefaultHandler {
 
     public void budgetpermonth(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        //int year = 2015; //new DateTime().getYear();
         List<TaskWorkerConstraintBudget> allBudgets = getAllBudgets(year);
 
         double budgetpermonth[] = new double[12];
 
         for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : allBudgets) {
-            //if (taskWorkerConstraintBudget.getYear()!=year) continue;
             budgetpermonth[taskWorkerConstraintBudget.getMonth()] += taskWorkerConstraintBudget.getBudget();
         }
 
@@ -146,6 +201,32 @@ public class StatisticHandler extends DefaultHandler {
             e.printStackTrace();
         }
     }
+
+    public void budgetpermonthperuser(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("year = " + year);
+        String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
+        System.out.println("userUUID = " + userUUID);
+        List<TaskWorkerConstraintBudget> allBudgets = getAllBudgetsByUser(year, userUUID);
+
+        double budgetpermonth[] = new double[12];
+
+        for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : allBudgets) {
+            budgetpermonth[taskWorkerConstraintBudget.getMonth()] += taskWorkerConstraintBudget.getBudget();
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("budgetpermonth", budgetpermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
+
+     */
 
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
@@ -287,6 +368,19 @@ public class StatisticHandler extends DefaultHandler {
         try {
             return cache.get("budgets"+year, () -> {
                 List<TaskWorkerConstraintBudget> registeredBudgetByYear = restClient.getBudgetsByYear(year);
+                return registeredBudgetByYear;
+            });
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<TaskWorkerConstraintBudget> getAllBudgetsByUser(int year, String userUUID) {
+        System.out.println("StatisticHandler.getAllBudgetsByUser");
+        try {
+            return cache.get("budgets"+year+userUUID, () -> {
+                List<TaskWorkerConstraintBudget> registeredBudgetByYear = restClient.getBudgetsByYearAndUser(year, userUUID);
                 return registeredBudgetByYear;
             });
         } catch (ExecutionException e) {
