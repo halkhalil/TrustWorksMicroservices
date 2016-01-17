@@ -1,36 +1,25 @@
 package dk.trustworks.adminportal.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
-import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.annotations.DesignRoot;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.declarative.Design;
-import dk.trustworks.adminportal.domain.AmountPerItem;
+import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.User;
 import dk.trustworks.adminportal.domain.UserStatusEnum;
 import dk.trustworks.framework.network.Locator;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by hans on 03/01/16.
@@ -38,6 +27,7 @@ import java.util.List;
 @DesignRoot
 @Theme("usermanagement")
 public class UserDesign extends VerticalLayout {
+    private final DataAccess dataAccess = new DataAccess();
 
     protected Grid userGrid;
     protected CssLayout user_item1;
@@ -45,7 +35,7 @@ public class UserDesign extends VerticalLayout {
     public UserDesign() {
         Design.read(this);
         setSizeFull();
-        ArrayList<User> users = (ArrayList<User>) getUsers();
+        ArrayList<User> users = (ArrayList<User>) dataAccess.getUsers();
 
         BeanItemContainer<User> container = new BeanItemContainer<>(User.class, users);
 
@@ -109,9 +99,8 @@ public class UserDesign extends VerticalLayout {
     public class TopGrossingEmployeesChart extends Chart {
 
         public TopGrossingEmployeesChart(int year) {
-            setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
-            //setSizeFull();
+            setWidth("100%");
+            setHeight("280px");
 
             setCaption("Top Grossing Employees");
             getConfiguration().setTitle("");
@@ -126,20 +115,5 @@ public class UserDesign extends VerticalLayout {
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
-    }
-
-    public List<User> getUsers() {
-        try {
-            HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
-                    .header("accept", "application/json")
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }
