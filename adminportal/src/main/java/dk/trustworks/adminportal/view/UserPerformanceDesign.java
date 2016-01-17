@@ -79,7 +79,7 @@ public class UserPerformanceDesign extends CssLayout {
 
         year_select.addValueChangeListener((Property.ValueChangeListener) e -> {
             Notification.show("Selected: ",
-                    String.valueOf(((User)e.getProperty().getValue()).getUsername()),
+                    String.valueOf(e.getProperty().getValue()),
                     Notification.Type.TRAY_NOTIFICATION);
             //createGraphs(Integer.parseInt((String)e.getProperty().getValue()));
             createGraphs(Integer.parseInt((String)year_select.getValue()), ((User) user_select.getValue()).getUuid());
