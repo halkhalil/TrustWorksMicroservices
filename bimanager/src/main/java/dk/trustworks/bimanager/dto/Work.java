@@ -1,9 +1,9 @@
 package dk.trustworks.bimanager.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties("created")
+import java.util.Date;
+
 public class Work {
 
     @JsonProperty("uuid")
@@ -24,10 +24,12 @@ public class Work {
     @JsonProperty("taskuuid")
     private String taskUUID;
 
+    private Date created;
+
     public Work() {
     }
 
-    public Work(String UUID, int day, int month, int year, double workDuration, String userUUID, String taskUUID) {
+    public Work(String UUID, int day, int month, int year, double workDuration, String userUUID, String taskUUID, Date created) {
         this.UUID = UUID;
         this.day = day;
         this.month = month;
@@ -35,6 +37,7 @@ public class Work {
         this.workDuration = workDuration;
         this.userUUID = userUUID;
         this.taskUUID = taskUUID;
+        this.created = created;
     }
 
     public String getUUID() {
@@ -104,5 +107,13 @@ public class Work {
                 ", userUUID='" + userUUID + '\'' +
                 ", taskUUID='" + taskUUID + '\'' +
                 '}';
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

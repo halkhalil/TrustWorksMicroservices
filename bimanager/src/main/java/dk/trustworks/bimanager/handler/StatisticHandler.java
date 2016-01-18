@@ -50,6 +50,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("budgetpermonthperuser");
         addCommand("sickdayspermonthperuser");
         addCommand("freedayspermonthperuser");
+        addCommand("workregisterdelay");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -288,7 +289,6 @@ public class StatisticHandler extends DefaultHandler {
         List<AmountPerItem> listOfUsers = new ArrayList<>();
 
         for (Work work : allWork) {
-            //if (!(work.getYear() == 2015)) continue;//new DateTime().getYear())) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
@@ -347,7 +347,6 @@ public class StatisticHandler extends DefaultHandler {
         List<AmountPerItem> listOfProjects = new ArrayList<>();
 
         for (Work work : allWork) {
-            //if (!(work.getYear() == 2015)) continue;//new DateTime().getYear())) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             Project project = findProjectByTask(getAllProjects(), work.getTaskUUID());
@@ -365,6 +364,50 @@ public class StatisticHandler extends DefaultHandler {
 
         try {
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfProjects));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void workregisterdelay(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("year = " + year);
+        List<Work> allWork = getAllWork(year);
+
+        HashMap<String, int[]> listOfDays = new HashMap<>();
+
+        int i = 0;
+        for (Work work : allWork) {
+            if(work.getWorkDuration() > 0) {
+                if(listOfDays.get(work.getUserUUID()) == null) listOfDays.put(work.getUserUUID(), new int[365]);
+                int[] delayPerMonth = listOfDays.get(work.getUserUUID());
+                DateTime workDate = new DateTime(work.getYear(), work.getMonth()+1, work.getDay(), 0, 0);
+                DateTime registeredDate = new DateTime(work.getCreated());
+                if(registeredDate.isBefore(new DateTime(2015, 7, 1, 0 ,0))) continue;
+
+                Period period = new Period(workDate, registeredDate);
+                if(delayPerMonth[i] == 0 || delayPerMonth[i] < period.getDays()) delayPerMonth[i] = period.getDays();
+            }
+        }
+
+        double avgDelay = 0.0;
+        int count = 0;
+        ArrayList<AmountPerItem> amountPerItems = new ArrayList<>();
+
+        Map<String, User> usersMap = getAllUsersMap();
+        for (String userUUID : listOfDays.keySet()) {
+            int[] delayPerDay = listOfDays.get(userUUID);
+            for (int delay : delayPerDay) {
+                if(delay > 0) {
+                    count++;
+                    avgDelay += delay;
+                }
+            }
+            avgDelay = avgDelay / count;
+            amountPerItems.add(new AmountPerItem(userUUID, usersMap.get(userUUID).getFirstname() + " " + usersMap.get(userUUID).getLastname(), avgDelay));
+        }
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(amountPerItems));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -399,10 +442,7 @@ public class StatisticHandler extends DefaultHandler {
         System.out.println("StatisticHandler.getAllWork");
         try {
             return cache.get("work"+year, () -> {
-                Calendar calendar = Calendar.getInstance();
                 List<Work> registeredWorkByYear = restClient.getRegisteredWorkByYear(year);
-                //calendar.add(Calendar.YEAR, -1);
-                //registeredWorkByYear.addAll(restClient.getRegisteredWorkByYear(calendar.get(Calendar.YEAR)));
                 return registeredWorkByYear;
             });
         } catch (ExecutionException e) {

@@ -257,6 +257,21 @@ public class DataAccess implements Serializable {
         }
     }
 
+    public List<AmountPerItem> getWorkRegistrationDelay(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/workregisterdelay")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Kunne ikke loade: AmountPerItem ", e);
+        }
+    }
+
     public double[] getBillableHoursPerUserPerDay(int year, String userUUID) {
         try {
             HttpResponse<JsonNode> jsonResponse;

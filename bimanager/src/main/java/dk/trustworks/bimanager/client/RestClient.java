@@ -107,7 +107,7 @@ public class RestClient {
             log.exit(result);
             return result;
         } catch (UnirestException | IOException e) {
-            log.catching(e);
+            e.printStackTrace();
         }
         log.exit(new ArrayList<>());
         return new ArrayList<>();

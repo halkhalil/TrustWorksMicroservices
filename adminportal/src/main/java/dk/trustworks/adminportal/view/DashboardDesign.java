@@ -41,6 +41,7 @@ public class DashboardDesign extends CssLayout {
 	protected CssLayout dashboard_item27;
     protected CssLayout dashboard_item28;
     protected CssLayout dashboard_item29;
+    protected CssLayout dashboard_item30;
     protected HorizontalLayout sparkline_horizontal;
 
 
@@ -98,13 +99,17 @@ public class DashboardDesign extends CssLayout {
         BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year);
         dashboard_item29.removeAllComponents();
         dashboard_item29.addComponent(billableHoursPerEmployeesChart);
+
+        WorkRegistrationDelayChart workRegistrationDelayChart = new WorkRegistrationDelayChart(year);
+        dashboard_item30.removeAllComponents();
+        dashboard_item30.addComponent(workRegistrationDelayChart);
     }
 
     public class TopGrossingEmployeesChart extends Chart {
 
         public TopGrossingEmployeesChart(int year) {
-            setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
+            setWidth("100%");
+            setHeight("280px");
 
             setCaption("Top Grossing Employees");
             getConfiguration().setTitle("");
@@ -358,6 +363,56 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().addSeries(avgRevenueList);
             getConfiguration().addSeries(series2);
             series2.setyAxis(yaxis);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
+
+    public class WorkRegistrationDelayChart extends Chart {
+
+        public WorkRegistrationDelayChart(int year) {
+            setWidth("100%");
+            setHeight("280px");
+
+            setCaption("Average Work registration delay");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(true);
+
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            List<AmountPerItem> amountPerItemList = dataAccess.getWorkRegistrationDelay(year);
+            double sumRevenue = 0.0;
+            for (AmountPerItem amountPerItem : amountPerItemList) {
+                sumRevenue += amountPerItem.amount;
+            }
+            double avgRevenue = sumRevenue / amountPerItemList.size();
+
+            Collections.sort(amountPerItemList);
+            String[] categories = new String[amountPerItemList.size()];
+            DataSeries revenueList = new DataSeries("Delay");
+            DataSeries avgRevenueList = new DataSeries("Average Delay");
+            PlotOptionsLine options2 = new PlotOptionsLine();
+            options2.setColor(SolidColor.BLACK);
+            options2.setMarker(new Marker(false));
+            avgRevenueList.setPlotOptions(options2);
+
+            int i = 0;
+            for (AmountPerItem amountPerItem : amountPerItemList) {
+                revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
+                avgRevenueList.add(new DataSeriesItem("Average delay", avgRevenue));
+                StringBuilder shortname = new StringBuilder();
+                for (String s : amountPerItem.description.split(" ")) {
+                    shortname.append(s.charAt(0));
+                }
+                categories[i++] = shortname.toString();
+            }
+            getConfiguration().getxAxis().setCategories(categories);
+            getConfiguration().addSeries(revenueList);
+            getConfiguration().addSeries(avgRevenueList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
