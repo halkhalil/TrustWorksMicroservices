@@ -96,24 +96,26 @@ public class Work {
         this.taskUUID = taskUUID;
     }
 
-    @Override
-    public String toString() {
-        return "Work{" +
-                "UUID='" + UUID + '\'' +
-                ", day=" + day +
-                ", month=" + month +
-                ", year=" + year +
-                ", workDuration=" + workDuration +
-                ", userUUID='" + userUUID + '\'' +
-                ", taskUUID='" + taskUUID + '\'' +
-                '}';
-    }
-
     public Date getCreated() {
         return created;
     }
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Work{");
+        sb.append("UUID='").append(UUID).append('\'');
+        sb.append(", day=").append(day);
+        sb.append(", month=").append(month);
+        sb.append(", year=").append(year);
+        sb.append(", workDuration=").append(workDuration);
+        sb.append(", userUUID='").append(userUUID).append('\'');
+        sb.append(", taskUUID='").append(taskUUID).append('\'');
+        sb.append(", created=").append(created);
+        sb.append('}');
+        return sb.toString();
     }
 }

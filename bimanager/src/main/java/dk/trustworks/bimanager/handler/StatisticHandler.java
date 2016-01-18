@@ -386,6 +386,10 @@ public class StatisticHandler extends DefaultHandler {
                 if(registeredDate.isBefore(new DateTime(2015, 7, 1, 0 ,0))) continue;
 
                 Period period = new Period(workDate, registeredDate);
+                if(period.getDays()==2) {
+                    System.out.println("period.getDays() = " + period.getDays());
+                    System.out.println("work = " + work);
+                }
                 if(delayPerMonth[i] == 0 || delayPerMonth[i] < period.getDays()) delayPerMonth[i] = period.getDays();
             }
         }

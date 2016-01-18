@@ -374,7 +374,7 @@ public class DashboardDesign extends CssLayout {
             setWidth("100%");
             setHeight("280px");
 
-            setCaption("Average Work registration delay");
+            setCaption("Average Work registration Kdelay");
             getConfiguration().setTitle("");
             getConfiguration().getChart().setType(ChartType.COLUMN);
             getConfiguration().getChart().setAnimation(true);
