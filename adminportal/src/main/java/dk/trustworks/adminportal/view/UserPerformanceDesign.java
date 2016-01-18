@@ -137,9 +137,10 @@ public class UserPerformanceDesign extends CssLayout {
 
                 for (int i = 0; i < daysPerMonth.length; i++) {
                     sickdaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), daysPerMonth[i]));
-                    categories[i] = Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                    categories[i] = Month.of(i+1).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
                 }
 
+                getConfiguration().getxAxis().setCategories(categories);
                 getConfiguration().addSeries(sickdaysList);
             }
 
@@ -172,9 +173,10 @@ public class UserPerformanceDesign extends CssLayout {
 
                 for (int i = 0; i < daysPerMonth.length; i++) {
                     sickdaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), daysPerMonth[i]));
-                    categories[i] = Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                    categories[i] = Month.of(i+1).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
                 }
 
+                getConfiguration().getxAxis().setCategories(categories);
                 getConfiguration().addSeries(sickdaysList);
             }
 
