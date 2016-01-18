@@ -81,11 +81,8 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     public void billablehoursperuserperday(HttpServerExchange exchange, String[] params) {
-        System.out.println("StatisticHandler.billablehoursperuserperday");
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("year = " + year);
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        System.out.println("userUUID = " + userUUID);
         List<Work> allWork = getAllWork(year);
 
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
@@ -134,9 +131,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenuepermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("year = " + year);
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        System.out.println("userUUID = " + userUUID);
         List<Work> allWork = getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
 
@@ -208,9 +203,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void budgetpermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("year = " + year);
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        System.out.println("userUUID = " + userUUID);
         List<TaskWorkerConstraintBudget> allBudgets = getAllBudgetsByUser(year, userUUID);
 
         double budgetpermonth[] = new double[12];
@@ -230,9 +223,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void sickdayspermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("year = " + year);
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        System.out.println("userUUID = " + userUUID);
         List<Work> allWork = getAllWork(year);
 
         double sickdaysPerMonth[] = new double[12];
@@ -255,9 +246,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void freedayspermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("year = " + year);
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        System.out.println("userUUID = " + userUUID);
         List<Work> allWork = getAllWork(year);
 
         double freedaysPerMonth[] = new double[12];
@@ -280,7 +269,6 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("StatisticHandler.revenueperuser");
         List<Work> allWork = getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
         Map<String, User> userMap = getAllUsersMap();
@@ -309,7 +297,6 @@ public class StatisticHandler extends DefaultHandler {
 
     public void billablehoursperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("StatisticHandler.billablehoursperuser");
         List<Work> allWork = getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
         Map<String, User> userMap = getAllUsersMap();
@@ -338,7 +325,6 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     public void revenueperproject(HttpServerExchange exchange, String[] params) {
-        System.out.println("StatisticHandler.revenueperproject");
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         List<Work> allWork = getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
@@ -371,7 +357,6 @@ public class StatisticHandler extends DefaultHandler {
 
     public void workregisterdelay(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        System.out.println("year = " + year);
         List<Work> allWork = getAllWork(year);
 
         HashMap<String, Map<String, Integer>> listOfDays = new HashMap<>();
@@ -431,7 +416,6 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     private Map<String, User> getAllUsersMap() {
-        System.out.println("StatisticHandler.getAllUsersMap");
         Map<String, User> userMap = new HashMap<>();
         for (User user : restClient.getUsers()) {
             userMap.put(user.getUUID(), user);
@@ -441,7 +425,6 @@ public class StatisticHandler extends DefaultHandler {
 
     @SuppressWarnings("unchecked")
     private List<Work> getAllWork(int year) {
-        System.out.println("StatisticHandler.getAllWork");
         try {
             return cache.get("work"+year, () -> {
                 List<Work> registeredWorkByYear = restClient.getRegisteredWorkByYear(year);
@@ -454,7 +437,6 @@ public class StatisticHandler extends DefaultHandler {
 
     @SuppressWarnings("unchecked")
     private List<TaskWorkerConstraintBudget> getAllBudgets(int year) {
-        System.out.println("StatisticHandler.getAllBudgets");
         try {
             return cache.get("budgets"+year, () -> {
                 List<TaskWorkerConstraintBudget> registeredBudgetByYear = restClient.getBudgetsByYear(year);
@@ -467,7 +449,6 @@ public class StatisticHandler extends DefaultHandler {
 
     @SuppressWarnings("unchecked")
     private List<TaskWorkerConstraintBudget> getAllBudgetsByUser(int year, String userUUID) {
-        System.out.println("StatisticHandler.getAllBudgetsByUser");
         try {
             return cache.get("budgets"+year+userUUID, () -> {
                 List<TaskWorkerConstraintBudget> registeredBudgetByYear = restClient.getBudgetsByYearAndUser(year, userUUID);
@@ -479,15 +460,12 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     private int[] getCapacityPerMonthByYear(int year) {
-        System.out.println("StatisticHandler.getCapacityPerMonthByYear");
-        System.out.println("year = [" + year + "]");
         int[] capacityPerMonth = restClient.getCapacityPerMonthByYear(year);
         return capacityPerMonth;
     }
 
     @SuppressWarnings("unchecked")
     private List<Project> getAllProjects() {
-        System.out.println("StatisticHandler.getAllProjects");
         try {
             return cache.get("projects", restClient::getProjectsAndTasksAndTaskWorkerConstraints);
         } catch (ExecutionException e) {
@@ -497,7 +475,6 @@ public class StatisticHandler extends DefaultHandler {
 
     @SuppressWarnings("unchecked")
     private List<Client> getAllClients() {
-        System.out.println("StatisticHandler.getAllClients");
         try {
             return cache.get("clients", restClient::getClients);
         } catch (ExecutionException e) {
@@ -518,7 +495,6 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     private Project findProjectByTask(List<Project> allProjects, String taskUUID) {
-        System.out.println("StatisticHandler.findProjectByTask");
         for (Project project : allProjects) {
             for (Task task : project.getTasks()) {
                 if(task.getUUID().equals(taskUUID)) return project;
@@ -528,7 +504,6 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     private Project findProjectByUUID(String projectUUID) {
-        System.out.println("StatisticHandler.findProjectByUUID");
         for (Project project : getAllProjects()) {
             if(project.getUUID().equals(projectUUID)) return project;
         }
