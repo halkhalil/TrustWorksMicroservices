@@ -29,7 +29,7 @@ public class StatisticHandler extends DefaultHandler {
     private final StatisticService statisticService;
     private final RestClient restClient = new RestClient();
 
-    Cache<String, List> cache = CacheBuilder.newBuilder()
+    private final Cache<String, List> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(1000).recordStats()
             .build();
@@ -37,6 +37,7 @@ public class StatisticHandler extends DefaultHandler {
     public StatisticHandler() {
         super("statistic");
         this.statisticService = new StatisticService();
+
         addCommand("revenueperday");
         addCommand("revenueperuser");
         addCommand("revenueperproject");
@@ -47,6 +48,8 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("billablehoursperuserperday");
         addCommand("revenuepermonthperuser");
         addCommand("budgetpermonthperuser");
+        addCommand("sickdayspermonthperuser");
+        addCommand("freedayspermonthperuser");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -224,9 +227,55 @@ public class StatisticHandler extends DefaultHandler {
         }
     }
 
-    /*
+    public void sickdayspermonthperuser(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("year = " + year);
+        String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
+        System.out.println("userUUID = " + userUUID);
+        List<Work> allWork = getAllWork(year);
 
-     */
+        double sickdaysPerMonth[] = new double[12];
+
+        for (Work work : allWork) {
+            if(work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("02bf71c5-f588-46cf-9695-5864020eb1c4")) {
+                if(work.getWorkDuration() > 0)
+                    sickdaysPerMonth[work.getMonth()] += 1;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("sickdayspermonth", sickdaysPerMonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void freedayspermonthperuser(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        System.out.println("year = " + year);
+        String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
+        System.out.println("userUUID = " + userUUID);
+        List<Work> allWork = getAllWork(year);
+
+        double freedaysPerMonth[] = new double[12];
+
+        for (Work work : allWork) {
+            if(work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("f585f46f-19c1-4a3a-9ebd-1a4f21007282")) {
+                if(work.getWorkDuration() > 0)
+                    freedaysPerMonth[work.getMonth()] += work.getWorkDuration();
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("freedayspermonth", freedaysPerMonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
@@ -269,7 +318,6 @@ public class StatisticHandler extends DefaultHandler {
         List<AmountPerItem> listOfUsers = new ArrayList<>();
 
         for (Work work : allWork) {
-            //if (!(work.getYear() == 2015)) continue;//new DateTime().getYear())) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             if (taskWorkerConstraint.getPrice() <= 0) continue;

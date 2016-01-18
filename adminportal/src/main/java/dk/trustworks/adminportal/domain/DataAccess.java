@@ -104,7 +104,7 @@ public class DataAccess implements Serializable {
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("revenuepermonth");
-            ArrayList<Long> list = new ArrayList<Long>();
+            ArrayList<Long> list = new ArrayList<>();
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
@@ -112,6 +112,50 @@ public class DataAccess implements Serializable {
                 }
             }
             return list.toArray(new Long[12]);
+        } catch (UnirestException e) {
+            System.err.println(e);
+        }
+        return null;
+    }
+
+    public Double[] getSickDaysPerMonthPerUser(int year, String useruuid) {
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/sickdayspermonthperuser")
+                    .queryString("year", year)
+                    .queryString("useruuid", useruuid)
+                    .header("accept", "application/json")
+                    .asJson();
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("sickdayspermonth");
+            ArrayList<Double> list = new ArrayList<>();
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i = 0; i < len; i++) {
+                    list.add(jsonArray.getDouble(i));
+                }
+            }
+            return list.toArray(new Double[12]);
+        } catch (UnirestException e) {
+            System.err.println(e);
+        }
+        return null;
+    }
+
+    public Double[] getFreeDaysPerMonthPerUser(int year, String useruuid) {
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/freedayspermonthperuser")
+                    .queryString("year", year)
+                    .queryString("useruuid", useruuid)
+                    .header("accept", "application/json")
+                    .asJson();
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("freedayspermonth");
+            ArrayList<Double> list = new ArrayList<>();
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i = 0; i < len; i++) {
+                    list.add(jsonArray.getDouble(i));
+                }
+            }
+            return list.toArray(new Double[12]);
         } catch (UnirestException e) {
             System.err.println(e);
         }

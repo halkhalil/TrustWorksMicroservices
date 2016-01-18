@@ -11,6 +11,7 @@ import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.User;
+import org.joda.time.DateTime;
 
 import java.text.DateFormatSymbols;
 import java.time.DayOfWeek;
@@ -99,11 +100,11 @@ public class UserPerformanceDesign extends CssLayout {
         dashboard_item26.addComponent(billableHoursPerEmployeesChart);
         //dashboard_item26.addComponent(topGrossingProjectsChart);
 
-        //RevenuePerMonthChart revenuePerMonthChart = new RevenuePerMonthChart(year, userUUID);
+        VacationSickChart vacationSickChart = new VacationSickChart(year, userUUID);
         dashboard_item27.removeAllComponents();
-        dashboard_item27.addComponent(revenuePerMonthChart);
+        dashboard_item27.addComponent(vacationSickChart);
 
-        RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart(year);
+        //RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart(year);
         dashboard_item28.removeAllComponents();
         //dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
 
@@ -112,52 +113,46 @@ public class UserPerformanceDesign extends CssLayout {
         //dashboard_item29.addComponent(billableHoursPerEmployeesChart);
     }
 
-    public class TopGrossingEmployeesChart extends Chart {
+    public class VacationSickChart extends Chart {
 
-        public TopGrossingEmployeesChart(int year) {
+        public VacationSickChart(int year, String userUUID) {
             setWidth("100%");
             setHeight("280px");
 
-            setCaption("Top Grossing Employees");
+            setCaption("Vacation and Sick Days");
             getConfiguration().setTitle("");
             getConfiguration().getChart().setType(ChartType.COLUMN);
             getConfiguration().getChart().setAnimation(true);
             getConfiguration().getxAxis().getLabels().setEnabled(true);
 
             getConfiguration().getxAxis().setTickWidth(0);
-            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getyAxis().setTitle("Sick");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> amountPerItemList = dataAccess.getUserRevenue(year);
-            double sumRevenue = 0.0;
-            for (AmountPerItem amountPerItem : amountPerItemList) {
-                sumRevenue += amountPerItem.amount;
-            }
-            double avgRevenue = sumRevenue / amountPerItemList.size();
+            Double[] sickdaysPerMonth = dataAccess.getSickDaysPerMonthPerUser(year, userUUID);
+            DataSeries sickdaysList = new DataSeries("Days sick");
 
-            Collections.sort(amountPerItemList);
-            String[] categories = new String[amountPerItemList.size()];
-            DataSeries revenueList = new DataSeries("Revenue");
-            DataSeries avgRevenueList = new DataSeries("Average Revenue");
-            PlotOptionsLine options2 = new PlotOptionsLine();
-            options2.setColor(SolidColor.BLACK);
-            options2.setMarker(new Marker(false));
-            avgRevenueList.setPlotOptions(options2);
+            Double[] freedaysPerMonth = dataAccess.getFreeDaysPerMonthPerUser(year, userUUID);
+            DataSeries freedaysList = new DataSeries("Days free");
 
-            int i = 0;
-            for (AmountPerItem amountPerItem : amountPerItemList) {
-                revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
-                avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
-                StringBuilder shortname = new StringBuilder();
-                for (String s : amountPerItem.description.split(" ")) {
-                    shortname.append(s.charAt(0));
-                }
-                categories[i++] = shortname.toString();
+            String[] categories = new String[sickdaysPerMonth.length];
+
+            for (int i = 0; i < sickdaysPerMonth.length; i++) {
+                sickdaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), sickdaysPerMonth[i]));
+                freedaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), freedaysPerMonth[i]));
+                categories[i] = Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
             }
-            //revenueList.add(new DataSeriesItem("Remaining projects", sumOfRemainingProjects));
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Vacation");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
             getConfiguration().getxAxis().setCategories(categories);
-            getConfiguration().addSeries(revenueList);
-            getConfiguration().addSeries(avgRevenueList);
+            getConfiguration().addSeries(sickdaysList);
+            getConfiguration().addSeries(freedaysList);
+            freedaysList.setyAxis(yaxis);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
@@ -228,9 +223,25 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled(false);
 
             Long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(year, userUUID);
+
+            double sumRevenue = 0.0;
+            for (Long amountPerItem : revenuePerMonth) {
+                sumRevenue += amountPerItem;
+            }
+            int months = new DateTime(year, 1, 1, 0, 0).getMonthOfYear();
+            if(year != new DateTime().getYear()) months = 12;
+            double avgRevenue = sumRevenue / months;
+
+            DataSeries avgRevenueList = new DataSeries("Average Revenue");
+            PlotOptionsLine options2 = new PlotOptionsLine();
+            options2.setColor(SolidColor.BLACK);
+            options2.setMarker(new Marker(false));
+            avgRevenueList.setPlotOptions(options2);
+
             DataSeries revenueSeries = new DataSeries("Revenue");
             for (int i = 0; i < 12; i++) {
                 revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
+                avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
             }
 
             Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, userUUID);
@@ -241,6 +252,7 @@ public class UserPerformanceDesign extends CssLayout {
 
             getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(budgetSeries);
+            getConfiguration().addSeries(avgRevenueList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }

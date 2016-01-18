@@ -121,7 +121,9 @@ public class DashboardDesign extends CssLayout {
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 sumRevenue += amountPerItem.amount;
             }
-            double avgRevenue = sumRevenue / amountPerItemList.size();
+            int months = new DateTime(year, 1, 1, 0, 0).getMonthOfYear();
+            if(year != new DateTime().getYear()) months = 12;
+            double avgRevenue = sumRevenue / months;
 
             Collections.sort(amountPerItemList);
             String[] categories = new String[amountPerItemList.size()];
