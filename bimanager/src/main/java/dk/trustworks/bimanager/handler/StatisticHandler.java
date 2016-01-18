@@ -264,7 +264,7 @@ public class StatisticHandler extends DefaultHandler {
         for (Work work : allWork) {
             if(work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("f585f46f-19c1-4a3a-9ebd-1a4f21007282")) {
                 if(work.getWorkDuration() > 0)
-                    freedaysPerMonth[work.getMonth()] += work.getWorkDuration();
+                    freedaysPerMonth[work.getMonth()] += 1;
             }
         }
 
