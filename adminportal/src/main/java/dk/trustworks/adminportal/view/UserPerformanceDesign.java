@@ -50,7 +50,6 @@ public class UserPerformanceDesign extends CssLayout {
             intArray[i] = revenuePerDay[i].intValue();
 
         List<User> users = dataAccess.getUsers();
-        createGraphs(Calendar.getInstance().get(Calendar.YEAR), users.get(0).getUuid());
 
         NativeSelect year_select;
         year_select = new NativeSelect("Select year");
@@ -62,97 +61,123 @@ public class UserPerformanceDesign extends CssLayout {
         year_select.addItem(currentYear);
         year_select.setValue(currentYear);
 
-        NativeSelect user_select;
-        user_select = new NativeSelect("Select user");
-        for (User user : users) {
-            user_select.addItem(user);
-            user_select.setItemCaption(user, user.getUsername());
+        TwinColSelect userSelect = new TwinColSelect();
+        for (int i = 0; i < users.size(); i++) {
+            userSelect.addItem(users.get(i));
+            userSelect.setItemCaption(users.get(i), users.get(i).getUsername());
         }
-        user_select.setValue(users.get(0));
+        userSelect.setRows(6);
+        userSelect.setNullSelectionAllowed(true);
+        userSelect.setMultiSelect(true);
+        userSelect.setImmediate(true);
+        userSelect.setLeftColumnCaption("Available employees");
+        userSelect.setRightColumnCaption("Selected employees");
 
+        userSelect.addValueChangeListener(e -> {
+            Notification.show("Users changed",
+                    Notification.Type.TRAY_NOTIFICATION);
+            createGraphs(Integer.parseInt((String)year_select.getValue()), (Set<User>) userSelect.getValue());
+        });
 
         year_select.addValueChangeListener((Property.ValueChangeListener) e -> {
             Notification.show("Selected: ",
                     String.valueOf(e.getProperty().getValue()),
                     Notification.Type.TRAY_NOTIFICATION);
-            //createGraphs(Integer.parseInt((String)e.getProperty().getValue()));
-            createGraphs(Integer.parseInt((String)year_select.getValue()), ((User) user_select.getValue()).getUuid());
+            createGraphs(Integer.parseInt((String)year_select.getValue()), (Set<User>) userSelect.getValue());
         });
         sparkline_horizontal.addComponent(year_select);
-
-        user_select.addValueChangeListener((Property.ValueChangeListener) e -> {
-            Notification.show("Selected: ",
-                    String.valueOf(((User)e.getProperty().getValue()).getUsername()),
-                    Notification.Type.TRAY_NOTIFICATION);
-            createGraphs(Integer.parseInt((String)year_select.getValue()), ((User) user_select.getValue()).getUuid());
-        });
-        sparkline_horizontal.addComponent(user_select);
+        sparkline_horizontal.addComponent(userSelect);
     }
 
-    private void createGraphs(int year, String userUUID) {
-        RevenuePerMonthChart revenuePerMonthChart = new RevenuePerMonthChart(year, userUUID);
+    private void createGraphs(int year, Set<User> users) {
+        RevenuePerMonthChart revenuePerMonthChart = new RevenuePerMonthChart(year, users);
         dashboard_item5.removeAllComponents();
         dashboard_item5.addComponent(revenuePerMonthChart);
         //dashboard_item5.addComponent(topGrossingEmployeesChart);
 
-        BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year, userUUID);
+        BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year, users);
         dashboard_item26.removeAllComponents();
         dashboard_item26.addComponent(billableHoursPerEmployeesChart);
         //dashboard_item26.addComponent(topGrossingProjectsChart);
 
-        VacationSickChart vacationSickChart = new VacationSickChart(year, userUUID);
+        VacationChart vacationSickChart = new VacationChart(year, users);
         dashboard_item27.removeAllComponents();
         dashboard_item27.addComponent(vacationSickChart);
 
-        //RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart(year);
+        SickChart sickChart = new SickChart(year, users);
         dashboard_item28.removeAllComponents();
-        //dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
+        dashboard_item28.addComponent(sickChart);
 
         //BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year, userUUID);
         dashboard_item29.removeAllComponents();
         //dashboard_item29.addComponent(billableHoursPerEmployeesChart);
     }
 
-    public class VacationSickChart extends Chart {
+    public class VacationChart extends Chart {
 
-        public VacationSickChart(int year, String userUUID) {
+        public VacationChart(int year, Set<User> users) {
             setWidth("100%");
             setHeight("280px");
 
-            setCaption("Vacation and Sick Days");
+            setCaption("Vacation Days");
             getConfiguration().setTitle("");
             getConfiguration().getChart().setType(ChartType.COLUMN);
             getConfiguration().getChart().setAnimation(true);
             getConfiguration().getxAxis().getLabels().setEnabled(true);
 
             getConfiguration().getxAxis().setTickWidth(0);
-            getConfiguration().getyAxis().setTitle("Sick");
-            getConfiguration().getLegend().setEnabled(false);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled((users.size()>1?true:false));
 
-            Double[] sickdaysPerMonth = dataAccess.getSickDaysPerMonthPerUser(year, userUUID);
-            DataSeries sickdaysList = new DataSeries("Days sick");
+            for (User user : users) {
+                Double[] daysPerMonth = dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid());
+                DataSeries sickdaysList = new DataSeries(user.getUsername());
 
-            Double[] freedaysPerMonth = dataAccess.getFreeDaysPerMonthPerUser(year, userUUID);
-            DataSeries freedaysList = new DataSeries("Days free");
+                String[] categories = new String[daysPerMonth.length];
 
-            String[] categories = new String[sickdaysPerMonth.length];
+                for (int i = 0; i < daysPerMonth.length; i++) {
+                    sickdaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), daysPerMonth[i]));
+                    categories[i] = Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                }
 
-            for (int i = 0; i < sickdaysPerMonth.length; i++) {
-                sickdaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), sickdaysPerMonth[i]));
-                freedaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), freedaysPerMonth[i]));
-                categories[i] = Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                getConfiguration().addSeries(sickdaysList);
             }
 
-            YAxis yaxis = new YAxis();
-            yaxis.setTitle("Vacation");
-            yaxis.setOpposite(true);
-            yaxis.setMin(0);
-            getConfiguration().addyAxis(yaxis);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
 
-            getConfiguration().getxAxis().setCategories(categories);
-            getConfiguration().addSeries(sickdaysList);
-            getConfiguration().addSeries(freedaysList);
-            freedaysList.setyAxis(yaxis);
+    public class SickChart extends Chart {
+
+        public SickChart(int year, Set<User> users) {
+            setWidth("100%");
+            setHeight("280px");
+
+            setCaption("Sick Days");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(true);
+
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled((users.size()>1?true:false));
+
+            for (User user : users) {
+                Double[] daysPerMonth = dataAccess.getSickDaysPerMonthPerUser(year, user.getUseruuid());
+                DataSeries sickdaysList = new DataSeries(user.getUsername());
+
+                String[] categories = new String[daysPerMonth.length];
+
+                for (int i = 0; i < daysPerMonth.length; i++) {
+                    sickdaysList.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), daysPerMonth[i]));
+                    categories[i] = Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                }
+
+                getConfiguration().addSeries(sickdaysList);
+            }
+
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
@@ -207,52 +232,68 @@ public class UserPerformanceDesign extends CssLayout {
 
     public class RevenuePerMonthChart extends Chart {
 
-        public RevenuePerMonthChart(int year, String userUUID) {
-            setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
-            //setSizeFull();
+        public RevenuePerMonthChart(int year, Set<User> users) {
+            setWidth("100%");
+            setHeight("280px");
 
             setCaption("Revenue and Budget per month");
             getConfiguration().setTitle("");
-            getConfiguration().getChart().setType(ChartType.AREASPLINE);
             getConfiguration().getChart().setAnimation(true);
-            //getConfiguration().getxAxis().getLabels().setEnabled(false);
             getConfiguration().getxAxis().setCategories(new DateFormatSymbols(Locale.ENGLISH).getShortMonths());
             getConfiguration().getxAxis().setTickWidth(0);
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            Long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(year, userUUID);
+            if(users.size() == 1) {
+                getConfiguration().getChart().setType(ChartType.AREASPLINE);
+                User user = (User) users.toArray()[0];
+                Long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(year, user.getUseruuid());
 
-            double sumRevenue = 0.0;
-            for (Long amountPerItem : revenuePerMonth) {
-                sumRevenue += amountPerItem;
+                double sumRevenue = 0.0;
+                for (Long amountPerItem : revenuePerMonth) {
+                    sumRevenue += amountPerItem;
+                }
+                int months = new DateTime(year, 1, 1, 0, 0).getMonthOfYear();
+                if(year != new DateTime().getYear()) months = 12;
+                double avgRevenue = sumRevenue / months;
+
+                DataSeries avgRevenueList = new DataSeries("Average Revenue");
+                PlotOptionsLine options2 = new PlotOptionsLine();
+                options2.setColor(SolidColor.BLACK);
+                options2.setMarker(new Marker(false));
+                avgRevenueList.setPlotOptions(options2);
+
+                DataSeries revenueSeries = new DataSeries("Revenue");
+                for (int i = 0; i < 12; i++) {
+                    revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
+                    avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
+                }
+
+                Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, user.getUuid());
+                DataSeries budgetSeries = new DataSeries("Budget");
+                for (int i = 0; i < 12; i++) {
+                    budgetSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), budgetPerMonth[i]));
+                }
+
+                getConfiguration().addSeries(revenueSeries);
+                getConfiguration().addSeries(budgetSeries);
+                getConfiguration().addSeries(avgRevenueList);
+            } else if (users.size() > 1) {
+                getConfiguration().getChart().setType(ChartType.COLUMN);
+                getConfiguration().getLegend().setEnabled(true);
+                for (User user : users) {
+                    Long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(year, user.getUseruuid());
+
+                    DataSeries revenueSeries = new DataSeries(user.getUsername());
+                    for (int i = 0; i < 12; i++) {
+                        revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
+                    }
+                    getConfiguration().addSeries(revenueSeries);
+                }
+
             }
-            int months = new DateTime(year, 1, 1, 0, 0).getMonthOfYear();
-            if(year != new DateTime().getYear()) months = 12;
-            double avgRevenue = sumRevenue / months;
 
-            DataSeries avgRevenueList = new DataSeries("Average Revenue");
-            PlotOptionsLine options2 = new PlotOptionsLine();
-            options2.setColor(SolidColor.BLACK);
-            options2.setMarker(new Marker(false));
-            avgRevenueList.setPlotOptions(options2);
 
-            DataSeries revenueSeries = new DataSeries("Revenue");
-            for (int i = 0; i < 12; i++) {
-                revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
-                avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
-            }
-
-            Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, userUUID);
-            DataSeries budgetSeries = new DataSeries("Budget");
-            for (int i = 0; i < 12; i++) {
-                budgetSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), budgetPerMonth[i]));
-            }
-
-            getConfiguration().addSeries(revenueSeries);
-            getConfiguration().addSeries(budgetSeries);
-            getConfiguration().addSeries(avgRevenueList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
@@ -267,7 +308,7 @@ public class UserPerformanceDesign extends CssLayout {
 
             setCaption("Revenue per month by Capacity");
             getConfiguration().setTitle("");
-            getConfiguration().getChart().setType(ChartType.AREASPLINE);
+            getConfiguration().getChart().setType(ChartType.SPLINE);
             getConfiguration().getChart().setAnimation(true);
             //getConfiguration().getxAxis().getLabels().setEnabled(false);
             getConfiguration().getxAxis().setCategories(new DateFormatSymbols(Locale.ENGLISH).getShortMonths());
@@ -321,33 +362,36 @@ public class UserPerformanceDesign extends CssLayout {
 
     public class BillableHoursPerEmployeesChart extends Chart {
 
-        public BillableHoursPerEmployeesChart(int year, String userUUID) {
+        public BillableHoursPerEmployeesChart(int year, Set<User> users) {
             setWidth("100%");
             setHeight("280px");
 
             setCaption("Billable Hours per Weekday");
             getConfiguration().setTitle("");
-            getConfiguration().getChart().setType(ChartType.AREASPLINE);
+            getConfiguration().getChart().setType(ChartType.SPLINE);
             getConfiguration().getChart().setAnimation(true);
             getConfiguration().getxAxis().getLabels().setEnabled(true);
 
             getConfiguration().getxAxis().setTickWidth(0);
             getConfiguration().getyAxis().setTitle("");
-            getConfiguration().getLegend().setEnabled(false);
+            getConfiguration().getLegend().setEnabled((users.size()>1?true:false));
 
-            double[] amountPerItemList = dataAccess.getBillableHoursPerUserPerDay(year, userUUID);
+            for (User user : users) {
+                double[] amountPerItemList = dataAccess.getBillableHoursPerUserPerDay(year, user.getUuid());
 
-            DataSeries revenueList = new DataSeries("Hours");
+                DataSeries revenueList = new DataSeries(user.getUsername());
 
-            String[] categories = new String[amountPerItemList.length];
-            int i = 0;
-            for (double amountPerItem : amountPerItemList) {
-                revenueList.add(new DataSeriesItem(DayOfWeek.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), amountPerItem));
-                categories[i] = DayOfWeek.of(i+1).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-                i++;
+                String[] categories = new String[amountPerItemList.length];
+                int i = 0;
+                for (double amountPerItem : amountPerItemList) {
+                    revenueList.add(new DataSeriesItem(DayOfWeek.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), amountPerItem));
+                    categories[i] = DayOfWeek.of(i+1).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+                    i++;
+                }
+                getConfiguration().getxAxis().setCategories(categories);
+                getConfiguration().addSeries(revenueList);
             }
-            getConfiguration().getxAxis().setCategories(categories);
-            getConfiguration().addSeries(revenueList);
+
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
