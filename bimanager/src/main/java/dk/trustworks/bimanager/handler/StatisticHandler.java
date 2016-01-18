@@ -374,23 +374,23 @@ public class StatisticHandler extends DefaultHandler {
         System.out.println("year = " + year);
         List<Work> allWork = getAllWork(year);
 
-        HashMap<String, int[]> listOfDays = new HashMap<>();
+        HashMap<String, Map<String, Integer>> listOfDays = new HashMap<>();
 
         int i = 0;
+        Collections.sort(allWork, (m1, m2) -> m1.getCreated().compareTo(m2.getCreated()));
         for (Work work : allWork) {
             if(work.getWorkDuration() > 0) {
-                if(listOfDays.get(work.getUserUUID()) == null) listOfDays.put(work.getUserUUID(), new int[365]);
-                int[] delayPerMonth = listOfDays.get(work.getUserUUID());
+                if(listOfDays.get(work.getUserUUID()) == null) {
+                    listOfDays.put(work.getUserUUID(), new HashMap<>());
+                }
+                Map<String, Integer> delayPerMonth = listOfDays.get(work.getUserUUID());
                 DateTime workDate = new DateTime(work.getYear(), work.getMonth()+1, work.getDay(), 0, 0);
                 DateTime registeredDate = new DateTime(work.getCreated());
                 if(registeredDate.isBefore(new DateTime(2015, 7, 1, 0 ,0))) continue;
 
                 Period period = new Period(workDate, registeredDate);
-                if(period.getDays()==2) {
-                    System.out.println("period.getDays() = " + period.getDays());
-                    System.out.println("work = " + work);
-                }
-                if(delayPerMonth[i] == 0 || delayPerMonth[i] < period.getDays()) delayPerMonth[i] = period.getDays();
+
+                delayPerMonth.put(work.getYear()+""+ work.getMonth()+1+""+work.getDay(), period.getDays());
             }
         }
 
@@ -400,12 +400,10 @@ public class StatisticHandler extends DefaultHandler {
 
         Map<String, User> usersMap = getAllUsersMap();
         for (String userUUID : listOfDays.keySet()) {
-            int[] delayPerDay = listOfDays.get(userUUID);
-            for (int delay : delayPerDay) {
-                if(delay > 0) {
-                    count++;
-                    avgDelay += delay;
-                }
+            Map<String, Integer> delayPerDay = listOfDays.get(userUUID);
+            for (int delay : delayPerDay.values()) {
+                count++;
+                avgDelay += delay;
             }
             avgDelay = avgDelay / count;
             amountPerItems.add(new AmountPerItem(userUUID, usersMap.get(userUUID).getFirstname() + " " + usersMap.get(userUUID).getLastname(), avgDelay));
