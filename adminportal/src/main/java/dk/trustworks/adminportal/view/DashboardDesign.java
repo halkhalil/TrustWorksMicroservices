@@ -461,9 +461,9 @@ public class DashboardDesign extends CssLayout {
             yaxis.setTitle("");
             yaxis.getTitle().setY(-70);
             yaxis.getLabels().setY(16);
-            Stop stop1 = new Stop(0.1f, SolidColor.GREEN);
+            Stop stop1 = new Stop(0.1f, SolidColor.RED);
             Stop stop2 = new Stop(0.4f, SolidColor.YELLOW);
-            Stop stop3 = new Stop(0.6f, SolidColor.RED);
+            Stop stop3 = new Stop(0.6f, SolidColor.GREEN);
             yaxis.setStops(stop1, stop2, stop3);
 
             PlotOptionsSolidGauge plotOptions = new PlotOptionsSolidGauge();

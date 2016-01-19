@@ -41,7 +41,7 @@ public class UserDesign extends VerticalLayout {
 
         userGrid.setContainerDataSource(container);
         userGrid.setEditorEnabled(true);
-        //userGrid.setEditorBuffered(false);
+        userGrid.setEditorBuffered(false);
         userGrid.setImmediate(true);
         userGrid.removeColumn("password");
         userGrid.removeColumn("firstname");

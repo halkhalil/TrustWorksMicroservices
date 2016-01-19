@@ -186,23 +186,17 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenuerate(HttpServerExchange exchange, String[] params) {
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
-        System.out.println(1);
 
         DateTime today = new DateTime();
         List<Work> allWorkThisYear = getAllWork(today.getYear());
-        System.out.println(2);
         List<Work> allWorkLastYear = getAllWork(today.getYear()-1);
-        System.out.println(3);
+        allWorkThisYear.addAll(allWorkLastYear);
 
         List<Integer> capacityPerMonthThisYear = getCapacityPerMonthByYear(today.getYear());
-        System.out.println(4);
         List<Integer> capacityPerMonthLastYear = getCapacityPerMonthByYear(today.getYear()-1);
-        System.out.println(5);
 
         double revenueLastYearsMonth = 0;
-        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
         int thisMonth = today.getMonthOfYear()-1;
-        System.out.println("thisMonth = " + thisMonth);
 
         for (Work work : allWorkLastYear) {
             if(!(work.getMonth() == thisMonth)) continue;
@@ -210,16 +204,11 @@ public class StatisticHandler extends DefaultHandler {
             if(taskWorkerConstraint==null) continue;
             revenueLastYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
-        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
-        System.out.println("capacityPerMonthLastYear.get(thisMonth) = " + capacityPerMonthLastYear.get(thisMonth));
 
-        //if(capacityPerMonthLastYear.get(thisMonth) == 0) // no nothing;
         if(revenueLastYearsMonth > 0) revenueLastYearsMonth = Math.round((revenueLastYearsMonth / capacityPerMonthLastYear.get(thisMonth)) * 37);
-        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
 
 
         double revenueThisYearsMonth = 0;
-        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
 
         DateTime lastMonthWorkDate = today.minusMonths(1);
         Interval pastMonth = new Interval(lastMonthWorkDate, today);
@@ -231,10 +220,8 @@ public class StatisticHandler extends DefaultHandler {
             if(taskWorkerConstraint==null) continue;
             revenueThisYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
-        System.out.println("revenueThisYearsMonth = " + revenueThisYearsMonth);
 
         if(revenueThisYearsMonth > 0) revenueThisYearsMonth = Math.round((revenueThisYearsMonth / capacityPerMonthThisYear.get(thisMonth)) * 37);
-        System.out.println("revenueThisYearsMonth = " + revenueThisYearsMonth);
 
         double percent = (100.0 / revenueLastYearsMonth) * revenueThisYearsMonth;
 
