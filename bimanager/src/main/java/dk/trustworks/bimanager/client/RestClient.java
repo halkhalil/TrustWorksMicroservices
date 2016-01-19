@@ -113,7 +113,7 @@ public class RestClient {
         return new ArrayList<>();
     }
 
-    public int[] getCapacityPerMonthByYear(int year) {
+    public Integer[] getCapacityPerMonthByYear(int year) {
         log.entry(year);
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/capacitypermonth")
@@ -121,8 +121,7 @@ public class RestClient {
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonth");
-            ArrayList<Integer> list = new ArrayList<>();
-            int[] result = new int[12];
+            Integer[] result = new Integer[12];
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i=0;i<len;i++){
@@ -135,7 +134,7 @@ public class RestClient {
             log.catching(e);
         }
         log.exit(new int[12]);
-        return new int[12];
+        return new Integer[12];
     }
 
     public List<Work> getRegisteredWorkByUserAndYear(String userUUID, int year) {

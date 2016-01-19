@@ -308,4 +308,17 @@ public class DataAccess implements Serializable {
         }
         return null;
     }
+
+    public double getRevenueRate() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenuerate")
+                    .header("accept", "application/json")
+                    .asJson();
+            return jsonResponse.getBody().getObject().getDouble("revenuerate");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
 }

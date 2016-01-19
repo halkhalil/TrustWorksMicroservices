@@ -17,6 +17,7 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -51,6 +52,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("sickdayspermonthperuser");
         addCommand("freedayspermonthperuser");
         addCommand("workregisterdelay");
+        addCommand("revenuerate");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -157,7 +159,7 @@ public class StatisticHandler extends DefaultHandler {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         List<Work> allWork = getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
-        int[] capacityPerMonth = getCapacityPerMonthByYear(year);
+        List<Integer> capacityPerMonth = getCapacityPerMonthByYear(year);
         int revenuepermonth[] = new int[12];
 
         for (Work work : allWork) {
@@ -168,13 +170,76 @@ public class StatisticHandler extends DefaultHandler {
         }
 
         for (int i = 0; i < 12; i++) {
-            if(capacityPerMonth[i] == 0) continue;
+            if(capacityPerMonth.get(i) == 0) continue;
             if(revenuepermonth[i] == 0) continue;
-            revenuepermonth[i] = Math.round((revenuepermonth[i] / capacityPerMonth[i]) * 37);
+            revenuepermonth[i] = Math.round((revenuepermonth[i] / capacityPerMonth.get(i)) * 37);
         }
 
         Map<String, Object> result = new HashMap<>();
         result.put("revenuepermonthbycapacity", revenuepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void revenuerate(HttpServerExchange exchange, String[] params) {
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        System.out.println(1);
+
+        DateTime today = new DateTime();
+        List<Work> allWorkThisYear = getAllWork(today.getYear());
+        System.out.println(2);
+        List<Work> allWorkLastYear = getAllWork(today.getYear()-1);
+        System.out.println(3);
+
+        List<Integer> capacityPerMonthThisYear = getCapacityPerMonthByYear(today.getYear());
+        System.out.println(4);
+        List<Integer> capacityPerMonthLastYear = getCapacityPerMonthByYear(today.getYear()-1);
+        System.out.println(5);
+
+        double revenueLastYearsMonth = 0;
+        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
+        int thisMonth = today.getMonthOfYear()-1;
+        System.out.println("thisMonth = " + thisMonth);
+
+        for (Work work : allWorkLastYear) {
+            if(!(work.getMonth() == thisMonth)) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null) continue;
+            revenueLastYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+        }
+        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
+        System.out.println("capacityPerMonthLastYear.get(thisMonth) = " + capacityPerMonthLastYear.get(thisMonth));
+
+        //if(capacityPerMonthLastYear.get(thisMonth) == 0) // no nothing;
+        if(revenueLastYearsMonth > 0) revenueLastYearsMonth = Math.round((revenueLastYearsMonth / capacityPerMonthLastYear.get(thisMonth)) * 37);
+        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
+
+
+        double revenueThisYearsMonth = 0;
+        System.out.println("revenueLastYearsMonth = " + revenueLastYearsMonth);
+
+        DateTime lastMonthWorkDate = today.minusMonths(1);
+        Interval pastMonth = new Interval(lastMonthWorkDate, today);
+
+        for (Work work : allWorkThisYear) {
+            DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 0, 0);
+            if(!pastMonth.contains(workDate)) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null) continue;
+            revenueThisYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+        }
+        System.out.println("revenueThisYearsMonth = " + revenueThisYearsMonth);
+
+        if(revenueThisYearsMonth > 0) revenueThisYearsMonth = Math.round((revenueThisYearsMonth / capacityPerMonthThisYear.get(thisMonth)) * 37);
+        System.out.println("revenueThisYearsMonth = " + revenueThisYearsMonth);
+
+        double percent = (100.0 / revenueLastYearsMonth) * revenueThisYearsMonth;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("revenuerate", percent);
         try {
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
         } catch (JsonProcessingException e) {
@@ -459,9 +524,12 @@ public class StatisticHandler extends DefaultHandler {
         }
     }
 
-    private int[] getCapacityPerMonthByYear(int year) {
-        int[] capacityPerMonth = restClient.getCapacityPerMonthByYear(year);
-        return capacityPerMonth;
+    private List<Integer> getCapacityPerMonthByYear(int year) {
+        //try { //cache.get("capacitypermonth"+year, (Callable<? extends List>)
+            return new ArrayList<>(Arrays.asList(restClient.getCapacityPerMonthByYear(year)));
+        //} catch (ExecutionException e) {
+          //  throw new RuntimeException(e.getCause());
+        //}
     }
 
     @SuppressWarnings("unchecked")
