@@ -255,7 +255,7 @@ public class UserPerformanceDesign extends CssLayout {
                 for (Long amountPerItem : revenuePerMonth) {
                     sumRevenue += amountPerItem;
                 }
-                int months = new DateTime(year, 1, 1, 0, 0).getMonthOfYear();
+                double months = new DateTime().getMonthOfYear();
                 if(year != new DateTime().getYear()) months = 12;
                 double avgRevenue = sumRevenue / months;
 

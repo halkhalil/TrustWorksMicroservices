@@ -454,7 +454,7 @@ public class DashboardDesign extends CssLayout {
 
             YAxis yaxis = getConfiguration().getyAxis();
             yaxis.setLineWidth(0);
-            yaxis.setTickInterval(200);
+            yaxis.setTickInterval(100);
             yaxis.setTickWidth(0);
             yaxis.setMin(0);
             yaxis.setMax(200);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 import dk.trustworks.bimanager.client.RestClient;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.bimanager.service.StatisticService;
@@ -190,7 +191,9 @@ public class StatisticHandler extends DefaultHandler {
         DateTime today = new DateTime();
         List<Work> allWorkThisYear = getAllWork(today.getYear());
         List<Work> allWorkLastYear = getAllWork(today.getYear()-1);
-        allWorkThisYear.addAll(allWorkLastYear);
+        List<Work> allWork = new ArrayList<>();
+        allWork.addAll(allWorkThisYear);
+        allWork.addAll(allWorkLastYear);
 
         List<Integer> capacityPerMonthThisYear = getCapacityPerMonthByYear(today.getYear());
         List<Integer> capacityPerMonthLastYear = getCapacityPerMonthByYear(today.getYear()-1);
@@ -213,7 +216,7 @@ public class StatisticHandler extends DefaultHandler {
         DateTime lastMonthWorkDate = today.minusMonths(1);
         Interval pastMonth = new Interval(lastMonthWorkDate, today);
 
-        for (Work work : allWorkThisYear) {
+        for (Work work : allWork) {
             DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 0, 0);
             if(!pastMonth.contains(workDate)) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
@@ -478,10 +481,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<Work> getAllWork(int year) {
         try {
-            return cache.get("work"+year, () -> {
-                List<Work> registeredWorkByYear = restClient.getRegisteredWorkByYear(year);
-                return registeredWorkByYear;
-            });
+            return cache.get("work"+year, () -> restClient.getRegisteredWorkByYear(year));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
@@ -490,10 +490,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<TaskWorkerConstraintBudget> getAllBudgets(int year) {
         try {
-            return cache.get("budgets"+year, () -> {
-                List<TaskWorkerConstraintBudget> registeredBudgetByYear = restClient.getBudgetsByYear(year);
-                return registeredBudgetByYear;
-            });
+            return cache.get("budgets"+year, () -> restClient.getBudgetsByYear(year));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
@@ -502,10 +499,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<TaskWorkerConstraintBudget> getAllBudgetsByUser(int year, String userUUID) {
         try {
-            return cache.get("budgets"+year+userUUID, () -> {
-                List<TaskWorkerConstraintBudget> registeredBudgetByYear = restClient.getBudgetsByYearAndUser(year, userUUID);
-                return registeredBudgetByYear;
-            });
+            return cache.get("budgets"+year+userUUID, () -> restClient.getBudgetsByYearAndUser(year, userUUID));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }

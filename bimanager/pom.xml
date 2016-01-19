@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
+            <version>19.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
@@ -63,12 +63,6 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -245,7 +239,7 @@
                     <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                     <noServer>true</noServer>
                     <port>8080</port>
-                    <soyc>false</soyc>
+                    <!--<soyc>false</soyc>-->
                 </configuration>
                 <executions>
                     <execution>
