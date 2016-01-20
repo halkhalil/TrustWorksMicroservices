@@ -6,6 +6,7 @@
         <setting name="additionalCompilerParameters" value="-Xss1024k" />
         <setting name="compilerMaxHeapSize" value="512" />
         <setting name="gwtScriptOutputStyle" value="OBF" />
+        <setting name="gwtSdkUrl" value="file://" />
       </configuration>
     </facet>
   </component>

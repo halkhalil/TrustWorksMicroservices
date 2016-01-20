@@ -44,6 +44,7 @@ public class DashboardDesign extends CssLayout {
     protected CssLayout dashboard_item29;
     protected CssLayout dashboard_item30;
     protected CssLayout dashboard_item31;
+    protected CssLayout dashboard_item32;
     protected HorizontalLayout sparkline_horizontal;
 
 
@@ -109,6 +110,10 @@ public class DashboardDesign extends CssLayout {
         RevenueRateChart revenueRateChart = new RevenueRateChart(year);
         dashboard_item31.removeAllComponents();
         dashboard_item31.addComponent(revenueRateChart);
+
+        ProjectDetailChart projectDetailChart = new ProjectDetailChart();
+        dashboard_item32.removeAllComponents();
+        dashboard_item32.addComponent(projectDetailChart);
     }
 
     public class TopGrossingEmployeesChart extends Chart {
@@ -485,4 +490,71 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().setCredits(c);
         }
     }
+
+    public class ProjectDetailChart extends Chart {
+
+        public ProjectDetailChart() {
+            setWidth("100%");
+            setHeight("280px");
+
+            setCaption("Project Detail");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+
+            //getConfiguration().getChart().setId("chart");
+
+            getConfiguration().setTitle("Browser market share, April, 2011");
+            getConfiguration().setSubTitle("Click the columns to view versions. Click again to view brands.");
+            getConfiguration().getLegend().setEnabled(false);
+
+            XAxis x = new XAxis();
+            x.setType(AxisType.CATEGORY);
+            getConfiguration().addxAxis(x);
+
+            YAxis y = new YAxis();
+            y.setTitle("Revenue");
+            getConfiguration().addyAxis(y);
+
+            PlotOptionsColumn column = new PlotOptionsColumn();
+            column.setCursor(Cursor.POINTER);
+            column.setDataLabels(new Labels(true));
+            column.getDataLabels().setFormatter("this.y +'kkr'");
+
+            getConfiguration().setPlotOptions(column);
+
+            Tooltip tooltip = new Tooltip();
+            tooltip.setHeaderFormat("<span style=\"font-size:11px\">{series.name}</span><br>");
+            tooltip.setPointFormat("<span style=\"color:{point.color}\">{point.name}</span>: <b>{point.y:.2f}</b><br/>");
+            getConfiguration().setTooltip(tooltip);
+
+
+            DataSeries series = new DataSeries();
+            series.setName("Project Revenue");
+            PlotOptionsColumn plotOptionsColumn = new PlotOptionsColumn();
+            plotOptionsColumn.setColorByPoint(true);
+            series.setPlotOptions(plotOptionsColumn);
+
+            for (AmountPerItem projectRevenue : dataAccess.getProjectRevenue(2015)) {
+                DataSeriesItem item = new DataSeriesItem(projectRevenue.description, projectRevenue.amount);
+                DataSeries drillSeries = new DataSeries(projectRevenue.description);
+                PlotOptionsColumn plotOptions = new PlotOptionsColumn();
+                plotOptions.setStacking(Stacking.NORMAL);
+                //drillSeries.getConfiguration().setPlotOptions(plotOptions);
+                drillSeries.setId(projectRevenue.description);
+                String[] categories = new String[] { "Task 1", "Task 2",
+                        "Task 3", "Task 4" };
+                Number[] ys = new Number[] { 10.85, 7.35, 33.06, 2.81 };
+                // TODO: FINISH DRILLSERIES
+                //drillSeries.(ys);
+
+                series.addItemWithDrilldown(item, drillSeries);
+            }
+            getConfiguration().addSeries(series);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
+
+    /*
+
+     */
 }
