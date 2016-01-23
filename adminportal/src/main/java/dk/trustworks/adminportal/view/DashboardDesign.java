@@ -502,8 +502,8 @@ public class DashboardDesign extends CssLayout {
 
             //getConfiguration().getChart().setId("chart");
 
-            getConfiguration().setTitle("Browser market share, April, 2011");
-            getConfiguration().setSubTitle("Click the columns to view versions. Click again to view brands.");
+            getConfiguration().setTitle("IKKE FÆRDIG");
+            getConfiguration().setSubTitle("WORK IN PROGRESS - NOTHING TO SEE HERE...");
             getConfiguration().getLegend().setEnabled(false);
 
             XAxis x = new XAxis();

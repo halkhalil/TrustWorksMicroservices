@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Cellar</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+<div class="header">
+    <input type="text" id="searchKey"/>
+    <button id="btnSearch">Search</button>
+    <button id="btnAdd">New Wine</button>
+</div>
+
+
+<div class="leftArea">
+    <ul id="wineList"></ul>
+</div>
+
+<form id="wineForm">
+
+    <div class="mainArea">
+
+        <label>UUID:</label>
+        <input id="wineId" name="id" type="text" disabled />
+
+        <label>Beskrivelse:</label>
+        <input type="text" id="description" name="description" required>
+
+        <label>Type:</label>
+        <select id="type" name="type">
+            <option value="EXPENSE">Expense</option>
+            <option value="SALERY">Salery</option>
+        </select>
+
+        <label>Month:</label>
+        <input type="text" id="month" name="month"/>
+
+        <label>Year:</label>
+        <input type="text" id="year" name="year"/>
+
+        <label>Expense:</label>
+        <input type="text" id="expense" name="expense"/>
+
+        <button id="btnSave">Save</button>
+        <button id="btnDelete">Delete</button>
+
+    </div>
+
+    <div class="rightArea">
+
+        <img id="pic" height="300"/>
+
+        <label>Notes:</label>
+        <textarea id="description" name="description"></textarea>
+    </div>
+
+</form>
+
+<script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>

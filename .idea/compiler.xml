@@ -86,17 +86,33 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
       </profile>
+      <profile default="false" name="Annotation profile for userservice" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="userservice" />
+      </profile>
+      <profile default="false" name="Annotation profile for financemanager" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="financemanager" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="adminportal" target="1.8" />
       <module name="bimanager" target="1.8" />
       <module name="clientmanager" target="1.8" />
       <module name="cronmanager" target="1.8" />
+      <module name="financemanager" target="1.8" />
       <module name="invoicemanager" target="1.8" />
       <module name="servicemanager" target="1.8" />
       <module name="timemanager" target="1.8" />
       <module name="trustworks-framework" target="1.8" />
       <module name="usermanager" target="1.8" />
+      <module name="userservice" target="1.8" />
       <module name="webadmin" target="1.8" />
     </bytecodeTargetLevel>
   </component>

@@ -20,6 +20,7 @@ public class MenuDesign extends VerticalLayout {
     protected NativeButton menuButton1;
     protected NativeButton menuButton2;
     protected NativeButton menuButton3;
+    protected NativeButton menuButton4;
     protected Panel scroll_panel;
 
     public MenuDesign() {
@@ -31,6 +32,7 @@ public class MenuDesign extends VerticalLayout {
             menuButton1.addStyleName("selected");
             menuButton2.removeStyleName("selected");
             menuButton3.removeStyleName("selected");
+            menuButton4.removeStyleName("selected");
 
             DashboardDesign currentDesign = new DashboardDesign();
             scroll_panel.setContent(currentDesign);
@@ -40,6 +42,7 @@ public class MenuDesign extends VerticalLayout {
             menuButton2.addStyleName("selected");
             menuButton1.removeStyleName("selected");
             menuButton3.removeStyleName("selected");
+            menuButton4.removeStyleName("selected");
 
             UserPerformanceDesign currentDesign = new UserPerformanceDesign();
             scroll_panel.setContent(currentDesign);
@@ -49,8 +52,19 @@ public class MenuDesign extends VerticalLayout {
             menuButton3.addStyleName("selected");
             menuButton1.removeStyleName("selected");
             menuButton2.removeStyleName("selected");
+            menuButton4.removeStyleName("selected");
 
             UserDesign currentDesign = new UserDesign();
+            scroll_panel.setContent(currentDesign);
+        });
+
+        menuButton4.addClickListener((Button.ClickListener) event -> {
+            menuButton4.addStyleName("selected");
+            menuButton1.removeStyleName("selected");
+            menuButton2.removeStyleName("selected");
+            menuButton3.removeStyleName("selected");
+
+            ExpenseView currentDesign = new ExpenseView();
             scroll_panel.setContent(currentDesign);
         });
 

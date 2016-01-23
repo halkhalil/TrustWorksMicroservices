@@ -309,6 +309,33 @@ public class DataAccess implements Serializable {
         return null;
     }
 
+    public List<Expense> getExpenses() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/expenses")
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void postExpense(Expense expense) {
+        try {
+            Unirest.post(Locator.getInstance().resolveURL("financeservice") + "/expenses")
+                    .header("Content-Type", "application/json")
+                    .header("accept", "application/json")
+                    .body(new ObjectMapper().writeValueAsString(expense))
+                    .asJson();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public double getRevenueRate() {
         try {
             HttpResponse<JsonNode> jsonResponse;
