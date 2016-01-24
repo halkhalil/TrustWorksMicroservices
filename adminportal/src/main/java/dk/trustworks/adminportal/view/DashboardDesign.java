@@ -12,6 +12,7 @@ import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.component.SparklineChart;
 import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.adminportal.domain.DataAccess;
+import dk.trustworks.adminportal.domain.Expense;
 import org.joda.time.DateTime;
 
 import java.text.DateFormatSymbols;
@@ -273,20 +274,30 @@ public class DashboardDesign extends CssLayout {
                 sumRevenue += amountPerItem;
             }
             double avgRevenue = sumRevenue / revenuePerMonth.length;
+
             DataSeries avgRevenueList = new DataSeries("Average Revenue");
             PlotOptionsLine options2 = new PlotOptionsLine();
-            options2.setColor(SolidColor.BLACK);
+            options2.setColor(SolidColor.DARKBLUE);
             options2.setMarker(new Marker(false));
             avgRevenueList.setPlotOptions(options2);
+
+            Long[] allExpenses = dataAccess.getExpensesByCapacityByYear(year);
+
+            DataSeries expensesList = new DataSeries("Expenses");
+            PlotOptionsAreaSpline options3 = new PlotOptionsAreaSpline();
+            options3.setColor(SolidColor.RED);
+            options3.setMarker(new Marker(false));
+            expensesList.setPlotOptions(options3);
 
             DataSeries revenueSeries = new DataSeries("Revenue");
             for (int i = 0; i < 12; i++) {
                 revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
-                avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
+                avgRevenueList.add(new DataSeriesItem("Average revenue for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), avgRevenue));
+                expensesList.add(new DataSeriesItem("Expense for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i]));
             }
 
             int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
-            ListSeries series2 = new ListSeries("Capacity");
+            ListSeries capacityList = new ListSeries("Capacity");
 
             YAxis yaxis = new YAxis();
             yaxis.setTitle("Capacity");
@@ -294,18 +305,20 @@ public class DashboardDesign extends CssLayout {
             yaxis.setMin(0);
             getConfiguration().addyAxis(yaxis);
 
-            PlotOptionsLine options3 = new PlotOptionsLine();
-            options3.setColor(SolidColor.RED);
-            series2.setPlotOptions(options3);
+            PlotOptionsLine options4 = new PlotOptionsLine();
+            options4.setColor(SolidColor.GRAY);
+            options4.setMarker(new Marker(false));
+            capacityList.setPlotOptions(options4);
 
             for (int i = 0; i < 12; i++) {
-                series2.addData(capacityPerMonthByYear[i]/37.0f);
+                capacityList.addData(capacityPerMonthByYear[i]/37.0f);
             }
 
             getConfiguration().addSeries(revenueSeries);
-            getConfiguration().addSeries(series2);
+            getConfiguration().addSeries(expensesList);
+            getConfiguration().addSeries(capacityList);
             getConfiguration().addSeries(avgRevenueList);
-            series2.setyAxis(yaxis);
+            capacityList.setyAxis(yaxis);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }

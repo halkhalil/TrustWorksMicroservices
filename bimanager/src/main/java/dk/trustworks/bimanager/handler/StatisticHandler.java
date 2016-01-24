@@ -1,13 +1,18 @@
 package dk.trustworks.bimanager.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
 import dk.trustworks.bimanager.client.RestClient;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.bimanager.service.StatisticService;
+import dk.trustworks.framework.network.Locator;
 import dk.trustworks.framework.server.DefaultHandler;
 import dk.trustworks.framework.service.DefaultLocalService;
 import io.undertow.server.HttpServerExchange;
@@ -54,6 +59,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("freedayspermonthperuser");
         addCommand("workregisterdelay");
         addCommand("revenuerate");
+        addCommand("expensepermonthbycapacity");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -178,6 +184,31 @@ public class StatisticHandler extends DefaultHandler {
 
         Map<String, Object> result = new HashMap<>();
         result.put("revenuepermonthbycapacity", revenuepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void expensepermonthbycapacity(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        List<Expense> allExpensesByYear = getAllExpensesByYear(year);
+        List<Integer> capacityPerMonth = getCapacityPerMonthByYear(year);
+        long expensepermonth[] = new long[12];
+
+        for (Expense expense : allExpensesByYear) {
+            expensepermonth[expense.getMonth()] += expense.getExpense();
+        }
+
+        for (int i = 0; i < 12; i++) {
+            if(capacityPerMonth.get(i) == 0) continue;
+            if(expensepermonth[i] == 0) continue;
+            expensepermonth[i] = Math.round(expensepermonth[i] / (capacityPerMonth.get(i) / 37.0));
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("expensepermonthbycapacity", expensepermonth);
         try {
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
         } catch (JsonProcessingException e) {
@@ -526,6 +557,15 @@ public class StatisticHandler extends DefaultHandler {
     private List<Client> getAllClients() {
         try {
             return cache.get("clients", restClient::getClients);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Expense> getAllExpensesByYear(int year) {
+        try {
+            return cache.get("expenses"+year, () -> restClient.getExpensesByYear(year));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }

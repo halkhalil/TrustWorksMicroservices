@@ -1,4 +1,4 @@
-package dk.trustworks.adminportal.domain;
+package dk.trustworks.bimanager.dto;
 
 import java.util.UUID;
 

@@ -504,4 +504,35 @@ public class RestClient {
             throw new RuntimeException("Kunne ikke skrive: taskWorkerConstraintBudget " + taskWorkerConstraintBudget, e);
         }
     }
+
+    public List<Expense> getExpenses() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/expenses")
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Expense> getExpensesByYear(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/expenses/search/findByYear")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

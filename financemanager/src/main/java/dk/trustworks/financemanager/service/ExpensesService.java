@@ -51,6 +51,20 @@ public class ExpensesService {
         return new Expense();
     }
 
+    @GET
+    @Path("/search/findByYear")
+    public List<Expense> findByYear(int year) {
+        try (Connection con = sql2o.open()) {
+            List<Expense> expenses = con.createQuery("SELECT * FROM expenses WHERE year = :year")
+                    .addParameter("year", year)
+                    .executeAndFetch(Expense.class);
+            return expenses;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
     @POST
     @Consumes("application/json")
     public void create(@Body Expense expense) {
