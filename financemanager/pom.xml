@@ -9,6 +9,9 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <name>financemanager</name>
+    <description>TrustWorks FinanceManager Microservice</description>
+
     <dependencies>
         <dependency>
             <groupId>org.jooby</groupId>
