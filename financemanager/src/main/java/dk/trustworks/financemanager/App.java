@@ -26,7 +26,7 @@ public class App extends Jooby {
 
     {
         try {
-            registerInZookeeper("localhost", 9098);
+            registerInZookeeper("172.31.46.235", 9098);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,12 +54,13 @@ public class App extends Jooby {
     }
 
     private static void registerInZookeeper(String zooHost, int port) throws Exception {
+        //zooHost = "172.31.46.235";
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();
 
         ServiceInstance serviceInstance = ServiceInstance.builder()
                 .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
+                .address("172.31.47.37")
                 .port(port)
                 .name("financeservice")
                 .build();
