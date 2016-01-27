@@ -528,8 +528,7 @@ public class RestClient {
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {
-            });
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {});
         } catch (Exception e) {
             e.printStackTrace();
         }

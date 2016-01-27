@@ -9,6 +9,7 @@ import org.sql2o.Sql2o;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -53,10 +54,10 @@ public class ExpensesService {
 
     @GET
     @Path("/search/findByYear")
-    public List<Expense> findByYear(int year) {
+    public List<Expense> findByYear(Optional<Integer> year) {
         try (Connection con = sql2o.open()) {
             List<Expense> expenses = con.createQuery("SELECT * FROM expenses WHERE year = :year")
-                    .addParameter("year", year)
+                    .addParameter("year", year.orElse(2015))
                     .executeAndFetch(Expense.class);
             return expenses;
         } catch (Exception e) {
