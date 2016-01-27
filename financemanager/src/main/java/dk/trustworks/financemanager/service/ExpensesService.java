@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Created by hans on 21/01/16.
  */
-@Path("/api/expenses")
+@Path("api/expenses")
 public class ExpensesService {
 
     private final Sql2o sql2o;
