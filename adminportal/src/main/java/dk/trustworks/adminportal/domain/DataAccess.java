@@ -333,7 +333,7 @@ public class DataAccess implements Serializable {
     public List<Expense> getExpenses() {
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/expenses")
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -347,7 +347,7 @@ public class DataAccess implements Serializable {
 
     public void postExpense(Expense expense) {
         try {
-            Unirest.post(Locator.getInstance().resolveURL("financeservice") + "/expenses")
+            Unirest.post(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("Content-Type", "application/json")
                     .header("accept", "application/json")
                     .body(new ObjectMapper().writeValueAsString(expense))
