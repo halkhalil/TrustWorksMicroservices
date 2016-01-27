@@ -508,7 +508,7 @@ public class RestClient {
     public List<Expense> getExpenses() {
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/expenses")
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -523,7 +523,7 @@ public class RestClient {
     public List<Expense> getExpensesByYear(int year) {
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/expenses/search/findByYear")
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses/search/findByYear")
                     .queryString("year", year)
                     .header("accept", "application/json")
                     .asJson();
