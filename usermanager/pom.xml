@@ -240,7 +240,6 @@
                             <mainClass>dk.trustworks.usermanager.UserApplication</mainClass>
                         </manifest>
                     </archive>
-
                 </configuration>
                 <executions>
                     <execution>

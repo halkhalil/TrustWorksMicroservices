@@ -4,6 +4,7 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.typesafe.config.Config;
 import dk.trustworks.financemanager.service.ExpensesService;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -17,16 +18,25 @@ import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.swagger.SwaggerUI;
 
-import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Created by hans on 20/01/16.
  */
 public class App extends Jooby {
 
+    private Config config;
+
     {
         try {
-            registerInZookeeper("172.31.46.235", 9098);
+            Properties properties = new Properties();
+            try (InputStream in = new FileInputStream("server.properties")) {
+                properties.load(in);
+            }
+            System.out.println("properties.getProperty(\"zookeeper.host\") = " + properties.getProperty("zookeeper.host"));
+            registerInZookeeper(properties.getProperty("zookeeper.host"), Integer.parseInt(properties.getProperty("zookeeper.port")));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,17 +60,16 @@ public class App extends Jooby {
     }
 
     public static void main(final String[] args) throws Exception {
-        new App().start(args); // 3. start the application.
+        new App().start();
     }
 
     private static void registerInZookeeper(String zooHost, int port) throws Exception {
-        //zooHost = "172.31.46.235";
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();
 
         ServiceInstance serviceInstance = ServiceInstance.builder()
                 .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("172.31.47.37")
+                .address("localhost")
                 .port(port)
                 .name("financeservice")
                 .build();
@@ -72,5 +81,4 @@ public class App extends Jooby {
                 .build()
                 .start();
     }
-
 }
