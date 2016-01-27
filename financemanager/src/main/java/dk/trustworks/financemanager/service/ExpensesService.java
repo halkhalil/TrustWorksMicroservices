@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Created by hans on 21/01/16.
  */
-@Path("api/expenses")
+@Path("/api/expenses")
 public class ExpensesService {
 
     private final Sql2o sql2o;
@@ -36,7 +36,7 @@ public class ExpensesService {
     }
 
     @GET
-    @Path("{uuid}")
+    @Path("/{uuid}")
     public Expense findByID(String uuid) {
         System.out.println("ExpensesService.findByID");
         System.out.println("uuid = [" + uuid + "]");
@@ -52,7 +52,7 @@ public class ExpensesService {
     }
 
     @GET
-    @Path("search/findByYear")
+    @Path("/search/findByYear")
     public List<Expense> findByYear(int year) {
         try (Connection con = sql2o.open()) {
             List<Expense> expenses = con.createQuery("SELECT * FROM expenses WHERE year = :year")
