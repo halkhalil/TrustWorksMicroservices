@@ -20,6 +20,7 @@ import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.swagger.SwaggerUI;
 
+import javax.sql.DataSource;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
@@ -48,12 +49,15 @@ public class App extends Jooby {
         assets("/", "assets/index.html");
         SwaggerUI.install(this);
 
-        use(ExpensesService.class);
-        get("/api/user/:id", new Route.OneArgHandler() {
-            @Override
-            public Object handle(Request req) throws Exception {
-                return "hey " + req.param("id").value();
-            }
+        //use(ExpensesService.class);
+        get("/api/expenses", (req, resp) -> {
+            DataSource db = req.require(DataSource.class);
+            resp.send(new ExpensesService(db).root());
+        });
+
+        get("/api/expenses/search/findByYear", (req, resp) -> {
+            DataSource db = req.require(DataSource.class);
+            resp.send(new ExpensesService(db).findByYear(req.param("year").intValue()));
         });
 
         use(new Metrics()

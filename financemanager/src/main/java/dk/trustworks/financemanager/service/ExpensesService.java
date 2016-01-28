@@ -54,10 +54,10 @@ public class ExpensesService {
 
     @GET
     @Path("/search/findByYear/")
-    public List<Expense> findByYear(Optional<Integer> year) {
+    public List<Expense> findByYear(int year) {
         try (Connection con = sql2o.open()) {
             List<Expense> expenses = con.createQuery("SELECT * FROM expenses WHERE year = :year")
-                    .addParameter("year", year.orElse(2015))
+                    .addParameter("year", year)
                     .executeAndFetch(Expense.class);
             return expenses;
         } catch (Exception e) {
