@@ -72,7 +72,50 @@ public class ExpensesService {
         System.out.println("ExpensesService.create");
         System.out.println("expense = [" + expense + "]");
         try (Connection con = sql2o.open()) {
-            con.createQuery("INSERT INTO expenses (uuid, description, type, month, year, expense) VALUES (:uuid, :description, :type, :month, :year, :expense)")
+            Integer resultSize = con.createQuery("SELECT count(uuid) c FROM expenses WHERE uuid LIKE :uuid").addParameter("uuid", expense.getUuid()).executeScalar(Integer.class);
+            if(resultSize == 0) {
+                con.createQuery("INSERT INTO expenses (uuid, description, type, month, year, expense) VALUES (:uuid, :description, :type, :month, :year, :expense)")
+                        .addParameter("uuid", expense.getUuid())
+                        .addParameter("description", expense.getDescription())
+                        .addParameter("type", expense.getType())
+                        .addParameter("month", expense.getMonth())
+                        .addParameter("year", expense.getYear())
+                        .addParameter("expense", expense.getExpense())
+                        .executeUpdate();
+            } else {
+                con.createQuery("UPDATE expenses SET " +
+                        "year = :year, " +
+                        "month = :month, " +
+                        "expense = :expense, " +
+                        "type = :type, " +
+                        "description = :description " +
+                        "WHERE uuid LIKE :uuid;")
+                        .addParameter("uuid", expense.getUuid())
+                        .addParameter("description", expense.getDescription())
+                        .addParameter("type", expense.getType())
+                        .addParameter("month", expense.getMonth())
+                        .addParameter("year", expense.getYear())
+                        .addParameter("expense", expense.getExpense())
+                        .executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @POST
+    @Consumes("application/json")
+    public void update(@Body Expense expense) {
+        System.out.println("ExpensesService.update");
+        System.out.println("expense = [" + expense + "]");
+        try (Connection con = sql2o.open()) {
+            con.createQuery("UPDATE expenses SET " +
+                    "year = :year, " +
+                    "month = :month, " +
+                    "expense = :expense, " +
+                    "type = :type, " +
+                    "description = :description " +
+                    "WHERE uuid LIKE :uuid;")
                     .addParameter("uuid", expense.getUuid())
                     .addParameter("description", expense.getDescription())
                     .addParameter("type", expense.getType())

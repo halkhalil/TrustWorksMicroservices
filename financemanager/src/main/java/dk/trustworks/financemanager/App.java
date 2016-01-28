@@ -63,10 +63,18 @@ public class App extends Jooby {
             resp.send("ok");
         }).name("Post new Expense");
 
+        post("/api/expenses/:uuid", (req, resp) -> {
+            DataSource db = req.require(DataSource.class);
+            new ExpensesService(db).update(req.body().to(Expense.class));
+            resp.send("ok");
+        }).name("Post new Expense");
+
         get("/api/expenses/search/findByYear", (req, resp) -> {
             DataSource db = req.require(DataSource.class);
             resp.send(new ExpensesService(db).findByYear(req.param("year").intValue()));
         }).name("Find Expenses by Year");
+
+
 
         use(new Metrics()
                 .request()

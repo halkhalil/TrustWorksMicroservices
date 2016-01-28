@@ -1,10 +1,15 @@
 package dk.trustworks.adminportal.view;
 
+import com.vaadin.data.sort.Sort;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
+import com.vaadin.ui.renderers.NumberRenderer;
 import dk.trustworks.adminportal.component.ExpenseForm;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.Expense;
+
+import java.text.ChoiceFormat;
 
 /**
  * Created by hans on 22/01/16.
@@ -39,6 +44,9 @@ public class ExpenseView extends HorizontalLayout {
 
         expenseList.setContainerDataSource(new BeanItemContainer<>(Expense.class));
         expenseList.setColumnOrder("description", "type", "year", "month", "expense");
+        expenseList.getColumn("year").setRenderer(new NumberRenderer());
+        expenseList.sort(Sort.by("year", SortDirection.DESCENDING)
+                .then("month", SortDirection.DESCENDING).then("description", SortDirection.ASCENDING));
         expenseList.removeColumn("uuid");
         expenseList.setSelectionMode(Grid.SelectionMode.SINGLE);
         expenseList.addSelectionListener(e -> expenseForm.edit((Expense) expenseList.getSelectedRow()));
