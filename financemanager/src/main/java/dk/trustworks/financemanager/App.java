@@ -5,6 +5,7 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.typesafe.config.Config;
+import dk.trustworks.financemanager.model.Expense;
 import dk.trustworks.financemanager.service.ExpensesService;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -53,12 +54,19 @@ public class App extends Jooby {
         get("/api/expenses", (req, resp) -> {
             DataSource db = req.require(DataSource.class);
             resp.send(new ExpensesService(db).root());
-        });
+        }).name("Get all expenses");
+
+
+        post("/api/expenses", (req, resp) -> {
+            DataSource db = req.require(DataSource.class);
+            new ExpensesService(db).create(req.body().to(Expense.class));
+            resp.send("ok");
+        }).name("Post new Expense");
 
         get("/api/expenses/search/findByYear", (req, resp) -> {
             DataSource db = req.require(DataSource.class);
             resp.send(new ExpensesService(db).findByYear(req.param("year").intValue()));
-        });
+        }).name("Find Expenses by Year");
 
         use(new Metrics()
                 .request()
