@@ -13,6 +13,8 @@ import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.jooby.Jooby;
+import org.jooby.Request;
+import org.jooby.Route;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
@@ -47,6 +49,12 @@ public class App extends Jooby {
         SwaggerUI.install(this);
 
         use(ExpensesService.class);
+        get("/api/user/:id", new Route.OneArgHandler() {
+            @Override
+            public Object handle(Request req) throws Exception {
+                return "hey " + req.param("id").value();
+            }
+        });
 
         use(new Metrics()
                 .request()

@@ -53,7 +53,7 @@ public class ExpensesService {
     }
 
     @GET
-    @Path("/search/findByYear")
+    @Path("/search/findByYear/")
     public List<Expense> findByYear(Optional<Integer> year) {
         try (Connection con = sql2o.open()) {
             List<Expense> expenses = con.createQuery("SELECT * FROM expenses WHERE year = :year")
