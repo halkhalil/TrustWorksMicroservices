@@ -251,7 +251,7 @@ public class DashboardDesign extends CssLayout {
             Long[] budgetPerMonth = dataAccess.getBudgetPerMonth(year);
             DataSeries budgetSeries = new DataSeries("Budget");
             PlotOptionsAreaSpline options2 = new PlotOptionsAreaSpline();
-            options2.setColor(SolidColor.);
+            options2.setColor(SolidColor.ORANGE);
             //options2.setMarker(new Marker(false));
             budgetSeries.setPlotOptions(options2);
             for (int i = 0; i < 12; i++) {
