@@ -204,6 +204,27 @@ public class DataAccess implements Serializable {
         return null;
     }
 
+    public Long[] getExpensesByYear(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonth")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonth");
+            ArrayList<Long> list = new ArrayList<Long>();
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i = 0; i < len; i++) {
+                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
+                }
+            }
+            return list.toArray(new Long[12]);
+        } catch (UnirestException e) {
+            System.err.println(e);
+        }
+        return null;
+    }
+
     public int[] getCapacityPerMonthByYear(int year) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/capacitypermonth")

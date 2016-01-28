@@ -233,19 +233,34 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled(false);
 
             Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(year);
+
+            Long[] allExpenses = dataAccess.getExpensesByYear(year);
+
+            DataSeries expensesList = new DataSeries("Expenses");
+            PlotOptionsAreaSpline options3 = new PlotOptionsAreaSpline();
+            options3.setColor(SolidColor.RED);
+            options3.setMarker(new Marker(false));
+            expensesList.setPlotOptions(options3);
+
             DataSeries revenueSeries = new DataSeries("Revenue");
             for (int i = 0; i < 12; i++) {
                 revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
+                expensesList.add(new DataSeriesItem("Expense for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i]));
             }
 
             Long[] budgetPerMonth = dataAccess.getBudgetPerMonth(year);
             DataSeries budgetSeries = new DataSeries("Budget");
+            PlotOptionsAreaSpline options2 = new PlotOptionsAreaSpline();
+            options2.setColor(SolidColor.);
+            //options2.setMarker(new Marker(false));
+            budgetSeries.setPlotOptions(options2);
             for (int i = 0; i < 12; i++) {
                 budgetSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), budgetPerMonth[i]));
             }
 
             getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(budgetSeries);
+            getConfiguration().addSeries(expensesList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }

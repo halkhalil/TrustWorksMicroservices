@@ -60,6 +60,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("workregisterdelay");
         addCommand("revenuerate");
         addCommand("expensepermonthbycapacity");
+        addCommand("expensepermonth");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -209,6 +210,24 @@ public class StatisticHandler extends DefaultHandler {
 
         Map<String, Object> result = new HashMap<>();
         result.put("expensepermonthbycapacity", expensepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void expensepermonth(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        List<Expense> allExpensesByYear = getAllExpensesByYear(year);
+        long expensepermonth[] = new long[12];
+
+        for (Expense expense : allExpensesByYear) {
+            expensepermonth[expense.getMonth()] += expense.getExpense();
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("expensepermonth", expensepermonth);
         try {
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
         } catch (JsonProcessingException e) {
