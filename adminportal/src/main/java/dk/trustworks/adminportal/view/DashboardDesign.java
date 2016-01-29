@@ -258,8 +258,8 @@ public class DashboardDesign extends CssLayout {
                 budgetSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), budgetPerMonth[i]));
             }
 
-            getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(budgetSeries);
+            getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(expensesList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
