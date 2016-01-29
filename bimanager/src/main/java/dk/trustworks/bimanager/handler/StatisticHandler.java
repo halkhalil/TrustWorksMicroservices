@@ -61,6 +61,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("revenuerate");
         addCommand("expensepermonthbycapacity");
         addCommand("expensepermonth");
+        addCommand("revenuepertaskperpersonbyproject");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -460,6 +461,25 @@ public class StatisticHandler extends DefaultHandler {
         }
     }
 
+    public void revenuepertaskperpersonbyproject(HttpServerExchange exchange, String[] params) {
+        String projectuuid = exchange.getQueryParameters().get("projectuuid").getFirst();
+        List<AmountPerItem> listOfTasks = new ArrayList<>();
+        for (Task task : findTaskByProject(projectuuid)) {
+            System.out.println("task = " + task);
+            for (User user : getAllUsersMap().values()) {
+                //System.out.println("user = " + user);
+                double hours = restClient.getTaskUserWorkHours(task.getUUID(), user.getUseruuid());
+                //System.out.println("user.getUsername()+\" :\"+hours = " + user.getUsername() + " :" + hours);
+                if(hours > 0) listOfTasks.add(new AmountPerItem(task.getName(), user.getFirstname() + " " + user.getLastname(), hours));
+            }
+        }
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfTasks));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void workregisterdelay(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         List<Work> allWork = getAllWork(year);
@@ -610,6 +630,14 @@ public class StatisticHandler extends DefaultHandler {
         }
         return null;
     }
+
+    private List<Task> findTaskByProject(String projectUUID) {
+        for (Project project : getAllProjects()) {
+            if (project.getUUID().equals(projectUUID)) return project.getTasks();
+        }
+        return null;
+    }
+
 
     private Project findProjectByUUID(String projectUUID) {
         for (Project project : getAllProjects()) {

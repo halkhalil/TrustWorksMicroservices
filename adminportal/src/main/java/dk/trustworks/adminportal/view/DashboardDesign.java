@@ -463,7 +463,7 @@ public class DashboardDesign extends CssLayout {
             setWidth("100%");
             setHeight("280px");
 
-            setCaption("Revenue Rate Past Month");
+            setCaption("Revenue rate past month compared to same time last year");
             getConfiguration().getChart().setType(ChartType.SOLIDGAUGE);
 
             getConfiguration().getTitle().setText("Revenue Rate");
@@ -531,12 +531,13 @@ public class DashboardDesign extends CssLayout {
             //getConfiguration().getChart().setId("chart");
 
             getConfiguration().setTitle("IKKE FÆRDIG");
-            getConfiguration().setSubTitle("WORK IN PROGRESS - NOTHING TO SEE HERE...");
+            //getConfiguration().setSubTitle("WORK IN PROGRESS - NOTHING TO SEE HERE...");
             getConfiguration().getLegend().setEnabled(false);
 
             XAxis x = new XAxis();
             x.setType(AxisType.CATEGORY);
             getConfiguration().addxAxis(x);
+            getConfiguration().getxAxis().getLabels().setEnabled(false);
 
             YAxis y = new YAxis();
             y.setTitle("Revenue");
@@ -566,13 +567,29 @@ public class DashboardDesign extends CssLayout {
                 DataSeries drillSeries = new DataSeries(projectRevenue.description);
                 PlotOptionsColumn plotOptions = new PlotOptionsColumn();
                 plotOptions.setStacking(Stacking.NORMAL);
-                //drillSeries.getConfiguration().setPlotOptions(plotOptions);
+                drillSeries.setPlotOptions(plotOptions);
                 drillSeries.setId(projectRevenue.description);
                 String[] categories = new String[] { "Task 1", "Task 2",
                         "Task 3", "Task 4" };
                 Number[] ys = new Number[] { 10.85, 7.35, 33.06, 2.81 };
                 // TODO: FINISH DRILLSERIES
+                //drillSeries.setData(categories, ys);
+                Map<String, AmountPerItem> taskAmountPerItem = new HashMap<>();
+                for (AmountPerItem amountPerItem : dataAccess.getWorkPerUserPerTaskByProject(projectRevenue.uuid)) {
+                    if(!taskAmountPerItem.containsKey(amountPerItem.uuid)) taskAmountPerItem.put(amountPerItem.uuid, amountPerItem);
+
+                    //drillSeries.add(new DataSeriesItem(amountPerItem.uuid, amountPerItem.amount));
+                    //drillSeries.setStack(amountPerItem.description);
+                }
+
+                for (String taskName : taskAmountPerItem.keySet()) {
+
+                }
+
                 //drillSeries.(ys);
+
+
+
 
                 series.addItemWithDrilldown(item, drillSeries);
             }
