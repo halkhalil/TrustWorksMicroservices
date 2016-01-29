@@ -2,6 +2,9 @@
   $root-background-color: #ffffff;
   $template-font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
+  $main-color: #5AAAFA;
+  $menu-color: #5AAAFA;
+
   $header-bar-background: #5AAAFA;
   $header-bar-font-size: 16px;
   $header-bar-text-color: #fff;
@@ -18,6 +21,8 @@
   $menu-button-text-color: #fff;
   $menu-button-icon-color: #5AAAFA;
 
+  $header-label-font-size: 1.618em;
+  //padding: 60px;
 
   background-color: $root-background-color;
 
@@ -29,6 +34,23 @@
     &:hover{
       cursor: pointer;
     }
+  }
+
+  .header-label {
+    font-size: $header-label-font-size;
+    font-family: $template-font-family;
+    width: 100%;
+    margin-bottom: 20px;
+    color: #000000;
+    border-bottom: 3px solid #D0C7C7;
+  }
+
+  .header-label-small {
+    font-family: $template-font-family;
+    width: 100%;
+    color: $main-color;
+    text-transform: uppercase;
+    border-bottom: 2px solid #D0C7C7;
   }
 
   .scroll-panel {
@@ -73,6 +95,23 @@
 
     .user-name-label {
       color: $username-label-color;
+    }
+  }
+
+  .dashboard-item {
+    background-color: #f6f3f3;
+    border: 1px solid white;
+    margin: 0 30px 30px 0px;
+    padding: 15px;
+
+    > .statistics-label{
+      margin-top: 15px;
+      font-family: $template-font-family;
+
+      .statistics-value{
+        float: right;
+        font-weight: bold;
+      }
     }
   }
 
@@ -121,10 +160,10 @@
   }
 
   .dashboard-layout {
-    padding: 60px 60px 60px 60px;
+    padding: 60px 60px 0 60px;
   }
 
-  &[width-range~="321px-400px"] {
+  &[width-range~="321px-768px"] {
     .dashboard-layout{
       padding: 10px;
     }
@@ -158,81 +197,6 @@
     }
   }
 }
-
-.navigation-template-vaadin[width-range~="321px-400px"]{
-  visibility: visible;
-}
-.root-layout.dashboard-view-template-vaadin {
-  $root-background-color: #ffffff;
-  $template-font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  $main-color: #5AAAFA;
-  $menu-color: #5AAAFA;
-  $header-label-font-size: 1.618em;
-  background-color: $root-background-color;
-  padding: 60px;
-
-  .v-nativebutton {
-    background: none;
-    border: none;
-
-    &:hover{
-      cursor: pointer;
-    }
-  }
-
-  .header-label {
-    font-size: $header-label-font-size;
-    font-family: $template-font-family;
-    width: 100%;
-    margin-bottom: 20px;
-    color: #000000;
-    border-bottom: 3px solid #D0C7C7;
-  }
-
-  .header-label-small {
-    font-family: $template-font-family;
-    width: 100%;
-    color: $main-color;
-    text-transform: uppercase;
-    border-bottom: 2px solid #D0C7C7;
-  }
-
-  .dashboard-layout {
-    padding: 60px 60px 60px 60px;
-  }
-
-  .dashboard-item {
-    background-color: #f6f3f3;
-    border: 1px solid white;
-    margin: 30px 30px 30px 30px;
-    padding: 15px;
-
-    > .statistics-label{
-      margin-top: 15px;
-      font-family: $template-font-family;
-
-      .statistics-value{
-        float: right;
-        font-weight: bold;
-      }
-    }
-  }
-
-  &[width-range~="321px-400px"]{
-    padding: 10px;
-
-    .dashboard-layout{
-      padding: 10px;
-    }
-
-    .dashboard-item{
-      width: 100% !important;
-      min-width: 321px;
-      margin: 0;
-    }
-  }
-}
-
-.dashboard-view-template-vaadin[width-range~="321px-400px"]{
+.navigation-template-vaadin[width-range~="321px-768px"]{
   visibility: visible;
 }
