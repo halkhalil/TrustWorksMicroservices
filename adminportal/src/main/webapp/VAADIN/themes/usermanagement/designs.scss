@@ -163,6 +163,43 @@
     padding: 60px 60px 0 60px;
   }
 
+  @media only screen
+  and (min-device-width: 414px)
+  and (max-device-width: 736px)
+  and (-webkit-min-device-pixel-ratio: 3) {
+    .dashboard-layout{
+      padding: 10px;
+    }
+
+    .dashboard-item {
+      width: 100% !important;
+      min-width: 321px;
+      margin: 0;
+    }
+
+    .side-bar {
+      width: 60px;
+
+      > .menu-button{
+
+        height: 50px;
+
+        > .v-nativebutton-caption{
+          visibility: hidden;
+        }
+
+        > .v-icon{
+          top: 0;
+        }
+      }
+    }
+
+    .header-bar {
+      height: 45px;
+      padding: 2px;
+    }
+  }
+
   &[width-range~="321px-768px"] {
     .dashboard-layout{
       padding: 10px;

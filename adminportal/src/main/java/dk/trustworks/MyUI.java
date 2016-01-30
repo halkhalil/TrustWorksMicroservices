@@ -3,9 +3,9 @@ package dk.trustworks;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.*;
 import com.vaadin.ui.UI;
+import dk.trustworks.adminportal.server.VaadinBootstrapListener;
 import dk.trustworks.adminportal.view.MenuDesign;
 import dk.trustworks.framework.persistence.Helper;
 import org.apache.curator.framework.CuratorFramework;
@@ -50,6 +50,17 @@ public class MyUI extends UI {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        @Override
+        protected void servletInitialized() throws ServletException {
+            super.servletInitialized();
+            getService().addSessionInitListener(new SessionInitListener() {
+                @Override
+                public void sessionInit(SessionInitEvent sessionInitEvent) throws ServiceException {
+                    sessionInitEvent.getSession().addBootstrapListener(new VaadinBootstrapListener()Fix);
+                }
+            });
         }
     }
 
