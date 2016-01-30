@@ -114,7 +114,7 @@ public class DashboardDesign extends CssLayout {
 
         ProjectDetailChart projectDetailChart = new ProjectDetailChart();
         dashboard_item32.removeAllComponents();
-        dashboard_item32.addComponent(projectDetailChart);
+        //dashboard_item32.addComponent(projectDetailChart);
     }
 
     public class TopGrossingEmployeesChart extends Chart {
