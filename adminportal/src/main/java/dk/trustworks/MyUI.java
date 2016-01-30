@@ -58,7 +58,7 @@ public class MyUI extends UI {
             getService().addSessionInitListener(new SessionInitListener() {
                 @Override
                 public void sessionInit(SessionInitEvent sessionInitEvent) throws ServiceException {
-                    sessionInitEvent.getSession().addBootstrapListener(new VaadinBootstrapListener()Fix);
+                    sessionInitEvent.getSession().addBootstrapListener(new VaadinBootstrapListener());
                 }
             });
         }
