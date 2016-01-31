@@ -14,8 +14,6 @@ import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.jooby.Jooby;
-import org.jooby.Request;
-import org.jooby.Route;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
@@ -30,8 +28,6 @@ import java.util.Properties;
  * Created by hans on 20/01/16.
  */
 public class App extends Jooby {
-
-    private Config config;
 
     {
         try {

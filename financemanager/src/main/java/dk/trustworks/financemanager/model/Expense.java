@@ -58,13 +58,12 @@ public class Expense {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Expense{");
-        sb.append("uuid='").append(uuid).append('\'');
-        sb.append(", year=").append(year);
-        sb.append(", month=").append(month);
-        sb.append(", expense=").append(expense);
-        sb.append('}');
-        return sb.toString();
+        String sb = "Expense{" + "uuid='" + uuid + '\'' +
+                ", year=" + year +
+                ", month=" + month +
+                ", expense=" + expense +
+                '}';
+        return sb;
     }
 
     public String getType() {

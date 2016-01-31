@@ -9,8 +9,6 @@ import org.sql2o.Sql2o;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Created by hans on 21/01/16.
@@ -28,8 +26,7 @@ public class ExpensesService {
     @GET
     public List<Expense> root() {
         try (Connection con = sql2o.open()) {
-            List<Expense> expenses = con.createQuery("SELECT * FROM expenses").executeAndFetch(Expense.class);
-            return expenses;
+            return con.createQuery("SELECT * FROM expenses").executeAndFetch(Expense.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,10 +39,9 @@ public class ExpensesService {
         System.out.println("ExpensesService.findByID");
         System.out.println("uuid = [" + uuid + "]");
         try (Connection con = sql2o.open()) {
-            Expense expense = con.createQuery("SELECT * FROM expenses WHERE UUID LIKE :uuid")
+            return con.createQuery("SELECT * FROM expenses WHERE UUID LIKE :uuid")
                     .addParameter("uuid", uuid)
                     .executeAndFetchFirst(Expense.class);
-            return expense;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,10 +52,9 @@ public class ExpensesService {
     @Path("/search/findByYear/")
     public List<Expense> findByYear(int year) {
         try (Connection con = sql2o.open()) {
-            List<Expense> expenses = con.createQuery("SELECT * FROM expenses WHERE year = :year")
+            return con.createQuery("SELECT * FROM expenses WHERE year = :year")
                     .addParameter("year", year)
                     .executeAndFetch(Expense.class);
-            return expenses;
         } catch (Exception e) {
             e.printStackTrace();
         }
