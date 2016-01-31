@@ -465,11 +465,8 @@ public class StatisticHandler extends DefaultHandler {
         String projectuuid = exchange.getQueryParameters().get("projectuuid").getFirst();
         List<AmountPerItem> listOfTasks = new ArrayList<>();
         for (Task task : findTaskByProject(projectuuid)) {
-            System.out.println("task = " + task);
             for (User user : getAllUsersMap().values()) {
-                //System.out.println("user = " + user);
                 double hours = restClient.getTaskUserWorkHours(task.getUUID(), user.getUseruuid());
-                //System.out.println("user.getUsername()+\" :\"+hours = " + user.getUsername() + " :" + hours);
                 if(hours > 0) listOfTasks.add(new AmountPerItem(task.getName(), user.getFirstname() + " " + user.getLastname(), hours));
             }
         }
@@ -541,6 +538,7 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     private Map<String, User> getAllUsersMap() {
+        // add caches
         Map<String, User> userMap = new HashMap<>();
         for (User user : restClient.getUsers()) {
             userMap.put(user.getUUID(), user);
