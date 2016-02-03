@@ -435,7 +435,9 @@ public class DashboardDesign extends CssLayout {
             List<AmountPerItem> amountPerItemList = dataAccess.getWorkRegistrationDelay(year);
             double sumRevenue = 0.0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
-                sumRevenue += amountPerItem.amount;
+                double delay = 0.0;
+                if(amountPerItem.amount>0) delay = (amountPerItem.amount / 24.0);
+                sumRevenue += delay;
             }
             double avgRevenue = sumRevenue / amountPerItemList.size();
 

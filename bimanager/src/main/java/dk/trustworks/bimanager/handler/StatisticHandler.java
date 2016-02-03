@@ -492,13 +492,21 @@ public class StatisticHandler extends DefaultHandler {
                         listOfDays.put(work.getUserUUID(), new HashMap<>());
                     }
                     Map<String, Integer> delayPerMonth = listOfDays.get(work.getUserUUID());
-                    DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 0, 0);
+                    DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 23, 59);
                     DateTime registeredDate = new DateTime(work.getCreated());
                     if (registeredDate.isBefore(new DateTime(2015, 7, 1, 0, 0))) continue;
 
                     Period period = new Period(workDate, registeredDate);
+                    if(work.getUserUUID().equals("7948c5e8-162c-4053-b905-0f59a21d7746")) {
+                        System.out.println("work = " + work);
+                        System.out.println("period = " + workDate + ", " + registeredDate);
+                        System.out.println("period.getHours() = " + period.getDays() + " + " + period.getHours());
+                    }
+                    int delay = (period.getDays() * 24) + period.getHours();
+                    if(delay<0) delay = 0;
 
-                    delayPerMonth.put(work.getYear() + "" + work.getMonth() + 1 + "" + work.getDay(), period.getHours());
+
+                    delayPerMonth.put(work.getYear() + "" + work.getMonth() + 1 + "" + work.getDay(), delay);
                 }
             }
 
