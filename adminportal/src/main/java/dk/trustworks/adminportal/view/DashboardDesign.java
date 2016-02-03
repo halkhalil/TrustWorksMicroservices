@@ -406,7 +406,6 @@ public class DashboardDesign extends CssLayout {
                 categories[i++] = shortname.toString();
             }
 
-            //7,93478260869565
             getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueList);
             getConfiguration().addSeries(avgRevenueList);
