@@ -449,7 +449,9 @@ public class DashboardDesign extends CssLayout {
 
             int i = 0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
-                revenueList.add(new DataSeriesItem(amountPerItem.description, (amountPerItem.amount / 24.0)));
+                double delay = 0.0;
+                if(amountPerItem.amount>0) delay = (amountPerItem.amount / 24.0);
+                revenueList.add(new DataSeriesItem(amountPerItem.description, delay));
                 avgRevenueList.add(new DataSeriesItem("Average delay", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
