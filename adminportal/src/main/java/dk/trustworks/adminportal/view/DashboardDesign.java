@@ -48,6 +48,14 @@ public class DashboardDesign extends CssLayout {
     protected CssLayout dashboard_item32;
     protected HorizontalLayout sparkline_horizontal;
 
+    public static void main(String[] args) {
+        int year = 2016;
+        double weeks = 46.14285714285714;
+        if(year == new DateTime().getYear()) weeks = (new DateTime().getDayOfYear() / 7.80769230769217f);
+        System.out.println("new DateTime().getDayOfYear() = " + new DateTime().getDayOfYear());
+        System.out.println("weeks = " + weeks);
+        System.out.println(Math.round((215 / weeks) * 100.0) / 100.0);
+    }
 
 	public DashboardDesign() {
 		Design.read(this);
