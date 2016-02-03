@@ -395,9 +395,9 @@ public class DashboardDesign extends CssLayout {
             int i = 0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
-                double weeks = 46.14285714285714;
-                if(year == new DateTime().getYear()) weeks = (new DateTime().getDayOfYear() / 6.19230769230766f);
-                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round((amountPerItem.amount / weeks) * 100.0) / 100.0)));
+                double weeks = 52;
+                if(year == new DateTime().getYear()) weeks = (new DateTime().getDayOfYear() / 7.0);
+                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1.12693498452012) * 100.0) / 100.0)));
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
@@ -405,6 +405,8 @@ public class DashboardDesign extends CssLayout {
                 }
                 categories[i++] = shortname.toString();
             }
+
+            //7,93478260869565
             getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueList);
             getConfiguration().addSeries(avgRevenueList);
@@ -446,6 +448,7 @@ public class DashboardDesign extends CssLayout {
             options2.setColor(SolidColor.BLACK);
             options2.setMarker(new Marker(false));
             avgRevenueList.setPlotOptions(options2);
+
 
             int i = 0;
             for (AmountPerItem amountPerItem : amountPerItemList) {

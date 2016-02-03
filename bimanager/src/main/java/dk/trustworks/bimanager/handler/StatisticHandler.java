@@ -478,49 +478,57 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     public void workregisterdelay(HttpServerExchange exchange, String[] params) {
-        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = getAllWork(year);
-
-        HashMap<String, Map<String, Integer>> listOfDays = new HashMap<>();
-
-        int i = 0;
-        Collections.sort(allWork, (m1, m2) -> m1.getCreated().compareTo(m2.getCreated()));
-        for (Work work : allWork) {
-            if(work.getWorkDuration() > 0) {
-                if(listOfDays.get(work.getUserUUID()) == null) {
-                    listOfDays.put(work.getUserUUID(), new HashMap<>());
-                }
-                Map<String, Integer> delayPerMonth = listOfDays.get(work.getUserUUID());
-                DateTime workDate = new DateTime(work.getYear(), work.getMonth()+1, work.getDay(), 0, 0);
-                DateTime registeredDate = new DateTime(work.getCreated());
-                if(registeredDate.isBefore(new DateTime(2015, 7, 1, 0 ,0))) continue;
-
-                Period period = new Period(workDate, registeredDate);
-
-                delayPerMonth.put(work.getYear()+""+ work.getMonth()+1+""+work.getDay(), period.getHours());
-            }
-        }
-
-        double avgDelay = 0.0;
-        int count = 0;
-        ArrayList<AmountPerItem> amountPerItems = new ArrayList<>();
-
-        Map<String, User> usersMap = getAllUsersMap();
-        for (String userUUID : listOfDays.keySet()) {
-            Map<String, Integer> delayPerDay = listOfDays.get(userUUID);
-            for (int delay : delayPerDay.values()) {
-                count++;
-                if(delay < 0) delay = 0;
-                avgDelay += delay;
-            }
-            avgDelay = avgDelay / count;
-            amountPerItems.add(new AmountPerItem(userUUID, usersMap.get(userUUID).getFirstname() + " " + usersMap.get(userUUID).getLastname(), avgDelay));
-        }
         try {
+            int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+            List<Work> allWork = getAllWork(year);
+
+            HashMap<String, Map<String, Integer>> listOfDays = new HashMap<>();
+
+            int i = 0;
+            Collections.sort(allWork, (m1, m2) -> m1.getCreated().compareTo(m2.getCreated()));
+            for (Work work : allWork) {
+                if (work.getWorkDuration() > 0) {
+                    if (listOfDays.get(work.getUserUUID()) == null) {
+                        listOfDays.put(work.getUserUUID(), new HashMap<>());
+                    }
+                    Map<String, Integer> delayPerMonth = listOfDays.get(work.getUserUUID());
+                    DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 0, 0);
+                    DateTime registeredDate = new DateTime(work.getCreated());
+                    if (registeredDate.isBefore(new DateTime(2015, 7, 1, 0, 0))) continue;
+
+                    Period period = new Period(workDate, registeredDate);
+
+                    delayPerMonth.put(work.getYear() + "" + work.getMonth() + 1 + "" + work.getDay(), period.getHours());
+                }
+            }
+
+            double avgDelay = 0.0;
+            int count = 0;
+            ArrayList<AmountPerItem> amountPerItems = new ArrayList<>();
+
+            Map<String, User> usersMap = getAllUsersMap();
+            for (String userUUID : listOfDays.keySet()) {
+                Map<String, Integer> delayPerDay = listOfDays.get(userUUID);
+                for (int delay : delayPerDay.values()) {
+                    count++;
+                    if (delay < 0) delay = 0;
+                    avgDelay += delay;
+                }
+                avgDelay = avgDelay / count;
+                if(usersMap.get(userUUID)==null) System.out.println("userUUID = " + userUUID);
+                amountPerItems.add(new AmountPerItem(userUUID, usersMap.get(userUUID).getFirstname() + " " + usersMap.get(userUUID).getLastname(), avgDelay));
+            }
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(amountPerItems));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*
+        try {
+            //exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(amountPerItems));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        */
     }
 
     class AmountPerItem {
