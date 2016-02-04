@@ -6,6 +6,9 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import dk.trustworks.bimanager.client.commands.GetClientsCommand;
+import dk.trustworks.bimanager.client.commands.GetExpensesByYearCommand;
+import dk.trustworks.bimanager.client.commands.GetProjectsAndTasksAndTaskWorkerConstraintsCommand;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.framework.network.Locator;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +27,9 @@ import java.util.Map;
 public class RestClient {
 
     private static final Logger log = LogManager.getLogger(RestClient.class);
+    private final GetUsers getUsers = new GetUsers();
+    private final GetProjectsAndTasksAndTaskWorkerConstraintsCommand getProjectsAndTasksAndTaskWorkerConstraintsCommand = new GetProjectsAndTasksAndTaskWorkerConstraintsCommand();
+    private final GetClientsCommand getClients = new GetClientsCommand();
     ;
 
     public double getTaskUserWorkHours(String taskuuid, String useruuid) {
@@ -445,51 +451,15 @@ public class RestClient {
     }
 
     public List<Client> getClients() {
-        log.debug("RestClient.getClients");
-        try {
-            HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/clients")
-                    .header("accept", "application/json")
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Client>>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.throwing(e);
-            throw new RuntimeException("Kunne ikke loade: clients ", e);
-        }
+        return getClients.getClients();
     }
 
     public List<Project> getProjectsAndTasksAndTaskWorkerConstraints() {
-        log.debug("RestClient.getProjects");
-        try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects")
-                    .queryString("children", "taskuuid/taskworkerconstraintuuid")
-                    .header("accept", "application/json")
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Project>>() {
-            });
-        } catch (Exception e) {
-            log.throwing(e);
-            throw new RuntimeException("Kunne ikke loade: projects ", e);
-        }
+        return getProjectsAndTasksAndTaskWorkerConstraintsCommand.getProjectsAndTasksAndTaskWorkerConstraints();
     }
 
     public List<User> getUsers() {
-        log.debug("RestClient.getUsers");
-        try {
-            HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
-                    .header("accept", "application/json")
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
-            });
-        } catch (Exception e) {
-            log.throwing(e);
-            throw new RuntimeException("Kunne ikke loade: users ", e);
-        }
+        return getUsers.getUsers();
     }
 
     public void postTaskBudget(TaskWorkerConstraintBudget taskWorkerConstraintBudget) {

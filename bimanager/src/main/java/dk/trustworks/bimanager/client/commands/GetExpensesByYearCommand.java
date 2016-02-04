@@ -1,4 +1,4 @@
-package dk.trustworks.bimanager.client;
+package dk.trustworks.bimanager.client.commands;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

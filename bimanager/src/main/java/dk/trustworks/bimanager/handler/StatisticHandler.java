@@ -598,7 +598,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<Client> getAllClients() {
         try {
-            return cache.get("clients", restClient::getClients);
+            return cache.get("clients", () -> restClient.getClients());
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
