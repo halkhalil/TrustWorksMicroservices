@@ -95,6 +95,12 @@
             <version>2.9.1</version>
         </dependency>
         <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
+            <version>1.4.21</version>
+        </dependency>
+        <!--
+        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
             <version>${vaadin.version}</version>
@@ -109,16 +115,16 @@
             <artifactId>vaadin-themes</artifactId>
             <version>${vaadin.version}</version>
         </dependency>
+        -->
     </dependencies>
-
+    <!--
     <repositories>
-        <!-- Essential Vaadin artifacts are in maven central, but maven.vaadin.com
-            contains a huge set of additional libraries. See vaadin.com/directory -->
         <repository>
             <id>vaadin-addons</id>
             <url>http://maven.vaadin.com/vaadin-addons</url>
         </repository>
     </repositories>
+    -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -204,6 +210,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -222,8 +229,6 @@
                             <goal>update-theme</goal>
                             <goal>update-widgetset</goal>
                             <goal>compile</goal>
-                            <!-- disabled by default to use on-the-fly theme compilation -->
-                            <!-- <goal>compile-theme</goal> -->
                         </goals>
                     </execution>
                 </executions>
@@ -239,7 +244,6 @@
                     <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                     <noServer>true</noServer>
                     <port>8080</port>
-                    <!--<soyc>false</soyc>-->
                 </configuration>
                 <executions>
                     <execution>
@@ -254,7 +258,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>2.6.1</version>
-                <!-- Clean up also any pre-compiled themes -->
                 <configuration>
                     <filesets>
                         <fileset>
@@ -267,6 +270,7 @@
                     </filesets>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 

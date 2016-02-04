@@ -24,6 +24,7 @@ import java.util.Map;
 public class RestClient {
 
     private static final Logger log = LogManager.getLogger(RestClient.class);
+    ;
 
     public double getTaskUserWorkHours(String taskuuid, String useruuid) {
         log.entry(taskuuid, useruuid);
@@ -521,17 +522,6 @@ public class RestClient {
     }
 
     public List<Expense> getExpensesByYear(int year) {
-        try {
-            HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses/search/findByYear")
-                    .queryString("year", year)
-                    .header("accept", "application/json")
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return new GetExpensesByYearCommand(year).execute();
     }
 }
