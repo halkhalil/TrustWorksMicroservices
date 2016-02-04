@@ -13,8 +13,10 @@ import dk.trustworks.adminportal.component.SparklineChart;
 import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.Expense;
+import dk.trustworks.adminportal.domain.User;
 import org.joda.time.DateTime;
 
+import java.lang.reflect.Array;
 import java.text.DateFormatSymbols;
 import java.time.Month;
 import java.time.format.TextStyle;
@@ -365,6 +367,16 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled(false);
 
             List<AmountPerItem> amountPerItemList = dataAccess.getBillableHoursPerUser(year);
+
+            Map<String, Integer> userVacation = new HashMap<>();
+            for (User user : dataAccess.getUsers()) {
+                int vacationDays = 0;
+                for (Double days : dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
+                    vacationDays += days;
+                }
+                userVacation.put(user.getUseruuid(), vacationDays);
+            }
+
             double sumHours = 0.0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 sumHours += amountPerItem.amount;
@@ -396,8 +408,9 @@ public class DashboardDesign extends CssLayout {
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
                 double weeks = 52;
-                if(year == new DateTime().getYear()) weeks = (new DateTime().getDayOfYear() / 7.0);
-                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1.12693498452012) * 100.0) / 100.0)));
+                if(year == new DateTime().getYear()) weeks = ((new DateTime().getDayOfYear() - userVacation.get(amountPerItem.uuid)) / 7.0);
+                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1) * 100.0) / 100.0)));
+                //1.12693498452012
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
