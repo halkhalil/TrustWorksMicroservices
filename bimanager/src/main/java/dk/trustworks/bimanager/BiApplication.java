@@ -1,5 +1,7 @@
 package dk.trustworks.bimanager;
 
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import com.netflix.hystrix.contrib.requestservlet.HystrixRequestContextServletFilter;
 import dk.trustworks.bimanager.handler.ProjectBudgetHandler;
 import dk.trustworks.bimanager.handler.ReportHandler;
 import dk.trustworks.bimanager.handler.StatisticHandler;
@@ -12,11 +14,15 @@ import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.cache.DirectBufferCache;
 import io.undertow.server.handlers.resource.CachingResourceManager;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.resource.ResourceHandler;
 import io.undertow.server.handlers.resource.ResourceManager;
+import io.undertow.servlet.Servlets;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.util.Headers;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -33,6 +39,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.xnio.Options;
 
+import javax.servlet.DispatcherType;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Properties;
@@ -59,6 +66,23 @@ public class BiApplication {
             properties.load(in);
         }
 
+        DeploymentInfo servletBuilder = Servlets.deployment()
+                .setClassLoader(BiApplication.class.getClassLoader())
+                .setContextPath("/myapp")
+                .setDeploymentName("test.war")
+                .addServlets(
+                        Servlets.servlet("HystrixMetricsStreamServlet", HystrixMetricsStreamServlet.class)
+                                .addMapping("/hystrix.stream"))
+                .addFilter(
+                        Servlets.filter("HystrixRequestContextServletFilter", HystrixRequestContextServletFilter.class))
+                .addFilterUrlMapping("HystrixRequestContextServletFilter", "/*", DispatcherType.REQUEST);
+
+
+        DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
+        manager.deploy();
+        PathHandler path = Handlers.path(Handlers.redirect("/myapp"))
+                .addPrefixPath("/myapp", manager.start());
+
         Undertow.builder()
                 .addHttpListener(port, properties.getProperty("web.host"))
                 .setBufferSize(1024 * 16)
@@ -68,10 +92,11 @@ public class BiApplication {
                 .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
                 //.setHandler(resource(new ClassPathResourceManager(Web.class.getClassLoader(), "dk/trustworks/bimanager/web")).setDirectoryListingEnabled(true))
                 .setHandler(Handlers.header(Handlers.path()
-                                .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
-                                .addPrefixPath("/api/taskbudgets", new TaskBudgetHandler())
-                                .addPrefixPath("/api/reports", new ReportHandler())
-                                .addPrefixPath("/api/statistics", new StatisticHandler())
+                        .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
+                        .addPrefixPath("/api/taskbudgets", new TaskBudgetHandler())
+                        .addPrefixPath("/api/reports", new ReportHandler())
+                        .addPrefixPath("/api/statistics", new StatisticHandler())
+                        .addPrefixPath("/myapp", manager.start())
                         , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()

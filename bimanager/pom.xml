@@ -99,6 +99,16 @@
             <artifactId>hystrix-core</artifactId>
             <version>1.4.21</version>
         </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-metrics-event-stream</artifactId>
+            <version>1.4.21</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-request-servlet</artifactId>
+            <version>1.4.21</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>com.vaadin</groupId>

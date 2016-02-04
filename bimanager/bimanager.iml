@@ -74,5 +74,7 @@
     <orderEntry type="library" name="Maven: commons-configuration:commons-configuration:1.8" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: io.reactivex:rxjava:1.0.14" level="project" />
+    <orderEntry type="library" name="Maven: com.netflix.hystrix:hystrix-metrics-event-stream:1.4.21" level="project" />
+    <orderEntry type="library" name="Maven: com.netflix.hystrix:hystrix-request-servlet:1.4.21" level="project" />
   </component>
 </module>
