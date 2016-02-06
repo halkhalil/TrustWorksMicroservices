@@ -210,9 +210,9 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <finalName>financemanager</finalName>
-                <appendAssemblyId>false</appendAssemblyId>
                 <configuration>
+                    <finalName>bimanager</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
                             <mainClass>dk.trustworks.bimanager.BiApplication</mainClass>
