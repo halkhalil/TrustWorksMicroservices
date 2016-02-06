@@ -135,6 +135,7 @@ public class MicroServicesDesign extends CssLayout {
             }
             getConfiguration().addSeries(listSeries);
             getConfiguration().addSeries(hitsSeries);
+            hitsSeries.setyAxis(yaxis);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -192,6 +193,7 @@ public class MicroServicesDesign extends CssLayout {
             }
             getConfiguration().addSeries(listSeries);
             getConfiguration().addSeries(hitsSeries);
+            hitsSeries.setyAxis(yaxis);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -249,6 +251,7 @@ public class MicroServicesDesign extends CssLayout {
             }
             getConfiguration().addSeries(listSeries);
             getConfiguration().addSeries(hitsSeries);
+            hitsSeries.setyAxis(yaxis);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -306,6 +309,7 @@ public class MicroServicesDesign extends CssLayout {
             }
             getConfiguration().addSeries(listSeries);
             getConfiguration().addSeries(hitsSeries);
+            hitsSeries.setyAxis(yaxis);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
