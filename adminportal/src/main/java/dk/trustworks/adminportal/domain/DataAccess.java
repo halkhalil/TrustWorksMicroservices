@@ -404,10 +404,49 @@ public class DataAccess implements Serializable {
         return 0.0;
     }
 
-    public JSONObject getStatisticMetrics() {
+    public JSONObject getBiServiceMetrics() {
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/servlets/metrics")
+                    .header("accept", "application/json")
+                    .asJson();
+            return jsonResponse.getBody().getObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject getUserServiceMetrics() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/servlets/metrics")
+                    .header("accept", "application/json")
+                    .asJson();
+            return jsonResponse.getBody().getObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject getClientServiceMetrics() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/servlets/metrics")
+                    .header("accept", "application/json")
+                    .asJson();
+            return jsonResponse.getBody().getObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject getTimeServiceMetrics() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("timeservice") + "/servlets/metrics")
                     .header("accept", "application/json")
                     .asJson();
             return jsonResponse.getBody().getObject();

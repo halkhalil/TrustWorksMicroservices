@@ -32,10 +32,10 @@ public class MicroServicesDesign extends CssLayout {
 	protected CssLayout dashboard_item26;
 	protected CssLayout dashboard_item27;
     protected CssLayout dashboard_item28;
-    protected CssLayout dashboard_item29;
+    /*protected CssLayout dashboard_item29;
     protected CssLayout dashboard_item30;
     protected CssLayout dashboard_item31;
-    protected CssLayout dashboard_item32;
+    protected CssLayout dashboard_item32;*/
     protected HorizontalLayout sparkline_horizontal;
 
 	public MicroServicesDesign() {
@@ -52,14 +52,14 @@ public class MicroServicesDesign extends CssLayout {
 
     private void createGraphs(int year) {
         WorkRegistrationDelayChart workRegistrationDelayChart = new WorkRegistrationDelayChart(year);
-        dashboard_item30.removeAllComponents();
-        dashboard_item30.addComponent(workRegistrationDelayChart);
+        //dashboard_item30.removeAllComponents();
+        //dashboard_item30.addComponent(workRegistrationDelayChart);
 
-        TopGrossingEmployeesChart topGrossingEmployeesChart = new TopGrossingEmployeesChart();
+        BiManagerTimersChart topGrossingEmployeesChart = new BiManagerTimersChart();
         dashboard_item5.removeAllComponents();
         dashboard_item5.addComponent(topGrossingEmployeesChart);
 
-        TopGrossingProjectsChart topGrossingProjectsChart = new TopGrossingProjectsChart(year);
+        UserManagerTimersChart topGrossingProjectsChart = new UserManagerTimersChart();
         dashboard_item26.removeAllComponents();
         dashboard_item26.addComponent(topGrossingProjectsChart);
 
@@ -67,26 +67,26 @@ public class MicroServicesDesign extends CssLayout {
         dashboard_item27.removeAllComponents();
         dashboard_item27.addComponent(revenuePerMonthChart);
 
-        RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart(year);
+        RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart();
         dashboard_item28.removeAllComponents();
         dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
 
         BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year);
-        dashboard_item29.removeAllComponents();
-        dashboard_item29.addComponent(billableHoursPerEmployeesChart);
+        //dashboard_item29.removeAllComponents();
+        //dashboard_item29.addComponent(billableHoursPerEmployeesChart);
 
         RevenueRateChart revenueRateChart = new RevenueRateChart(year);
-        dashboard_item31.removeAllComponents();
-        dashboard_item31.addComponent(revenueRateChart);
+        //dashboard_item31.removeAllComponents();
+        //dashboard_item31.addComponent(revenueRateChart);
 
         ProjectDetailChart projectDetailChart = new ProjectDetailChart();
-        dashboard_item32.removeAllComponents();
+        //dashboard_item32.removeAllComponents();
         //dashboard_item32.addComponent(projectDetailChart);
     }
 
-    public class TopGrossingEmployeesChart extends Chart {
+    public class BiManagerTimersChart extends Chart {
 
-        public TopGrossingEmployeesChart() {
+        public BiManagerTimersChart() {
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -100,7 +100,7 @@ public class MicroServicesDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            JSONObject statisticMetrics = dataAccess.getStatisticMetrics();
+            JSONObject statisticMetrics = dataAccess.getBiServiceMetrics();
             DataSeries listSeries = new DataSeries("Response Times");
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
@@ -126,21 +126,129 @@ public class MicroServicesDesign extends CssLayout {
         }
     }
 
-    public class TopGrossingProjectsChart extends Chart {
+    public class UserManagerTimersChart extends Chart {
 
-        public TopGrossingProjectsChart(int year) {
+        public UserManagerTimersChart() {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("UserService Response Times");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(false);
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            JSONObject statisticMetrics = dataAccess.getUserServiceMetrics();
+            DataSeries listSeries = new DataSeries("Response Times");
+
+            DataSeries temperatureErrors = new DataSeries("Timer deviation");
+            getConfiguration().addSeries(temperatureErrors);
+            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            SolidColor green = new SolidColor("green");
+            tempErrorOptions.setStemColor(green);
+            tempErrorOptions.setWhiskerColor(green);
+            temperatureErrors.setPlotOptions(tempErrorOptions);
+
+            for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
+                DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
+                listSeries.add(item);
+                item = new DataSeriesItem();
+                item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
+                item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
+                temperatureErrors.add(item);
+            }
+            getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(temperatureErrors);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
         }
     }
 
     public class RevenuePerMonthChart extends Chart {
 
         public RevenuePerMonthChart(int year) {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("TimeService Response Times");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(false);
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            JSONObject statisticMetrics = dataAccess.getTimeServiceMetrics();
+            DataSeries listSeries = new DataSeries("Response Times");
+
+            DataSeries temperatureErrors = new DataSeries("Timer deviation");
+            getConfiguration().addSeries(temperatureErrors);
+            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            SolidColor green = new SolidColor("green");
+            tempErrorOptions.setStemColor(green);
+            tempErrorOptions.setWhiskerColor(green);
+            temperatureErrors.setPlotOptions(tempErrorOptions);
+
+            for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
+                DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
+                listSeries.add(item);
+                item = new DataSeriesItem();
+                item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
+                item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
+                temperatureErrors.add(item);
+            }
+            getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(temperatureErrors);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
         }
     }
 
     public class RevenuePerMonthByCapacityChart extends Chart {
 
-        public RevenuePerMonthByCapacityChart(int year) {
+        public RevenuePerMonthByCapacityChart() {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("ClientService Response Times");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(false);
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            JSONObject statisticMetrics = dataAccess.getClientServiceMetrics();
+            DataSeries listSeries = new DataSeries("Response Times");
+
+            DataSeries temperatureErrors = new DataSeries("Timer deviation");
+            getConfiguration().addSeries(temperatureErrors);
+            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            SolidColor green = new SolidColor("green");
+            tempErrorOptions.setStemColor(green);
+            tempErrorOptions.setWhiskerColor(green);
+            temperatureErrors.setPlotOptions(tempErrorOptions);
+
+            for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
+                DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
+                listSeries.add(item);
+                item = new DataSeriesItem();
+                item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
+                item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
+                temperatureErrors.add(item);
+            }
+            getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(temperatureErrors);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
         }
     }
 
