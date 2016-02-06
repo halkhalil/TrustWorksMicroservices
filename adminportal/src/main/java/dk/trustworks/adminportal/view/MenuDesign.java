@@ -82,6 +82,6 @@ public class MenuDesign extends VerticalLayout {
             scroll_panel.setContent(microServicesDesign);
         });
 
-        scroll_panel.setContent(microServicesDesign);
+        scroll_panel.setContent(dashboardDesign);
     }
 }
