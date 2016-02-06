@@ -210,6 +210,8 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <finalName>financemanager</finalName>
+                <appendAssemblyId>false</appendAssemblyId>
                 <configuration>
                     <archive>
                         <manifest>
@@ -230,67 +232,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.plugin.version}</version>
-                <configuration>
-                    <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-                    <webappDirectory>${basedir}/target/classes/VAADIN/widgetsets</webappDirectory>
-                    <draftCompile>false</draftCompile>
-                    <compileReport>false</compileReport>
-                    <style>OBF</style>
-                    <strict>true</strict>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>update-theme</goal>
-                            <goal>update-widgetset</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>gwt-maven-plugin</artifactId>
-                <version>2.3.0-1</version>
-                <configuration>
-                    <webappDirectory>src/main/webapp/VAADIN/widgetsets</webappDirectory>
-                    <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-                    <runTarget>clean</runTarget>
-                    <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-                    <noServer>true</noServer>
-                    <port>8080</port>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>resources</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.6.1</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>src/main/webapp/VAADIN/themes</directory>
-                            <includes>
-                                <include>**/styles.css</include>
-                                <include>**/styles.scss.cache</include>
-                            </includes>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            -->
         </plugins>
     </build>
 
