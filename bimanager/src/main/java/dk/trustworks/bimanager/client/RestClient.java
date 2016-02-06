@@ -9,6 +9,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import dk.trustworks.bimanager.client.commands.GetClientsCommand;
 import dk.trustworks.bimanager.client.commands.GetExpensesByYearCommand;
 import dk.trustworks.bimanager.client.commands.GetProjectsAndTasksAndTaskWorkerConstraintsCommand;
+import dk.trustworks.bimanager.client.commands.GetUsersCommand;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.framework.network.Locator;
 import org.apache.logging.log4j.LogManager;
@@ -27,10 +28,7 @@ import java.util.Map;
 public class RestClient {
 
     private static final Logger log = LogManager.getLogger(RestClient.class);
-    private final GetUsers getUsers = new GetUsers();
-    private final GetProjectsAndTasksAndTaskWorkerConstraintsCommand getProjectsAndTasksAndTaskWorkerConstraintsCommand = new GetProjectsAndTasksAndTaskWorkerConstraintsCommand();
-    private final GetClientsCommand getClients = new GetClientsCommand();
-    ;
+
 
     public double getTaskUserWorkHours(String taskuuid, String useruuid) {
         log.entry(taskuuid, useruuid);
@@ -451,15 +449,15 @@ public class RestClient {
     }
 
     public List<Client> getClients() {
-        return getClients.getClients();
+        return new GetClientsCommand().execute();
     }
 
     public List<Project> getProjectsAndTasksAndTaskWorkerConstraints() {
-        return getProjectsAndTasksAndTaskWorkerConstraintsCommand.getProjectsAndTasksAndTaskWorkerConstraints();
+        return new GetProjectsAndTasksAndTaskWorkerConstraintsCommand().execute();
     }
 
     public List<User> getUsers() {
-        return getUsers.getUsers();
+        return new GetUsersCommand().execute();
     }
 
     public void postTaskBudget(TaskWorkerConstraintBudget taskWorkerConstraintBudget) {

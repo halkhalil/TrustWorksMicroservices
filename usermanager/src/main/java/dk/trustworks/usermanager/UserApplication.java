@@ -2,6 +2,7 @@ package dk.trustworks.usermanager;
 
 import com.google.common.net.MediaType;
 import com.vaadin.server.VaadinServlet;
+import dk.trustworks.framework.BaseApplication;
 import dk.trustworks.framework.persistence.Helper;
 import dk.trustworks.usermanager.handlers.UserHandler;
 import dk.trustworks.usermanager.web.UserList;
@@ -36,7 +37,7 @@ import static io.undertow.servlet.Servlets.servlet;
 /**
  * Created by hans on 16/03/15.
  */
-public class UserApplication {
+public class UserApplication extends BaseApplication {
 
     public static final String JSON_UTF8 = MediaType.JSON_UTF_8.toString();
 
@@ -53,35 +54,9 @@ public class UserApplication {
             properties.load(in);
         }
 
-        DeploymentInfo servletBuilder = Servlets.deployment()
-                .setClassLoader(UserApplication.class.getClassLoader())
-                .setContextPath("/myapp")
-                .setDeploymentName("test.war")
-                .addServlets(
-                        Servlets.servlet("myservlet", VaadinServlet.class)
-                                .addInitParam("UI", "dk.trustworks.usermanager.web.UserListUI")
-                                .addMapping("/*"));
-
-
-        DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
+        DeploymentManager manager = getMetricsDeploymentManager();
         manager.deploy();
 
-        //PathHandler path = Handlers.path(Handlers.redirect("/myapp")).addPrefixPath("/myapp", manager.start());
-/*
-        DeploymentInfo servletBuilder = deployment()
-                .setClassLoader(this.getClass().getClassLoader())
-                .setContextPath("/myapp")
-                .setDeploymentName("test.war")
-                .setResourceManager(new FileResourceManager(new File("src/main/webapp"), 1024))
-                .addServlets(
-                        servlet("VaadinServlet", VaadinServlet.class)
-                                .addInitParam("ui", "dk.trustworks.bimanager.web")
-                                .addMapping("/*").addMapping("/VAADIN")
-                );
-
-        DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
-        manager.deploy();
-*/
         Undertow.builder()
                 .addHttpListener(port, properties.getProperty("web.host"))
                 .setBufferSize(1024 * 16)
@@ -91,45 +66,12 @@ public class UserApplication {
                 .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
                 .setHandler(Handlers.header(Handlers.path()
                         .addPrefixPath("/api/users", new UserHandler())
-                        .addPrefixPath("/html", createStaticResourceHandler())
-                        .addPrefixPath("/myapp", manager.start()), Headers.SERVER_STRING, "U-tow"))
+                        .addPrefixPath("/servlets", manager.start())
+                        , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()
                 .start();
 
-        registerInZookeeper(properties.getProperty("zookeeper.host"), port);
-    }
-
-    private HttpHandler createStaticResourceHandler() {
-        final ResourceManager staticResources =
-                new ClassPathResourceManager(UserList.class.getClassLoader(), "dk/trustworks/usermanager/web");
-        // Cache tuning is copied from Undertow unit tests.
-        final ResourceManager cachedResources =
-                new CachingResourceManager(100, 65536,
-                        new DirectBufferCache(1024, 10, 10480),
-                        staticResources,
-                        (int) Duration.ofDays(1).getSeconds());
-        final ResourceHandler resourceHandler = new ResourceHandler(cachedResources);
-        resourceHandler.setWelcomeFiles("index.html");
-        return resourceHandler;
-    }
-
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
-        curatorFramework.start();
-
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
-                .port(port)
-                .name("userservice")
-                .build();
-
-        ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
-                .client(curatorFramework)
-                .thisInstance(serviceInstance)
-                .build()
-                .start();
+        registerInZookeeper("userservice", properties.getProperty("zookeeper.host"), port);
     }
 }

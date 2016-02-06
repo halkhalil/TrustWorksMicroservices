@@ -1,18 +1,12 @@
 package dk.trustworks.bimanager.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
 import dk.trustworks.bimanager.client.RestClient;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.bimanager.service.StatisticService;
-import dk.trustworks.framework.network.Locator;
 import dk.trustworks.framework.server.DefaultHandler;
 import dk.trustworks.framework.service.DefaultLocalService;
 import io.undertow.server.HttpServerExchange;
@@ -36,9 +30,13 @@ public class StatisticHandler extends DefaultHandler {
     private final StatisticService statisticService;
     private final RestClient restClient = new RestClient();
 
-    private final Cache<String, List> cache = CacheBuilder.newBuilder()
+    private final Cache<String, List> listCache = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(1000).recordStats()
+            .build();
+    private final Cache<String, Map> mapCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(100).recordStats()
             .build();
 
     public StatisticHandler() {
@@ -543,18 +541,24 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     private Map<String, User> getAllUsersMap() {
-        // add caches
-        Map<String, User> userMap = new HashMap<>();
-        for (User user : restClient.getUsers()) {
-            userMap.put(user.getUUID(), user);
+        try {
+            return mapCache.get("users", () -> {
+                Map<String, User> userMap = new HashMap<>();
+                for (User user : restClient.getUsers()) {
+                    userMap.put(user.getUUID(), user);
+                }
+                return userMap;
+            });
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
         }
-        return userMap;
+
     }
 
     @SuppressWarnings("unchecked")
     private List<Work> getAllWork(int year) {
         try {
-            return cache.get("work"+year, () -> restClient.getRegisteredWorkByYear(year));
+            return listCache.get("work"+year, () -> restClient.getRegisteredWorkByYear(year));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
@@ -563,7 +567,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<TaskWorkerConstraintBudget> getAllBudgets(int year) {
         try {
-            return cache.get("budgets"+year, () -> restClient.getBudgetsByYear(year));
+            return listCache.get("budgets"+year, () -> restClient.getBudgetsByYear(year));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
@@ -572,14 +576,14 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<TaskWorkerConstraintBudget> getAllBudgetsByUser(int year, String userUUID) {
         try {
-            return cache.get("budgets"+year+userUUID, () -> restClient.getBudgetsByYearAndUser(year, userUUID));
+            return listCache.get("budgets"+year+userUUID, () -> restClient.getBudgetsByYearAndUser(year, userUUID));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
     }
 
     private List<Integer> getCapacityPerMonthByYear(int year) {
-        //try { //cache.get("capacitypermonth"+year, (Callable<? extends List>)
+        //try { //listCache.get("capacitypermonth"+year, (Callable<? extends List>)
             return new ArrayList<>(Arrays.asList(restClient.getCapacityPerMonthByYear(year)));
         //} catch (ExecutionException e) {
           //  throw new RuntimeException(e.getCause());
@@ -589,7 +593,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<Project> getAllProjects() {
         try {
-            return cache.get("projects", restClient::getProjectsAndTasksAndTaskWorkerConstraints);
+            return listCache.get("projects", restClient::getProjectsAndTasksAndTaskWorkerConstraints);
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
@@ -598,7 +602,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<Client> getAllClients() {
         try {
-            return cache.get("clients", () -> restClient.getClients());
+            return listCache.get("clients", () -> restClient.getClients());
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
@@ -607,7 +611,7 @@ public class StatisticHandler extends DefaultHandler {
     @SuppressWarnings("unchecked")
     private List<Expense> getAllExpensesByYear(int year) {
         try {
-            return cache.get("expenses"+year, () -> restClient.getExpensesByYear(year));
+            return listCache.get("expenses"+year, () -> restClient.getExpensesByYear(year));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }

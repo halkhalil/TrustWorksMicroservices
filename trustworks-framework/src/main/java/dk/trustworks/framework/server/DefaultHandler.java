@@ -1,11 +1,14 @@
 package dk.trustworks.framework.server;
 
+import com.codahale.metrics.*;
+import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.trustworks.framework.service.DefaultLocalService;
 import dk.trustworks.framework.service.DefaultService;
 import dk.trustworks.framework.service.ServiceRegistry;
+import dk.trustworks.framework.servlets.MetricsServletContextListener;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
@@ -17,10 +20,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 /**
  * Created by hans on 18/03/15.
  */
 public abstract class DefaultHandler implements HttpHandler {
+
+    private final com.codahale.metrics.Timer responses = MetricsServletContextListener.metricRegistry.timer(name(this.getClass(), "responses"));
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -42,40 +49,45 @@ public abstract class DefaultHandler implements HttpHandler {
             return;
         }
         ThreadContext.push(UUID.randomUUID().toString());
-        logger.debug("handleRequest: " + entity);
+        final Timer.Context context = responses.time();
+        try {
+            logger.debug("handleRequest: " + entity);
 
-        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
 
-        String[] relativePath = exchange.getRelativePath().split("/");
-        if (relativePath.length == 0 || relativePath[relativePath.length - 1].equals("")) {
-            switch (exchange.getRequestMethod().toString()) {
-                case "GET":
-                    getAllEntities(exchange);
-                    break;
-                case "POST":
-                    createEntity(exchange);
-                    break;
+            String[] relativePath = exchange.getRelativePath().split("/");
+            if (relativePath.length == 0 || relativePath[relativePath.length - 1].equals("")) {
+                switch (exchange.getRequestMethod().toString()) {
+                    case "GET":
+                        getAllEntities(exchange);
+                        break;
+                    case "POST":
+                        createEntity(exchange);
+                        break;
+                }
+            } else if (relativePath.length > 1 && relativePath[1].equals("search")) {
+                logger.debug("DefaultHandler.handleRequest: SEARCH");
+                logger.debug("relativePath[2] = " + relativePath[2]);
+                handleSearch(exchange, relativePath[2]);
+            } else if (relativePath.length > 1 && commands.contains(relativePath[1])) {
+                logger.debug("DefaultHandler.handleRequest: " + relativePath[1]);
+                this.getClass().getDeclaredMethod(relativePath[1], HttpServerExchange.class, String[].class).invoke(this, exchange, relativePath);
+            } else if (relativePath.length > 1) {
+                switch (exchange.getRequestMethod().toString()) {
+                    case "GET":
+                        logger.debug("DefaultHandler.handleRequest: GET");
+                        logger.debug("relativePath = " + relativePath[1]);
+                        findByUUID(exchange, relativePath[1]);
+                        break;
+                    case "POST":
+                        logger.debug("DefaultHandler.handleRequest: POST/UPDATE");
+                        updateEntity(exchange, relativePath[1]);
+                        break;
+                }
+
             }
-        } else if (relativePath.length > 1 && relativePath[1].equals("search")) {
-            logger.debug("DefaultHandler.handleRequest: SEARCH");
-            logger.debug("relativePath[2] = " + relativePath[2]);
-            handleSearch(exchange, relativePath[2]);
-        } else if (relativePath.length > 1 && commands.contains(relativePath[1])) {
-            logger.debug("DefaultHandler.handleRequest: " + relativePath[1]);
-            this.getClass().getDeclaredMethod(relativePath[1], HttpServerExchange.class, String[].class).invoke(this, exchange, relativePath);
-        } else if (relativePath.length > 1) {
-            switch (exchange.getRequestMethod().toString()) {
-                case "GET":
-                    logger.debug("DefaultHandler.handleRequest: GET");
-                    logger.debug("relativePath = " + relativePath[1]);
-                    findByUUID(exchange, relativePath[1]);
-                    break;
-                case "POST":
-                    logger.debug("DefaultHandler.handleRequest: POST/UPDATE");
-                    updateEntity(exchange, relativePath[1]);
-                    break;
-            }
-
+        } finally {
+            context.stop();
         }
         ThreadContext.pop();
     }

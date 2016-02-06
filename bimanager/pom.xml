@@ -109,6 +109,16 @@
             <artifactId>hystrix-request-servlet</artifactId>
             <version>1.4.21</version>
         </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-servlets</artifactId>
+            <version>3.1.2</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>com.vaadin</groupId>

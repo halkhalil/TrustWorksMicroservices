@@ -9,11 +9,13 @@ import dk.trustworks.clientmanager.handlers.*;
 import dk.trustworks.clientmanager.persistence.*;
 import dk.trustworks.clientmanager.service.*;
 import dk.trustworks.distributed.model.*;
+import dk.trustworks.framework.BaseApplication;
 import dk.trustworks.framework.persistence.Helper;
 import dk.trustworks.framework.service.ServiceRegistry;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
+import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.util.Headers;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -32,7 +34,7 @@ import java.util.Properties;
 /**
  * Created by hans on 16/03/15.
  */
-public class ClientApplication {
+public class ClientApplication extends BaseApplication {
 
     private static final Logger log = LogManager.getLogger();
 
@@ -47,7 +49,7 @@ public class ClientApplication {
             properties.load(in);
         }
 
-        //cacheValues();
+        DeploymentManager manager = getMetricsDeploymentManager();
 
         ServiceRegistry serviceRegistry = ServiceRegistry.getInstance();
 
@@ -72,70 +74,12 @@ public class ClientApplication {
                                 .addPrefixPath("/api/taskworkerconstraints", new TaskWorkerConstraintHandler())
                                 .addPrefixPath("/api/taskworkerconstraintbudgets", new TaskWorkerConstraintBudgetHandler())
                                 .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
+                                .addPrefixPath("/servlets", manager.start())
                         , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()
                 .start();
 
-        registerInZookeeper(properties.getProperty("zookeeper.host"), port);
-    }
-
-    private final void cacheValues() {
-        ObjectMapper mapper = new ObjectMapper();
-        HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance();
-
-        IMap<String, Client> clients = hzInstance.getMap("clients");
-        for (Client entity : (List<Client>) mapper.convertValue(new ClientRepository().getAllEntities("client"), new TypeReference<List<Client>>() {
-        })) {
-            clients.put(entity.uuid, entity);
-        }
-
-        IMap<String, Project> projects = hzInstance.getMap("projects");
-        projects.addIndex("clientUUID", true);
-        for (Project project : (List<Project>) mapper.convertValue(new ProjectRepository().getAllEntities("project"), new TypeReference<List<Project>>() {
-        })) {
-            projects.put(project.getUUID(), project);
-        }
-
-        IMap<String, Task> tasks = hzInstance.getMap("tasks");
-        tasks.addIndex("projectUUID", true);
-        for (Task task : (List<Task>) mapper.convertValue(new TaskRepository().getAllEntities("task"), new TypeReference<List<Task>>() {
-        })) {
-            tasks.put(task.getUUID(), task);
-        }
-
-        IMap<String, TaskWorkerConstraint> taskWorkerConstraints = hzInstance.getMap("taskworkerconstraints");
-        taskWorkerConstraints.addIndex("taskUUID", true);
-        for (TaskWorkerConstraint taskWorkerConstraint : (List<TaskWorkerConstraint>) mapper.convertValue(new TaskWorkerConstraintRepository().getAllEntities("taskworkerconstraint"), new TypeReference<List<TaskWorkerConstraint>>() {
-        })) {
-            taskWorkerConstraints.put(taskWorkerConstraint.getUUID(), taskWorkerConstraint);
-        }
-
-        IMap<String, TaskWorkerConstraintBudget> taskWorkerConstraintBudgets = hzInstance.getMap("taskworkerconstraintbudgets");
-        taskWorkerConstraintBudgets.addIndex("taskWorkerConstraintUUID", true);
-        for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : (List<TaskWorkerConstraintBudget>) mapper.convertValue(new TaskWorkerConstraintBudgetRepository().getAllEntities("taskworkerconstraintbudget"), new TypeReference<List<TaskWorkerConstraintBudget>>() {
-        })) {
-            taskWorkerConstraintBudgets.put(taskWorkerConstraintBudget.getUuid(), taskWorkerConstraintBudget);
-        }
-
-    }
-
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
-        curatorFramework.start();
-
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
-                .port(port)
-                .name("clientservice")
-                .build();
-
-        ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
-                .client(curatorFramework)
-                .thisInstance(serviceInstance)
-                .build()
-                .start();
+        registerInZookeeper("clientservice", properties.getProperty("zookeeper.host"), port);
     }
 }

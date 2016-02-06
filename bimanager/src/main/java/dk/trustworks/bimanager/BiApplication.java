@@ -1,5 +1,6 @@
 package dk.trustworks.bimanager;
 
+import com.codahale.metrics.servlets.MetricsServlet;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 import com.netflix.hystrix.contrib.requestservlet.HystrixRequestContextServletFilter;
 import dk.trustworks.bimanager.handler.ProjectBudgetHandler;
@@ -8,13 +9,14 @@ import dk.trustworks.bimanager.handler.StatisticHandler;
 import dk.trustworks.bimanager.handler.TaskBudgetHandler;
 import dk.trustworks.bimanager.jobs.WorkItemMonthlyJob;
 import dk.trustworks.bimanager.jobs.enums.Event;
+import dk.trustworks.framework.BaseApplication;
+import dk.trustworks.framework.servlets.MetricsServletContextListener;
 import dk.trustworks.bimanager.web.Web;
 import dk.trustworks.framework.persistence.Helper;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.cache.DirectBufferCache;
 import io.undertow.server.handlers.resource.CachingResourceManager;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
@@ -51,7 +53,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 /**
  * Created by hans on 16/03/15.
  */
-public class BiApplication {
+public class BiApplication extends BaseApplication {
 
     private static final Logger log = LogManager.getLogger(BiApplication.class);
 
@@ -66,22 +68,7 @@ public class BiApplication {
             properties.load(in);
         }
 
-        DeploymentInfo servletBuilder = Servlets.deployment()
-                .setClassLoader(BiApplication.class.getClassLoader())
-                .setContextPath("/myapp")
-                .setDeploymentName("test.war")
-                .addServlets(
-                        Servlets.servlet("HystrixMetricsStreamServlet", HystrixMetricsStreamServlet.class)
-                                .addMapping("/hystrix.stream"))
-                .addFilter(
-                        Servlets.filter("HystrixRequestContextServletFilter", HystrixRequestContextServletFilter.class))
-                .addFilterUrlMapping("HystrixRequestContextServletFilter", "/*", DispatcherType.REQUEST);
-
-
-        DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
-        manager.deploy();
-        PathHandler path = Handlers.path(Handlers.redirect("/myapp"))
-                .addPrefixPath("/myapp", manager.start());
+        DeploymentManager manager = getMetricsDeploymentManager();
 
         Undertow.builder()
                 .addHttpListener(port, properties.getProperty("web.host"))
@@ -90,36 +77,18 @@ public class BiApplication {
                 .setSocketOption(Options.BACKLOG, 10000)
                 .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false) //don't send a keep-alive header for HTTP/1.1 requests, as it is not required
                 .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
-                //.setHandler(resource(new ClassPathResourceManager(Web.class.getClassLoader(), "dk/trustworks/bimanager/web")).setDirectoryListingEnabled(true))
                 .setHandler(Handlers.header(Handlers.path()
                         .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
                         .addPrefixPath("/api/taskbudgets", new TaskBudgetHandler())
                         .addPrefixPath("/api/reports", new ReportHandler())
                         .addPrefixPath("/api/statistics", new StatisticHandler())
-                        .addPrefixPath("/myapp", manager.start())
+                        .addPrefixPath("/servlets", manager.start())
                         , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()
                 .start();
 
-        registerInZookeeper(properties.getProperty("zookeeper.host"), port);
-
-        //startSchedulers();
-    }
-
-    private HttpHandler createStaticResourceHandler() {
-        final ResourceManager staticResources =
-                new ClassPathResourceManager(Web.class.getClassLoader());
-        // Cache tuning is copied from Undertow unit tests.
-        final ResourceManager cachedResources =
-                new CachingResourceManager(100, 65536,
-                        new DirectBufferCache(1024, 10, 10480),
-                        staticResources,
-                        (int) Duration.ofDays(1).getSeconds());
-        final ResourceHandler resourceHandler = new ResourceHandler(cachedResources);
-        resourceHandler.setWelcomeFiles("index.html");
-        resourceHandler.setDirectoryListingEnabled(true);
-        return resourceHandler;
+        registerInZookeeper("biservice", properties.getProperty("zookeeper.host"), port);
     }
 
     private final void startSchedulers() throws SchedulerException {
@@ -151,24 +120,5 @@ public class BiApplication {
         scheduler.scheduleJob(workItemCurrentMonthJob, dailyTrigger);
 
         scheduler.start();
-    }
-
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
-        curatorFramework.start();
-
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
-                .port(port)
-                .name("biservice")
-                .build();
-
-        ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
-                .client(curatorFramework)
-                .thisInstance(serviceInstance)
-                .build()
-                .start();
     }
 }

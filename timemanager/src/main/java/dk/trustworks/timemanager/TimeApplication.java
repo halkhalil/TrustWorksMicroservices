@@ -1,6 +1,7 @@
 package dk.trustworks.timemanager;
 
 import com.google.common.net.MediaType;
+import dk.trustworks.framework.BaseApplication;
 import dk.trustworks.framework.persistence.Helper;
 import dk.trustworks.framework.service.ServiceRegistry;
 import dk.trustworks.timemanager.handlers.TaskWeekViewHandler;
@@ -13,6 +14,7 @@ import dk.trustworks.timemanager.service.UserService;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
+import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.util.Headers;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -29,11 +31,7 @@ import java.util.Properties;
 /**
  * Created by hans on 16/03/15.
  */
-public class TimeApplication {
-
-    public static final String JSON_UTF8 = MediaType.JSON_UTF_8.toString();
-
-    static ServiceProvider serviceProvider;
+public class TimeApplication extends BaseApplication {
 
     public static void main(String[] args) throws Exception {
         new TimeApplication(Integer.parseInt(args[0]));
@@ -45,6 +43,8 @@ public class TimeApplication {
         try (InputStream in = Helper.class.getResourceAsStream("server.properties")) {
             properties.load(in);
         }
+
+        DeploymentManager manager = getMetricsDeploymentManager();
 
         ServiceRegistry serviceRegistry = ServiceRegistry.getInstance();
 
@@ -64,31 +64,12 @@ public class TimeApplication {
                                 .addPrefixPath("/api/works", new WorkHandler())
                                 .addPrefixPath("/api/weeks", new WeekHandler())
                                 .addPrefixPath("/api/taskweekviews/", new TaskWeekViewHandler())
+                                .addPrefixPath("/servlets", manager.start())
                         , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()
                 .start();
 
-        registerInZookeeper(properties.getProperty("zookeeper.host"), port);
-    }
-
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
-        curatorFramework.start();
-
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
-                .port(port)
-                .name("timeservice")
-                .build();
-
-        ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
-                .client(curatorFramework)
-                .thisInstance(serviceInstance)
-                .build()
-                .start();
-
+        registerInZookeeper("timeservice", properties.getProperty("zookeeper.host"), port);
     }
 }

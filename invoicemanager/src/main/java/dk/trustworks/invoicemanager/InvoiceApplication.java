@@ -2,6 +2,7 @@ package dk.trustworks.invoicemanager;
 
 import com.google.common.net.MediaType;
 import com.vaadin.server.VaadinServlet;
+import dk.trustworks.framework.BaseApplication;
 import dk.trustworks.framework.persistence.Helper;
 import dk.trustworks.invoicemanager.handlers.InvoiceHandler;
 import dk.trustworks.invoicemanager.handlers.ProductLineHandler;
@@ -27,7 +28,7 @@ import java.util.Properties;
 /**
  * Created by hans on 16/03/15.
  */
-public class InvoiceApplication {
+public class InvoiceApplication extends BaseApplication {
 
     public static final String JSON_UTF8 = MediaType.JSON_UTF_8.toString();
 
@@ -72,25 +73,6 @@ public class InvoiceApplication {
                 .build()
                 .start();
 
-        registerInZookeeper(properties.getProperty("zookeeper.host"), port);
-    }
-
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
-        curatorFramework.start();
-
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
-                .port(port)
-                .name("userservice")
-                .build();
-
-        ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
-                .client(curatorFramework)
-                .thisInstance(serviceInstance)
-                .build()
-                .start();
+        registerInZookeeper("invoiceservice", properties.getProperty("zookeeper.host"), port);
     }
 }

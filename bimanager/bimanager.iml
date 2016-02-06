@@ -76,5 +76,10 @@
     <orderEntry type="library" name="Maven: io.reactivex:rxjava:1.0.14" level="project" />
     <orderEntry type="library" name="Maven: com.netflix.hystrix:hystrix-metrics-event-stream:1.4.21" level="project" />
     <orderEntry type="library" name="Maven: com.netflix.hystrix:hystrix-request-servlet:1.4.21" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-core:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-servlets:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-healthchecks:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-json:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-jvm:3.1.2" level="project" />
   </component>
 </module>

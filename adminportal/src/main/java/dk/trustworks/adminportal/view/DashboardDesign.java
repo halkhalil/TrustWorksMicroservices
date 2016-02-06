@@ -392,7 +392,7 @@ public class DashboardDesign extends CssLayout {
             options2.setMarker(new Marker(false));
             avgRevenueList.setPlotOptions(options2);
 
-            DataSeries series2 = new DataSeries("Average per week");
+            DataSeries avgPerWeek = new DataSeries("Average per week");
 
             YAxis yaxis = new YAxis();
             yaxis.setTitle("Avg per week");
@@ -402,14 +402,14 @@ public class DashboardDesign extends CssLayout {
 
             PlotOptionsLine options3 = new PlotOptionsLine();
             options3.setColor(SolidColor.RED);
-            series2.setPlotOptions(options3);
+            avgPerWeek.setPlotOptions(options3);
 
             int i = 0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
                 double weeks = 52;
                 if(year == new DateTime().getYear()) weeks = ((new DateTime().getDayOfYear() - userVacation.get(amountPerItem.uuid)) / 7.0);
-                series2.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1) * 100.0) / 100.0)));
+                avgPerWeek.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1) * 100.0) / 100.0)));
                 //1.12693498452012
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
@@ -422,8 +422,8 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueList);
             getConfiguration().addSeries(avgRevenueList);
-            getConfiguration().addSeries(series2);
-            series2.setyAxis(yaxis);
+            getConfiguration().addSeries(avgPerWeek);
+            avgPerWeek.setyAxis(yaxis);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
@@ -612,12 +612,6 @@ public class DashboardDesign extends CssLayout {
                 for (String taskName : taskAmountPerItem.keySet()) {
 
                 }
-
-                //drillSeries.(ys);
-
-
-
-
                 series.addItemWithDrilldown(item, drillSeries);
             }
             getConfiguration().addSeries(series);
