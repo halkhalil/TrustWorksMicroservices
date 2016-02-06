@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -27,7 +28,7 @@ import static com.codahale.metrics.MetricRegistry.name;
  */
 public abstract class DefaultHandler implements HttpHandler {
 
-    private final com.codahale.metrics.Timer responses = MetricsServletContextListener.metricRegistry.timer(name(this.getClass(), "responses"));
+    private final MetricRegistry registry = MetricsServletContextListener.metricRegistry;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -49,119 +50,146 @@ public abstract class DefaultHandler implements HttpHandler {
             return;
         }
         ThreadContext.push(UUID.randomUUID().toString());
-        final Timer.Context context = responses.time();
-        try {
-            logger.debug("handleRequest: " + entity);
 
-            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+        logger.debug("handleRequest: " + entity);
 
-            String[] relativePath = exchange.getRelativePath().split("/");
-            if (relativePath.length == 0 || relativePath[relativePath.length - 1].equals("")) {
-                switch (exchange.getRequestMethod().toString()) {
-                    case "GET":
-                        getAllEntities(exchange);
-                        break;
-                    case "POST":
-                        createEntity(exchange);
-                        break;
-                }
-            } else if (relativePath.length > 1 && relativePath[1].equals("search")) {
-                logger.debug("DefaultHandler.handleRequest: SEARCH");
-                logger.debug("relativePath[2] = " + relativePath[2]);
-                handleSearch(exchange, relativePath[2]);
-            } else if (relativePath.length > 1 && commands.contains(relativePath[1])) {
-                logger.debug("DefaultHandler.handleRequest: " + relativePath[1]);
-                this.getClass().getDeclaredMethod(relativePath[1], HttpServerExchange.class, String[].class).invoke(this, exchange, relativePath);
-            } else if (relativePath.length > 1) {
-                switch (exchange.getRequestMethod().toString()) {
-                    case "GET":
-                        logger.debug("DefaultHandler.handleRequest: GET");
-                        logger.debug("relativePath = " + relativePath[1]);
-                        findByUUID(exchange, relativePath[1]);
-                        break;
-                    case "POST":
-                        logger.debug("DefaultHandler.handleRequest: POST/UPDATE");
-                        updateEntity(exchange, relativePath[1]);
-                        break;
-                }
+        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
 
+        String[] relativePath = exchange.getRelativePath().split("/");
+        if (relativePath.length == 0 || relativePath[relativePath.length - 1].equals("")) {
+            switch (exchange.getRequestMethod().toString()) {
+                case "GET":
+                    getAllEntities(exchange);
+                    break;
+                case "POST":
+                    createEntity(exchange);
+                    break;
             }
-        } finally {
-            context.stop();
+        } else if (relativePath.length > 1 && relativePath[1].equals("search")) {
+            logger.debug("DefaultHandler.handleRequest: SEARCH");
+            logger.debug("relativePath[2] = " + relativePath[2]);
+            handleSearch(exchange, relativePath[2]);
+        } else if (relativePath.length > 1 && commands.contains(relativePath[1])) {
+            logger.debug("DefaultHandler.handleRequest: " + relativePath[1]);
+            executeCommand(exchange, relativePath);
+        } else if (relativePath.length > 1) {
+            switch (exchange.getRequestMethod().toString()) {
+                case "GET":
+                    logger.debug("DefaultHandler.handleRequest: GET");
+                    logger.debug("relativePath = " + relativePath[1]);
+                    findByUUID(exchange, relativePath[1]);
+                    break;
+                case "POST":
+                    logger.debug("DefaultHandler.handleRequest: POST/UPDATE");
+                    updateEntity(exchange, relativePath[1]);
+                    break;
+            }
+
         }
         ThreadContext.pop();
     }
 
     protected void getAllEntities(HttpServerExchange exchange) throws JsonProcessingException {
-        List<Map<String, Object>> allEntities = getService().getAllEntities(entity);
-        if (exchange.getQueryParameters().get("projection") != null) {
-            for (Map<String, Object> map : allEntities) {
-                for (String projectionTree : exchange.getQueryParameters().get("projection")) {
-                    map.putAll(loadParentEntities(map, new LinkedList<>(Arrays.asList(projectionTree.split("/")))));
-                }
-            }
-        }
-        if (exchange.getQueryParameters().get("children") != null) {
-            try {
-                logger.debug("child projection");
-                for (Map<String, Object> map : allEntities) {
-                    logger.debug("entity: " + entity);
-                    loadChildEntities(map, new LinkedList<>(Arrays.asList(exchange.getQueryParameters().get("children").getFirst().split("/"))), entity + "uuid", 0);
-                }
-            } catch (Exception e) {
-                logger.error("LOG00850:", e);
-            }
-
-
-            /*
-            for (Map<String, Object> map : allEntities) {
-                for (String projectionTree : exchange.getQueryParameters().get("children")) {
-                    map.putAll(loadChildEntities(map, new LinkedList<>(Arrays.asList(projectionTree.split("/")))), 0);
-                }
-            }
-            */
-        }
-        exchange.getResponseSender().send(mapper.writeValueAsString(allEntities));
-    }
-
-    protected void findByUUID(HttpServerExchange exchange, String uuid) throws JsonProcessingException {
-        Map<String, Object> entity = getService().getOneEntity(this.entity, uuid);
-        if (exchange.getQueryParameters().get("projection") != null) {
-            for (String projectionTree : exchange.getQueryParameters().get("projection")) {
-                entity.putAll(loadParentEntities(entity, new LinkedList<>(Arrays.asList(projectionTree.split("/")))));
-            }
-        }
-        exchange.getResponseSender().send(mapper.writeValueAsString(entity));
-    }
-
-    protected void createEntity(HttpServerExchange exchange) throws IOException, SQLException {
-        exchange.startBlocking();
-        JsonNode jsonNode = mapper.readTree(exchange.getInputStream());
-        getService().create(jsonNode);
-    }
-
-    protected void updateEntity(HttpServerExchange exchange, String uuid) throws IOException, SQLException {
-        exchange.startBlocking();
-        JsonNode jsonNode = mapper.readTree(exchange.getInputStream());
-        getService().update(jsonNode, uuid);
-    }
-
-    protected void handleSearch(HttpServerExchange exchange, String searchMethodName) throws Exception {
-        logger.debug("DefaultHandler.handleSearch: " + this.getClass().toString());
-        logger.debug("DefaultHandler.handleSearch: " + searchMethodName);
-        Object result2 = getService().getClass().getDeclaredMethod(searchMethodName, Map.class).invoke(getService(), exchange.getQueryParameters());
-        if (result2.getClass().equals(HashMap.class)) {
-            exchange.getResponseSender().send(mapper.writeValueAsString(result2));
-        } else {
-            List<Map<String, Object>> result = (List<Map<String, Object>>) result2;
+        final Timer timer = registry.timer(name(entity, "all", "response"));
+        final Timer.Context context = timer.time();
+        try {
+            List<Map<String, Object>> allEntities = getService().getAllEntities(entity);
             if (exchange.getQueryParameters().get("projection") != null) {
-                for (Map<String, Object> map : result) {
+                for (Map<String, Object> map : allEntities) {
                     for (String projectionTree : exchange.getQueryParameters().get("projection")) {
                         map.putAll(loadParentEntities(map, new LinkedList<>(Arrays.asList(projectionTree.split("/")))));
                     }
                 }
             }
-            exchange.getResponseSender().send(mapper.writeValueAsString(result));
+            if (exchange.getQueryParameters().get("children") != null) {
+                try {
+                    logger.debug("child projection");
+                    for (Map<String, Object> map : allEntities) {
+                        logger.debug("entity: " + entity);
+                        loadChildEntities(map, new LinkedList<>(Arrays.asList(exchange.getQueryParameters().get("children").getFirst().split("/"))), entity + "uuid", 0);
+                    }
+                } catch (Exception e) {
+                    logger.error("LOG00850:", e);
+                }
+            }
+            exchange.getResponseSender().send(mapper.writeValueAsString(allEntities));
+        } finally {
+            context.stop();
+        }
+    }
+
+    protected void findByUUID(HttpServerExchange exchange, String uuid) throws JsonProcessingException {
+        final Timer timer = registry.timer(name(entity, "get", "response"));
+        final Timer.Context context = timer.time();
+        try {
+            Map<String, Object> entity = getService().getOneEntity(this.entity, uuid);
+            if (exchange.getQueryParameters().get("projection") != null) {
+                for (String projectionTree : exchange.getQueryParameters().get("projection")) {
+                    entity.putAll(loadParentEntities(entity, new LinkedList<>(Arrays.asList(projectionTree.split("/")))));
+                }
+            }
+            exchange.getResponseSender().send(mapper.writeValueAsString(entity));
+        } finally {
+            context.stop();
+        }
+    }
+
+    protected void createEntity(HttpServerExchange exchange) throws IOException, SQLException {
+        final Timer timer = registry.timer(name(entity, "post", "response"));
+        final Timer.Context context = timer.time();
+        try {
+            exchange.startBlocking();
+            JsonNode jsonNode = mapper.readTree(exchange.getInputStream());
+            getService().create(jsonNode);
+        } finally {
+            context.stop();
+        }
+    }
+
+    protected void updateEntity(HttpServerExchange exchange, String uuid) throws IOException, SQLException {
+        final Timer timer = registry.timer(name(entity, "update", "response"));
+        final Timer.Context context = timer.time();
+        try {
+            exchange.startBlocking();
+            JsonNode jsonNode = mapper.readTree(exchange.getInputStream());
+            getService().update(jsonNode, uuid);
+        } finally {
+            context.stop();
+        }
+    }
+
+    protected void handleSearch(HttpServerExchange exchange, String searchMethodName) throws Exception {
+        logger.debug("DefaultHandler.handleSearch: " + this.getClass().toString());
+        logger.debug("DefaultHandler.handleSearch: " + searchMethodName);
+        final Timer timer = registry.timer(name(entity, "search", searchMethodName, "response"));
+        final Timer.Context context = timer.time();
+        try {
+            Object result2 = getService().getClass().getDeclaredMethod(searchMethodName, Map.class).invoke(getService(), exchange.getQueryParameters());
+            if (result2.getClass().equals(HashMap.class)) {
+                exchange.getResponseSender().send(mapper.writeValueAsString(result2));
+            } else {
+                List<Map<String, Object>> result = (List<Map<String, Object>>) result2;
+                if (exchange.getQueryParameters().get("projection") != null) {
+                    for (Map<String, Object> map : result) {
+                        for (String projectionTree : exchange.getQueryParameters().get("projection")) {
+                            map.putAll(loadParentEntities(map, new LinkedList<>(Arrays.asList(projectionTree.split("/")))));
+                        }
+                    }
+                }
+                exchange.getResponseSender().send(mapper.writeValueAsString(result));
+            }
+        } finally {
+            context.stop();
+        }
+    }
+
+    private void executeCommand(HttpServerExchange exchange, String[] relativePath) throws Exception {
+        final Timer timer = registry.timer(name(entity, "command", relativePath[1], "response"));
+        final Timer.Context context = timer.time();
+        try {
+            this.getClass().getDeclaredMethod(relativePath[1], HttpServerExchange.class, String[].class).invoke(this, exchange, relativePath);
+        } finally {
+            context.stop();
         }
     }
 
