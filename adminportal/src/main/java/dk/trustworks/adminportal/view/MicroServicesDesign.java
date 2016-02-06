@@ -104,7 +104,7 @@ public class MicroServicesDesign extends CssLayout {
             DataSeries listSeries = new DataSeries("Response Times");
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
-            getConfiguration().addSeries(temperatureErrors);
+            //getConfiguration().addSeries(temperatureErrors);
             PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
@@ -162,7 +162,7 @@ public class MicroServicesDesign extends CssLayout {
             DataSeries listSeries = new DataSeries("Response Times");
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
-            getConfiguration().addSeries(temperatureErrors);
+            //getConfiguration().addSeries(temperatureErrors);
             PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
@@ -220,7 +220,7 @@ public class MicroServicesDesign extends CssLayout {
             DataSeries listSeries = new DataSeries("Response Times");
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
-            getConfiguration().addSeries(temperatureErrors);
+            //getConfiguration().addSeries(temperatureErrors);
             PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
@@ -278,7 +278,7 @@ public class MicroServicesDesign extends CssLayout {
             DataSeries listSeries = new DataSeries("Response Times");
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
-            getConfiguration().addSeries(temperatureErrors);
+            //getConfiguration().addSeries(temperatureErrors);
             PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
