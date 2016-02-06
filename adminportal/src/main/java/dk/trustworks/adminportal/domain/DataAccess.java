@@ -6,10 +6,9 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import dk.trustworks.adminportal.domain.AmountPerItem;
-import dk.trustworks.adminportal.domain.User;
 import dk.trustworks.framework.network.Locator;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -403,5 +402,18 @@ public class DataAccess implements Serializable {
             e.printStackTrace();
         }
         return 0.0;
+    }
+
+    public JSONObject getStatisticMetrics() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/servlets/metrics")
+                    .header("accept", "application/json")
+                    .asJson();
+            return jsonResponse.getBody().getObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
