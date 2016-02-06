@@ -88,7 +88,7 @@ public class MicroServicesDesign extends CssLayout {
 
         public BiManagerTimersChart() {
             setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
+            setHeight("430px"); // 400px by default
             //setSizeFull();
 
             setCaption("BiService Response Times");
@@ -146,7 +146,7 @@ public class MicroServicesDesign extends CssLayout {
 
         public UserManagerTimersChart() {
             setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
+            setHeight("430px"); // 400px by default
             //setSizeFull();
 
             setCaption("UserService Response Times");
@@ -204,7 +204,7 @@ public class MicroServicesDesign extends CssLayout {
 
         public RevenuePerMonthChart(int year) {
             setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
+            setHeight("430px"); // 400px by default
             //setSizeFull();
 
             setCaption("TimeService Response Times");
@@ -262,7 +262,7 @@ public class MicroServicesDesign extends CssLayout {
 
         public RevenuePerMonthByCapacityChart() {
             setWidth("100%");  // 100% by default
-            setHeight("280px"); // 400px by default
+            setHeight("430px"); // 400px by default
             //setSizeFull();
 
             setCaption("ClientService Response Times");

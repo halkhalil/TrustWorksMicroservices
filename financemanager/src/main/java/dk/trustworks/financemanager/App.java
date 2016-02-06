@@ -28,7 +28,6 @@ import java.util.Properties;
  * Created by hans on 20/01/16.
  */
 public class App extends Jooby {
-
     {
         try {
             Properties properties = new Properties();
@@ -46,7 +45,6 @@ public class App extends Jooby {
         assets("/", "assets/index.html");
         SwaggerUI.install(this);
 
-        //use(ExpensesService.class);
         get("/api/expenses", (req, resp) -> {
             DataSource db = req.require(DataSource.class);
             resp.send(new ExpensesService(db).root());
@@ -69,8 +67,6 @@ public class App extends Jooby {
             DataSource db = req.require(DataSource.class);
             resp.send(new ExpensesService(db).findByYear(req.param("year").intValue()));
         }).name("Find Expenses by Year");
-
-
 
         use(new Metrics()
                 .request()
