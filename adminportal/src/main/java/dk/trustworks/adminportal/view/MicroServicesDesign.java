@@ -111,6 +111,18 @@ public class MicroServicesDesign extends CssLayout {
             tempErrorOptions.setWhiskerColor(green);
             temperatureErrors.setPlotOptions(tempErrorOptions);
 
+            DataSeries hitsSeries = new DataSeries("Hits");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Hits");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            hitsSeries.setPlotOptions(options3);
+
             for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
                 DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
                 listSeries.add(item);
@@ -118,8 +130,11 @@ public class MicroServicesDesign extends CssLayout {
                 item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
                 item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
                 temperatureErrors.add(item);
+                item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("count").toString()));
+                hitsSeries.add(item);
             }
             getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(hitsSeries);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -153,6 +168,18 @@ public class MicroServicesDesign extends CssLayout {
             tempErrorOptions.setWhiskerColor(green);
             temperatureErrors.setPlotOptions(tempErrorOptions);
 
+            DataSeries hitsSeries = new DataSeries("Hits");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Hits");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            hitsSeries.setPlotOptions(options3);
+
             for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
                 DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
                 listSeries.add(item);
@@ -160,8 +187,11 @@ public class MicroServicesDesign extends CssLayout {
                 item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
                 item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
                 temperatureErrors.add(item);
+                item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("count").toString()));
+                hitsSeries.add(item);
             }
             getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(hitsSeries);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -195,6 +225,18 @@ public class MicroServicesDesign extends CssLayout {
             tempErrorOptions.setWhiskerColor(green);
             temperatureErrors.setPlotOptions(tempErrorOptions);
 
+            DataSeries hitsSeries = new DataSeries("Hits");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Hits");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            hitsSeries.setPlotOptions(options3);
+
             for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
                 DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
                 listSeries.add(item);
@@ -202,8 +244,11 @@ public class MicroServicesDesign extends CssLayout {
                 item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
                 item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
                 temperatureErrors.add(item);
+                item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("count").toString()));
+                hitsSeries.add(item);
             }
             getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(hitsSeries);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -237,6 +282,18 @@ public class MicroServicesDesign extends CssLayout {
             tempErrorOptions.setWhiskerColor(green);
             temperatureErrors.setPlotOptions(tempErrorOptions);
 
+            DataSeries hitsSeries = new DataSeries("Hits");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Hits");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            hitsSeries.setPlotOptions(options3);
+
             for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
                 DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
                 listSeries.add(item);
@@ -244,8 +301,11 @@ public class MicroServicesDesign extends CssLayout {
                 item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
                 item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
                 temperatureErrors.add(item);
+                item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("count").toString()));
+                hitsSeries.add(item);
             }
             getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(hitsSeries);
             //getConfiguration().addSeries(temperatureErrors);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
