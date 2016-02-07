@@ -42,6 +42,10 @@ public class ServiceApplication {
         System.out.println("System.getenv(\"APPLICATION_URL\") = " + System.getenv("APPLICATION_URL"));
         System.out.println("System.getenv(\"ZOOKEEPER_URL\") = " + System.getenv("ZOOKEEPER_URL"));
         System.out.println("System.getenv(\"APPLICATION_PORT\") = " + System.getenv("APPLICATION_PORT"));
+        System.out.println("System.getenv(\"PORT\") = " + System.getenv("PORT"));
+        System.out.println("System.getenv(\"HOST\") = " + System.getenv("HOST"));
+        System.out.println("System.getProperty(\"PORT\") = " + System.getProperty("PORT"));
+        System.out.println("System.getProperty(\"HOST\") = " + System.getProperty("HOST"));
         ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
         ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
         ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
@@ -56,7 +60,7 @@ public class ServiceApplication {
         final IdentityManager identityManager = new MapIdentityManager(users);
 
         Undertow reverseProxy = Undertow.builder()
-                .addHttpListener(Integer.parseInt(System.getenv("APPLICATION_PORT")), System.getenv("APPLICATION_URL"))
+                .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_URL"))
                 .setIoThreads(4)
                 .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
                 .setHandler(Handlers.path()
