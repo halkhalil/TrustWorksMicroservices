@@ -39,6 +39,10 @@ public class ServiceApplication {
 
     public ServiceApplication() throws Exception {
         System.out.println("Application");
+        System.out.println("System.getProperty(\"APPLICATION_URL\") = " + System.getProperty("APPLICATION_URL"));
+        System.out.println("System.getenv(\"APPLICATION_URL\") = " + System.getenv("APPLICATION_URL"));
+        System.out.println("System.getProperty(\"ZOOKEEPER_URL\") = " + System.getProperty("ZOOKEEPER_URL"));
+        System.out.println("System.getenv(\"ZOOKEEPER_URL\") = " + System.getenv("ZOOKEEPER_URL"));
         ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
         ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
         ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
