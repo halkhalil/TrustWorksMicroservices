@@ -38,7 +38,7 @@ public class ServiceApplication {
     }
 
     public ServiceApplication() throws Exception {
-        Undertow reverseProxy;
+        Undertow reverseProxy = null;
         try {
             System.out.println("Application");
             System.out.println("System.getenv(\"APPLICATION_URL\") = " + System.getenv("APPLICATION_URL"));
