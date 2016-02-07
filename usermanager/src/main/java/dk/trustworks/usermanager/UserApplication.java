@@ -44,7 +44,8 @@ public class UserApplication extends BaseApplication {
     static ServiceProvider serviceProvider;
 
     public static void main(String[] args) throws Exception {
-        new UserApplication(Integer.parseInt(args[0]));
+        //new UserApplication(Integer.parseInt(args[0]));
+        new UserApplication(Integer.parseInt(System.getenv("application.port")));
     }
 
     public UserApplication(int port) throws Exception {
@@ -72,6 +73,7 @@ public class UserApplication extends BaseApplication {
                 .build()
                 .start();
 
-        registerInZookeeper("userservice", properties.getProperty("zookeeper.host"), port);
+        //registerInZookeeper("userservice", properties.getProperty("zookeeper.host"), port);
+        registerInZookeeper("userservice", System.getProperty("zookeeper.host"), port);
     }
 }

@@ -169,11 +169,11 @@
 
     <build>
         <finalName>usermanager</finalName>
-
+        <!--
         <filters>
             <filter>profiles/${build.profile.id}/config.properties</filter>
         </filters>
-
+-->
         <resources>
             <resource>
                 <filtering>true</filtering>
