@@ -41,11 +41,11 @@ public class ClientProxyZookeeper implements ProxyClient {
 
     public ClientProxyZookeeper(String service) {
         client = UndertowClient.getInstance();
-
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(System.getenv("ZOOKEEPER_URL")+":2181", new RetryNTimes(5, 1000)); //ip-172-31-20-150.eu-central-1.compute.internal
-        curatorFramework.start();
-
         try {
+            CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(System.getenv("ZOOKEEPER_URL")+":2181", new RetryNTimes(5, 1000)); //ip-172-31-20-150.eu-central-1.compute.internal
+            curatorFramework.start();
+
+
             ServiceDiscovery<Object> serviceDiscovery = ServiceDiscoveryBuilder
                     .builder(Object.class)
                     .basePath("trustworks")
@@ -57,6 +57,7 @@ public class ClientProxyZookeeper implements ProxyClient {
                     .build();
             serviceProvider.start();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
