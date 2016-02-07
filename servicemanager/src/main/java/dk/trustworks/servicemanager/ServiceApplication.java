@@ -53,7 +53,7 @@ public class ServiceApplication {
         final IdentityManager identityManager = new MapIdentityManager(users);
 
         Undertow reverseProxy = Undertow.builder()
-                .addHttpListener(80, System.getenv("application.url"))
+                .addHttpListener(80, System.getProperty("application.url"))
                 .setIoThreads(4)
                 .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
                 .setHandler(Handlers.path()
