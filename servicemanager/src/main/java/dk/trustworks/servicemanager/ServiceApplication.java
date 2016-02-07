@@ -39,6 +39,11 @@ public class ServiceApplication {
 
     public ServiceApplication() throws Exception {
         Undertow reverseProxy = null;
+        ClientProxyZookeeper userManagerProxy = null;
+        ClientProxyZookeeper clientManagerProxy = null;
+        ClientProxyZookeeper biManagerProxy = null;
+        ClientProxyZookeeper financeProxy = null;
+        ClientProxyZookeeper timeManagerProxy = null;
         try {
             System.out.println("Application");
             System.out.println("System.getenv(\"APPLICATION_URL\") = " + System.getenv("APPLICATION_URL"));
@@ -48,12 +53,12 @@ public class ServiceApplication {
             System.out.println("System.getenv(\"HOST\") = " + System.getenv("HOST"));
             System.out.println("System.getProperty(\"PORT\") = " + System.getProperty("PORT"));
             System.out.println("System.getProperty(\"HOST\") = " + System.getProperty("HOST"));
-            ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
-            ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
-            ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
-            ClientProxyZookeeper biManagerProxy = new ClientProxyZookeeper("biservice");
+            userManagerProxy = new ClientProxyZookeeper("userservice");
+            clientManagerProxy = new ClientProxyZookeeper("clientservice");
+            timeManagerProxy = new ClientProxyZookeeper("timeservice");
+            biManagerProxy = new ClientProxyZookeeper("biservice");
             ClientProxyZookeeper adminPortalProxy = new ClientProxyZookeeper("adminportal");
-            ClientProxyZookeeper financeProxy = new ClientProxyZookeeper("financeservice");
+            financeProxy = new ClientProxyZookeeper("financeservice");
 
             final Map<String, char[]> users = new HashMap<>(2);
             users.put("userOne", "passwordOne".toCharArray());
