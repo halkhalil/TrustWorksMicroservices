@@ -38,40 +38,46 @@ public class ServiceApplication {
     }
 
     public ServiceApplication() throws Exception {
-        System.out.println("Application");
-        System.out.println("System.getenv(\"APPLICATION_URL\") = " + System.getenv("APPLICATION_URL"));
-        System.out.println("System.getenv(\"ZOOKEEPER_URL\") = " + System.getenv("ZOOKEEPER_URL"));
-        System.out.println("System.getenv(\"APPLICATION_PORT\") = " + System.getenv("APPLICATION_PORT"));
-        System.out.println("System.getenv(\"PORT\") = " + System.getenv("PORT"));
-        System.out.println("System.getenv(\"HOST\") = " + System.getenv("HOST"));
-        System.out.println("System.getProperty(\"PORT\") = " + System.getProperty("PORT"));
-        System.out.println("System.getProperty(\"HOST\") = " + System.getProperty("HOST"));
-        ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
-        ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
-        ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
-        ClientProxyZookeeper biManagerProxy = new ClientProxyZookeeper("biservice");
-        ClientProxyZookeeper adminPortalProxy = new ClientProxyZookeeper("adminportal");
-        ClientProxyZookeeper financeProxy = new ClientProxyZookeeper("financeservice");
+        Undertow reverseProxy;
+        try {
+            System.out.println("Application");
+            System.out.println("System.getenv(\"APPLICATION_URL\") = " + System.getenv("APPLICATION_URL"));
+            System.out.println("System.getenv(\"ZOOKEEPER_URL\") = " + System.getenv("ZOOKEEPER_URL"));
+            System.out.println("System.getenv(\"APPLICATION_PORT\") = " + System.getenv("APPLICATION_PORT"));
+            System.out.println("System.getenv(\"PORT\") = " + System.getenv("PORT"));
+            System.out.println("System.getenv(\"HOST\") = " + System.getenv("HOST"));
+            System.out.println("System.getProperty(\"PORT\") = " + System.getProperty("PORT"));
+            System.out.println("System.getProperty(\"HOST\") = " + System.getProperty("HOST"));
+            ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
+            ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
+            ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
+            ClientProxyZookeeper biManagerProxy = new ClientProxyZookeeper("biservice");
+            ClientProxyZookeeper adminPortalProxy = new ClientProxyZookeeper("adminportal");
+            ClientProxyZookeeper financeProxy = new ClientProxyZookeeper("financeservice");
 
-        final Map<String, char[]> users = new HashMap<>(2);
-        users.put("userOne", "passwordOne".toCharArray());
-        users.put("userTwo", "passwordTwo".toCharArray());
+            final Map<String, char[]> users = new HashMap<>(2);
+            users.put("userOne", "passwordOne".toCharArray());
+            users.put("userTwo", "passwordTwo".toCharArray());
 
-        final IdentityManager identityManager = new MapIdentityManager(users);
+            final IdentityManager identityManager = new MapIdentityManager(users);
 
-        Undertow reverseProxy = Undertow.builder()
-                .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_URL"))
-                .setIoThreads(4)
-                .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
-                .setHandler(Handlers.path()
-                        .addPrefixPath("/userservice", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                        .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                        .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                        .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                        .addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                        .addPrefixPath("/version", new VersionHandler())
-                        .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
-                .build();
+            reverseProxy = Undertow.builder()
+                    .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_URL"))
+                    .setIoThreads(4)
+                    .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
+                    .setServerOption(UndertowOptions.ENABLE_SPDY, true)
+                    .setHandler(Handlers.path()
+                            .addPrefixPath("/userservice", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/version", new VersionHandler())
+                            .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             reverseProxy.start();
             System.out.println("Running on port 80");
