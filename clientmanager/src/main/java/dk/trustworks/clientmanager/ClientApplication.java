@@ -39,16 +39,10 @@ public class ClientApplication extends BaseApplication {
     private static final Logger log = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        new ClientApplication(Integer.parseInt(args[0]));
+        new ClientApplication();
     }
 
-    public ClientApplication(int port) throws Exception {
-        log.info("ClientManager on port " + port);
-        Properties properties = new Properties();
-        try (InputStream in = Helper.class.getResourceAsStream("server.properties")) {
-            properties.load(in);
-        }
-
+    public ClientApplication() throws Exception {
         DeploymentManager manager = getMetricsDeploymentManager();
 
         ServiceRegistry serviceRegistry = ServiceRegistry.getInstance();
@@ -60,7 +54,7 @@ public class ClientApplication extends BaseApplication {
         serviceRegistry.registerService("useruuid", new UserService());
 
         Undertow.builder()
-                .addHttpListener(port, properties.getProperty("web.host"))
+                .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_HOST"))
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setSocketOption(Options.BACKLOG, 10000)
@@ -80,6 +74,6 @@ public class ClientApplication extends BaseApplication {
                 .build()
                 .start();
 
-        registerInZookeeper("clientservice", properties.getProperty("zookeeper.host"), port);
+        registerInZookeeper("clientservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
     }
 }

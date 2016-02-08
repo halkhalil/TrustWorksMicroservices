@@ -44,21 +44,15 @@ public class UserApplication extends BaseApplication {
     static ServiceProvider serviceProvider;
 
     public static void main(String[] args) throws Exception {
-        new UserApplication(Integer.parseInt(System.getenv("PORT")));
+        new UserApplication();
     }
 
-    public UserApplication(int port) throws Exception {
-        System.out.println("UserManager on port " + port);
-        Properties properties = new Properties();
-        try (InputStream in = Helper.class.getResourceAsStream("server.properties")) {
-            properties.load(in);
-        }
-
+    public UserApplication() throws Exception {
         DeploymentManager manager = getMetricsDeploymentManager();
         manager.deploy();
 
         Undertow.builder()
-                .addHttpListener(port, System.getenv("APPLICATION_HOST"))
+                .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_HOST"))
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setSocketOption(Options.BACKLOG, 10000)
