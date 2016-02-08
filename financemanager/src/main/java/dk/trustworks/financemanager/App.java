@@ -29,7 +29,6 @@ import java.util.Properties;
  */
 public class App extends Jooby {
     {
-
         try {
             registerInZookeeper("financeservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
         } catch (Exception e) {

@@ -26,7 +26,7 @@ public class Locator {
     private Map<String, ServiceProvider> serviceProviders = new HashMap<>();
 
     private Locator() {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(System.getenv("ZK_SERVER_HOSTx")+":2181", new RetryNTimes(5, 1000));
+        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(System.getenv("ZK_SERVER_HOST")+":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();
 
         try {

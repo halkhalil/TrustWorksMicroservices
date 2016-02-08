@@ -22,9 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- *
- */
 @Theme("usermanagement")
 @Widgetset("dk.trustworks.MyAppWidgetset")
 public class MyUI extends UI {
@@ -41,15 +38,13 @@ public class MyUI extends UI {
         @Override
         public void init(ServletConfig servletConfig) throws ServletException {
             super.init(servletConfig);
-            Properties properties = new Properties();
-            try (InputStream in = Helper.class.getResourceAsStream("server.properties")) {
-                properties.load(in);
-                registerInZookeeper(properties.getProperty("zookeeper.host"), 9099);
-            } catch (IOException e) {
-                e.printStackTrace();
+            /*
+            try {
+                registerInZookeeper("adminservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            */
         }
 
         @Override
@@ -59,15 +54,15 @@ public class MyUI extends UI {
         }
     }
 
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
+    protected static void registerInZookeeper(String serviceName, String zooHost, String appHost, int port) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();
 
         ServiceInstance serviceInstance = ServiceInstance.builder()
                 .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
+                .address(appHost)
                 .port(port)
-                .name("adminportal")
+                .name(serviceName)
                 .build();
 
         ServiceDiscoveryBuilder.builder(Object.class)
