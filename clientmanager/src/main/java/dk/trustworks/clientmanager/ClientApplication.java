@@ -47,6 +47,7 @@ public class ClientApplication extends BaseApplication {
 
         ServiceRegistry serviceRegistry = ServiceRegistry.getInstance();
 
+        serviceRegistry.registerService("taskworkerconstraintbudgetuuid", new TaskWorkerConstraintBudgetService());
         serviceRegistry.registerService("taskworkerconstraintuuid", new TaskWorkerConstraintService());
         serviceRegistry.registerService("taskuuid", new TaskService());
         serviceRegistry.registerService("projectuuid", new ProjectService());

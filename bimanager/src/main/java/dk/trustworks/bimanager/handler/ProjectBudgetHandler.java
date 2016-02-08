@@ -1,5 +1,9 @@
 package dk.trustworks.bimanager.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import dk.trustworks.bimanager.caches.CacheHandler;
 import dk.trustworks.bimanager.client.RestClient;
 import dk.trustworks.bimanager.dto.TaskWorkerConstraint;
 import dk.trustworks.bimanager.dto.TaskWorkerConstraintBudget;
@@ -25,6 +29,32 @@ public class ProjectBudgetHandler extends DefaultHandler {
         super("projectbudget");
         this.projectBudgetService = new ProjectBudgetService();
         addCommand("budgetcleanup");
+        addCommand("budgetsbytask");
+    }
+
+    public void budgetsbytask(HttpServerExchange exchange, String[] params) {
+        /*
+        String projectUUID = exchange.getQueryParameters().get("projectUUID").getFirst();
+        List<Work> allWork = getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+
+        double revenuepermonth[] = new double[12];
+
+        for (Work work : allWork) {
+            //if (work.getYear()!=year) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null) continue;
+            revenuepermonth[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("revenuepermonth", revenuepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        */
     }
 
     public void budgetcleanup(HttpServerExchange exchange, String[] params) {
@@ -84,6 +114,14 @@ public class ProjectBudgetHandler extends DefaultHandler {
         }
 
         log.exit();
+    }
+
+    public Cache<String, List> getListCache() {
+        return CacheHandler.createCacheHandler().getListCache();
+    }
+
+    public Cache<String, Map> getMapCache() {
+        return CacheHandler.createCacheHandler().getMapCache();
     }
 
     @Override

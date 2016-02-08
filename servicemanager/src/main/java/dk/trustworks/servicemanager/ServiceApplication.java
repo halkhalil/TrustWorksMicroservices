@@ -103,7 +103,7 @@ public class ServiceApplication {
         @Override
         public void handleRequest(final HttpServerExchange exchange) throws Exception {
             exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
-            exchange.getResponseSender().send("{version:2.0.5}");
+            exchange.getResponseSender().send("{version:2.1.0}");
         }
     }
 }

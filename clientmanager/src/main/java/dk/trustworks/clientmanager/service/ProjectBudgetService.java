@@ -93,6 +93,7 @@ public class ProjectBudgetService extends DefaultLocalService {
         return null;
     }
 
+    @Deprecated
     public List<Map<String, Object>> findByUserAndYear(Map<String, Deque<String>> queryParameters) {
         log.debug("ProjectBudgetService.findByYear");
         log.debug("queryParameters = [" + queryParameters + "]");
@@ -106,6 +107,7 @@ public class ProjectBudgetService extends DefaultLocalService {
         return null;
     }
 
+    @Deprecated
     public List<Map<String, Object>> findByUserAndYearAndHours(Map<String, Deque<String>> queryParameters) {
         log.debug("ProjectBudgetService.findByYear");
         log.debug("queryParameters = [" + queryParameters + "]");
@@ -119,10 +121,13 @@ public class ProjectBudgetService extends DefaultLocalService {
         return null;
     }
 
+    @Deprecated
     private List<Map<String, Object>> getProjectYearBudgets(int year, String userUUID, boolean useRate) {
         long allTimer = System.currentTimeMillis();
 
         List<Map<String, Object>> projectYearBudgets = new ArrayList<>();
+        return projectYearBudgets;
+        /*
         long allWorkTimer = System.currentTimeMillis();
         log.debug("Load all work: {}", (System.currentTimeMillis() - allWorkTimer));
 
@@ -166,6 +171,7 @@ public class ProjectBudgetService extends DefaultLocalService {
         }).forEach(projectYearBudgets::add);
         log.debug("Load all: {}", (System.currentTimeMillis() - allTimer));
         return projectYearBudgets;
+        */
     }
 
     @Override

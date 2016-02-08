@@ -1,6 +1,6 @@
 package dk.trustworks.framework.server;
 
-import com.codahale.metrics.*;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -128,6 +127,11 @@ public abstract class DefaultHandler implements HttpHandler {
                     entity.putAll(loadParentEntities(entity, new LinkedList<>(Arrays.asList(projectionTree.split("/")))));
                 }
             }
+            if (exchange.getQueryParameters().get("children") != null) {
+                for (String projectionTree : exchange.getQueryParameters().get("children")) {
+                    entity.putAll(loadChildEntities(entity, new LinkedList<>(Arrays.asList(projectionTree.split("/"))), this.entity+"uuid", 0));
+                }
+            }
             exchange.getResponseSender().send(mapper.writeValueAsString(entity));
         } finally {
             context.stop();
@@ -209,7 +213,7 @@ public abstract class DefaultHandler implements HttpHandler {
         return childEntities;
     }
 
-    private void loadChildEntities(Map<String, Object> map, List<String> projectionTree, String parentUUIDName, int level) {
+    private Map<String, Object> loadChildEntities(Map<String, Object> map, List<String> projectionTree, String parentUUIDName, int level) {
         logger.debug("DefaultHandler.loadChildEntities");
         logger.debug("map = [" + map + "], projectionTree = [" + projectionTree + "], parentUUIDName = [" + parentUUIDName + "], level = [" + level + "]");
         String key = projectionTree.get(level);
@@ -217,15 +221,16 @@ public abstract class DefaultHandler implements HttpHandler {
         if (services.containsKey(key)) {
             List<Map<String, Object>> children = services.get(key).findByParentUUID(services.get(key).getResourcePath(), parentUUIDName, (String) map.get("uuid"));
             logger.debug("children.size() = {}", children.size());
-            if (children.size() == 0) return;
+            if (children.size() == 0) return map;
             map.put(key.replaceFirst("uuid", "s"), children);
             level++;
-            if (level > projectionTree.size() - 1) return;
+            if (level > projectionTree.size() - 1) return map;
             for (Map<String, Object> child : children) {
                 loadChildEntities(child, projectionTree, key, level);
             }
         }
         logger.debug("projectionTree = " + projectionTree.size());
+        return map;
     }
 
     protected abstract DefaultLocalService getService();

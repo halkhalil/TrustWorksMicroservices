@@ -22,6 +22,11 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
         super();
     }
 
+    @Override
+    public List<Map<String, Object>> findByParentUUID(String entityName, String parentUUIDName, String parentUUID) {
+        return findByTaskWorkerConstraintUUID(parentUUID);
+    }
+
     public List<Map<String, Object>> findByTaskWorkerConstraintUUID(String taskWorkerConstraintUUID) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUID");
         log.debug("taskWorkerConstraintUUID = " + taskWorkerConstraintUUID);
