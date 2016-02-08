@@ -29,16 +29,17 @@ import java.util.Properties;
  */
 public class App extends Jooby {
     {
+
         try {
-            Properties properties = new Properties();
-            try (InputStream in = new FileInputStream("server.properties")) {
-                properties.load(in);
-            }
-            System.out.println("properties.getProperty(\"zookeeper.host\") = " + properties.getProperty("zookeeper.host"));
-            registerInZookeeper(properties.getProperty("zookeeper.host"), Integer.parseInt(properties.getProperty("zookeeper.port")));
+            registerInZookeeper("financeservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        System.setProperty("db.url", System.getenv("DATABASE_URL"));
+        System.setProperty("db.user", System.getenv("DATABASE_USER"));
+        System.setProperty("db.password", System.getenv("DATABASE_PASS"));
+
         use(new Jdbc());
         use(new Jackson());
         assets("/**");
@@ -83,15 +84,15 @@ public class App extends Jooby {
         new App().start();
     }
 
-    private static void registerInZookeeper(String zooHost, int port) throws Exception {
+    protected static void registerInZookeeper(String serviceName, String zooHost, String appHost, int port) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();
 
         ServiceInstance serviceInstance = ServiceInstance.builder()
                 .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
+                .address(appHost)
                 .port(port)
-                .name("financeservice")
+                .name(serviceName)
                 .build();
 
         ServiceDiscoveryBuilder.builder(Object.class)
