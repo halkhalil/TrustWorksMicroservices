@@ -53,6 +53,7 @@ public class ServiceApplication {
             System.out.println("System.getenv(\"HOST\") = " + System.getenv("HOST"));
             System.out.println("System.getProperty(\"PORT\") = " + System.getProperty("PORT"));
             System.out.println("System.getProperty(\"HOST\") = " + System.getProperty("HOST"));
+            /*
             userManagerProxy = new ClientProxyZookeeper("userservice");
             clientManagerProxy = new ClientProxyZookeeper("clientservice");
             timeManagerProxy = new ClientProxyZookeeper("timeservice");
@@ -65,20 +66,21 @@ public class ServiceApplication {
             users.put("userTwo", "passwordTwo".toCharArray());
 
             final IdentityManager identityManager = new MapIdentityManager(users);
-
+*/
             reverseProxy = Undertow.builder()
                     .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_URL"))
                     .setIoThreads(4)
                     .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
                     .setServerOption(UndertowOptions.ENABLE_SPDY, true)
                     .setHandler(Handlers.path()
-                            .addPrefixPath("/userservice", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                            .addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                            .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                            .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
-                            .addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            //.addPrefixPath("/userservice", new ProxyHandler(userManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            //.addPrefixPath("/clientservice", new ProxyHandler(clientManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            //.addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            //.addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            //.addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/version", new VersionHandler())
-                            .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
+                            //.addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
+                    )
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
