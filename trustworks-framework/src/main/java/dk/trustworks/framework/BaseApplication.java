@@ -42,13 +42,13 @@ public class BaseApplication {
         return manager;
     }
 
-    protected static void registerInZookeeper(String serviceName, String zooHost, int port) throws Exception {
+    protected static void registerInZookeeper(String serviceName, String zooHost, String appHost, int port) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();
 
         ServiceInstance serviceInstance = ServiceInstance.builder()
                 .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address(System.getenv("APPLICATION_HOST"))
+                .address(appHost)
                 .port(port)
                 .name(serviceName)
                 .build();

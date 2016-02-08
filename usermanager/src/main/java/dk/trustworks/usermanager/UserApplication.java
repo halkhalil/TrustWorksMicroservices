@@ -58,7 +58,7 @@ public class UserApplication extends BaseApplication {
         manager.deploy();
 
         Undertow.builder()
-                .addHttpListener(port, System.getenv("APPLICATION_URL"))
+                .addHttpListener(port, System.getenv("APPLICATION_HOST"))
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setSocketOption(Options.BACKLOG, 10000)
@@ -73,6 +73,6 @@ public class UserApplication extends BaseApplication {
                 .start();
 
         //registerInZookeeper("userservice", properties.getProperty("zookeeper.host"), port);
-        registerInZookeeper("userservice", System.getenv("ZOOKEEPER_URL"), port);
+        registerInZookeeper("userservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
     }
 }
