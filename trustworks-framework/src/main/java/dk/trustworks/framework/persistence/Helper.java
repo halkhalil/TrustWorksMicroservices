@@ -38,10 +38,14 @@ public final class Helper {
         }
 
         mysql = Helper.newDataSource(
+                System.getenv("DATABASE_URI"),
+                System.getenv("DATABASE_USER"),
+                System.getenv("DATABASE_PASS"));
+                /*
                 properties.getProperty("mysql.uri"),
                 properties.getProperty("mysql.user"),
                 properties.getProperty("mysql.password"));
-
+                */
         sql2o = new Sql2o(mysql);
     }
 

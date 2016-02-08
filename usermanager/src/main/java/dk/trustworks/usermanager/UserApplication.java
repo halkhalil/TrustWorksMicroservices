@@ -44,8 +44,7 @@ public class UserApplication extends BaseApplication {
     static ServiceProvider serviceProvider;
 
     public static void main(String[] args) throws Exception {
-        //new UserApplication(Integer.parseInt(args[0]));
-        new UserApplication(Integer.parseInt(System.getenv("application.port")));
+        new UserApplication(Integer.parseInt(System.getenv("PORT")));
     }
 
     public UserApplication(int port) throws Exception {
@@ -59,7 +58,7 @@ public class UserApplication extends BaseApplication {
         manager.deploy();
 
         Undertow.builder()
-                .addHttpListener(port, properties.getProperty("web.host"))
+                .addHttpListener(port, System.getenv("APPLICATION_URL"))
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setSocketOption(Options.BACKLOG, 10000)
@@ -74,6 +73,6 @@ public class UserApplication extends BaseApplication {
                 .start();
 
         //registerInZookeeper("userservice", properties.getProperty("zookeeper.host"), port);
-        registerInZookeeper("userservice", System.getProperty("zookeeper.host"), port);
+        registerInZookeeper("userservice", System.getenv("ZOOKEEPER_URL"), port);
     }
 }
