@@ -39,6 +39,8 @@ public class App extends Jooby {
         System.setProperty("db.url", System.getenv("DATABASE_URI"));
         System.setProperty("db.user", System.getenv("DATABASE_USER"));
         System.setProperty("db.password", System.getenv("DATABASE_PASS"));
+        System.setProperty("application.port", System.getenv("PORT"));
+        System.setProperty("application.host", System.getenv("APPLICATION_HOST"));
 
         use(new Jdbc());
         use(new Jackson());
