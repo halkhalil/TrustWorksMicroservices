@@ -48,7 +48,7 @@ public class BaseApplication {
 
         ServiceInstance serviceInstance = ServiceInstance.builder()
                 .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address("localhost")
+                .address(System.getenv("APPLICATION_HOST"))
                 .port(port)
                 .name(serviceName)
                 .build();
