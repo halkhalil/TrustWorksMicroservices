@@ -36,7 +36,7 @@ public class App extends Jooby {
             e.printStackTrace();
         }
 
-        System.setProperty("db.url", System.getenv("DATABASE_URL"));
+        System.setProperty("db.url", System.getenv("DATABASE_URI"));
         System.setProperty("db.user", System.getenv("DATABASE_USER"));
         System.setProperty("db.password", System.getenv("DATABASE_PASS"));
 
