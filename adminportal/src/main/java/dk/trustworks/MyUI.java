@@ -38,13 +38,13 @@ public class MyUI extends UI {
         @Override
         public void init(ServletConfig servletConfig) throws ServletException {
             super.init(servletConfig);
-            /*
+
             try {
                 registerInZookeeper("adminservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            */
+
         }
 
         @Override
