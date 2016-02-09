@@ -32,8 +32,8 @@ public class WorkItemMonthlyJob implements Job {
         Map<String, ProjectYearEconomy> projectYearBudgetsMap = new HashMap<>();
 
         for (User user : restClient.getUsers()) {
-            Map<String, ProjectYearEconomy> workByMonthProject = calculateWorkByMonthAndProject(getProjectBudgets(projectYearBudgetsMap, true, user.getUUID(), 2015), true, user.getUUID(), CacheHandler.workItems.values());
-            CacheHandler.userWorkByMonthProject.put(user.getUUID(), workByMonthProject);
+            //Map<String, ProjectYearEconomy> workByMonthProject = calculateWorkByMonthAndProject(getProjectBudgets(projectYearBudgetsMap, true, user.getUUID(), 2015), true, user.getUUID(), CacheHandler.workItems.values());
+            //CacheHandler.userWorkByMonthProject.put(user.getUUID(), workByMonthProject);
         }
     }
 
@@ -48,7 +48,7 @@ public class WorkItemMonthlyJob implements Job {
         int month = Calendar.getInstance().get(Calendar.MONTH);
         List<Project> projects = restClient.getProjectsAndTasksAndTaskWorkerConstraints();
         List<Work> registeredWorkByMonth = restClient.getRegisteredWorkByMonth(year, month);
-        CacheHandler.workItems.putAll(year, WorkItem.createWorkItems(registeredWorkByMonth, projects));
+        //CacheHandler.workItems.putAll(year, WorkItem.createWorkItems(registeredWorkByMonth, projects));
     }
 
     private void loadHistoricWorkItems() {
@@ -57,7 +57,7 @@ public class WorkItemMonthlyJob implements Job {
         for (int year = startYear; year <= currentYear; year++) {
             List<Work> registeredWorkByYear = restClient.getRegisteredWorkByYear(year);
             List<WorkItem> workItems = WorkItem.createWorkItems(registeredWorkByYear, projects);
-            CacheHandler.workItems.replaceValues(year, workItems);
+            //CacheHandler.workItems.replaceValues(year, workItems);
         }
     }
 
