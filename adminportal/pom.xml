@@ -9,7 +9,7 @@
 	<name>adminportal</name>
 
 	<properties>
-		<vaadin.version>7.6.1</vaadin.version><!--7.5.10-->
+		<vaadin.version>7.6.2</vaadin.version><!--7.5.10-->
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
@@ -124,10 +124,6 @@
     </dependencies>
 
 	<build>
-        <filters>
-            <filter>profiles/${build.profile.id}/config.properties</filter>
-        </filters>
-
         <resources>
             <resource>
                 <filtering>true</filtering>

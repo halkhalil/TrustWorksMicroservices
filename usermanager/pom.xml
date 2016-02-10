@@ -123,8 +123,6 @@
     </dependencies>
 
     <repositories>
-        <!-- Essential Vaadin artifacts are in maven central, but maven.vaadin.com
-            contains a huge set of additional libraries. See vaadin.com/directory -->
         <repository>
             <id>vaadin-addons</id>
             <url>http://maven.vaadin.com/vaadin-addons</url>
@@ -140,7 +138,7 @@
         <vaadin.version>7.4.3</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
     </properties>
-
+<!--
     <profiles>
         <profile>
             <id>dev</id>
@@ -166,7 +164,7 @@
             </properties>
         </profile>
     </profiles>
-
+-->
     <build>
         <finalName>usermanager</finalName>
         <!--
