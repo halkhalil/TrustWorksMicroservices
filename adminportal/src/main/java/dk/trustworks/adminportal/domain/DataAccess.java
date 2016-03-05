@@ -25,7 +25,7 @@ public class DataAccess implements Serializable {
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("revenueperday");
-            ArrayList<Double> list = new ArrayList<Double>();
+            ArrayList<Double> list = new ArrayList<>();
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
@@ -33,10 +33,10 @@ public class DataAccess implements Serializable {
                 }
             }
             return list.toArray(new Double[30]);
-        } catch (UnirestException e) {
+        } catch (Exception e) {
             System.err.println(e);
         }
-        return null;
+        return new Double[0];
     }
 
     public Long[] getRevenuePerMonth(int year) {

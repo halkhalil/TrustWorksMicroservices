@@ -68,7 +68,7 @@ public class DashboardDesign extends CssLayout {
 
         createGraphs(Calendar.getInstance().get(Calendar.YEAR));
 
-        sparkline_horizontal.addComponent(new SparklineChart("income per day", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
+        if(intArray.length>0) sparkline_horizontal.addComponent(new SparklineChart("income per day", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
         //sparkline_horizontal.addComponent(new SparklineChart("income per day 2", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
 
         NativeSelect year_select;
