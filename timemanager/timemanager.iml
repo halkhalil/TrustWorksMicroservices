@@ -23,7 +23,7 @@
     <orderEntry type="library" name="Maven: org.jboss.spec.javax.annotation:jboss-annotations-api_1.2_spec:1.0.0.Final" level="project" />
     <orderEntry type="library" name="Maven: io.undertow:undertow-websockets-jsr:1.2.0.Beta4" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.spec.javax.websocket:jboss-websocket-api_1.1_spec:1.1.0.Final" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:16.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:19.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-recipes:2.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-framework:2.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-client:2.7.1" level="project" />

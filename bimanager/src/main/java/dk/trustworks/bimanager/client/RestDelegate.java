@@ -3,7 +3,6 @@ package dk.trustworks.bimanager.client;
 import com.google.common.cache.Cache;
 import dk.trustworks.bimanager.caches.CacheHandler;
 import dk.trustworks.bimanager.dto.*;
-import dk.trustworks.bimanager.handler.StatisticHandler;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;

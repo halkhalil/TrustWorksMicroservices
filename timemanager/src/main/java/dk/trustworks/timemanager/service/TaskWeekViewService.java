@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -17,19 +18,17 @@ import dk.trustworks.timemanager.dto.TaskWorkerConstraint;
 import dk.trustworks.timemanager.persistence.TaskWeekViewRepository;
 import dk.trustworks.timemanager.persistence.WeekRepository;
 import dk.trustworks.timemanager.persistence.WorkRepository;
-import io.undertow.server.handlers.cache.CacheHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
-
-import static java.util.Calendar.*;
 
 /**
  * Created by hans on 15/05/15.
@@ -38,6 +37,11 @@ public class TaskWeekViewService extends DefaultLocalService {
 
     private static final Logger log = LogManager.getLogger(TaskWeekViewService.class);
     private TaskWeekViewRepository taskWeekViewRepository;
+
+    private final Cache<String, List> listCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .maximumSize(1000).recordStats()
+            .build();
 
     public TaskWeekViewService() {
         taskWeekViewRepository = new TaskWeekViewRepository();
@@ -90,14 +94,21 @@ public class TaskWeekViewService extends DefaultLocalService {
         return null;
     }
 
-    public List<Map<String, Object>> findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(Map<String, Deque<String>> queryParameters) {
+    private Client getClient(String clientUUID, List<Client> clients) {
+        for (Client client : clients) {
+            if(client.uuid.equals(clientUUID)) return client;
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(Map<String, Deque<String>> queryParameters) throws ExecutionException {
         int weekNumber = Integer.parseInt(queryParameters.get("weeknumber").getFirst());
         int year = Integer.parseInt(queryParameters.get("year").getFirst());
         String userUUID = queryParameters.get("useruuid").getFirst();
 
         WeekRepository weekRepository = new WeekRepository();
         WorkRepository workRepository = new WorkRepository();
-        List<Client> clients = getAllClients();
+        List<Client> clients = listCache.get("projects", this::getAllClients);
         List<Map<String, Object>> taskWeekViews = new ArrayList<>();
         List<Map<String, Object>> weeks = weekRepository.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
 
@@ -106,8 +117,8 @@ public class TaskWeekViewService extends DefaultLocalService {
             Task task = getTask(taskUUID.toString(), clients);
             Map<String, Object> taskWeekView = new HashMap<>();
             Project project = getProject(task.getProjectUUID(), clients);
-            Map<String, Object> client = new ClientService().getOneEntity("clients", project.getClientUUID().toString());
-            taskWeekView.put("taskname", task.getName() + " / " + project.getName() + " / " + client.get("name"));
+            Client client = getClient(project.getClientUUID(), clients);//new ClientService().getOneEntity("clients", project.getClientUUID().toString());
+            taskWeekView.put("taskname", task.getName() + " / " + project.getName() + " / " + client.name);
             taskWeekView.put("taskuuid", taskUUID.toString());
             taskWeekView.put("sorting", week.get("sorting"));
 
