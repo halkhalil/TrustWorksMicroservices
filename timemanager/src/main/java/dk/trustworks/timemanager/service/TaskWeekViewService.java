@@ -1,12 +1,17 @@
 package dk.trustworks.timemanager.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import dk.trustworks.framework.network.Locator;
 import dk.trustworks.framework.persistence.GenericRepository;
 import dk.trustworks.framework.service.DefaultLocalService;
+import dk.trustworks.timemanager.dto.Project;
+import dk.trustworks.timemanager.dto.Task;
+import dk.trustworks.timemanager.dto.TaskWorkerConstraint;
 import dk.trustworks.timemanager.persistence.TaskWeekViewRepository;
 import dk.trustworks.timemanager.persistence.WeekRepository;
 import dk.trustworks.timemanager.persistence.WorkRepository;
@@ -14,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
@@ -34,6 +40,51 @@ public class TaskWeekViewService extends DefaultLocalService {
         taskWeekViewRepository = new TaskWeekViewRepository();
     }
 
+    public List<Project> getAllProjects() {
+        HttpResponse<com.mashape.unirest.http.JsonNode> jsonResponse = null;
+        try {
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects")
+                    .queryString("children", "taskuuid/taskworkerconstraintuuid")
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Project>>() {});
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public Map<String, TaskWorkerConstraint> getTaskWorkerConstraintMap(List<Project> allProjects) {
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = new HashMap<>();
+        for (Project project : allProjects) {
+            for (Task task : project.getTasks()) {
+                for (TaskWorkerConstraint taskWorkerConstraint : task.getTaskWorkerConstraints()) {
+                    taskWorkerConstraintMap.put(taskWorkerConstraint.getUserUUID()+taskWorkerConstraint.getTaskUUID(), taskWorkerConstraint);
+                }
+            }
+        }
+        return taskWorkerConstraintMap;
+    }
+
+    private Task getTask(String taskUUID, List<Project> allProjects) {
+        for (Project project : allProjects) {
+            for (Task task : project.getTasks()) {
+                if(task.getUUID().equals(taskUUID)) return task;
+            }
+        }
+        return null;
+    }
+
+    private Project getProject(String projectUUID, List<Project> allProjects) {
+        for (Project project : allProjects) {
+            if(project.getUUID().equals(projectUUID)) return project;
+        }
+        return null;
+    }
+
     public List<Map<String, Object>> findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(Map<String, Deque<String>> queryParameters) {
         int weekNumber = Integer.parseInt(queryParameters.get("weeknumber").getFirst());
         int year = Integer.parseInt(queryParameters.get("year").getFirst());
@@ -41,16 +92,17 @@ public class TaskWeekViewService extends DefaultLocalService {
 
         WeekRepository weekRepository = new WeekRepository();
         WorkRepository workRepository = new WorkRepository();
+        List<Project> projects = getAllProjects();
         List<Map<String, Object>> taskWeekViews = new ArrayList<>();
         List<Map<String, Object>> weeks = weekRepository.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
 
         StreamSupport.stream(weeks.spliterator(), true).map((week) -> {
             Object taskUUID = week.get("taskuuid");
-            Map<String, Object> task = new TaskService().getOneEntity("tasks", taskUUID.toString());
+            Task task = getTask(taskUUID.toString(), projects);//new TaskService().getOneEntity("tasks", taskUUID.toString());
             Map<String, Object> taskWeekView = new HashMap<>();
-            Map<String, Object> project = new ProjectService().getOneEntity("projects", task.get("projectuuid").toString());
-            Map<String, Object> client = new ClientService().getOneEntity("clients", project.get("clientuuid").toString());
-            taskWeekView.put("taskname", task.get("name") + " / " + project.get("name") + " / " + client.get("name"));
+            Project project = task.getProject();
+            Map<String, Object> client = new ClientService().getOneEntity("clients", project.getClientUUID().toString());
+            taskWeekView.put("taskname", task.getName() + " / " + project.getName() + " / " + client.get("name"));
             taskWeekView.put("taskuuid", taskUUID.toString());
             taskWeekView.put("sorting", week.get("sorting"));
 
@@ -67,21 +119,17 @@ public class TaskWeekViewService extends DefaultLocalService {
             }
 
             taskWeekView.put("budgetleft", budgetLeft);
-            System.out.println(year + ", " + weekNumber);
-
 
             Calendar c = getInstance();
             c.setFirstDayOfWeek(MONDAY);
             c.clear();
             c.set(YEAR, year);
             c.set(WEEK_OF_YEAR, weekNumber);
-            System.out.println(c.get(YEAR) + ", " + c.get(MONTH) + ", " + c.get(DAY_OF_MONTH));
 
 
             DateTime dateTime = new DateTime();
             dateTime = dateTime.withYear(year).withDayOfWeek(1).withWeekOfWeekyear(weekNumber);
 
-            System.out.println(dateTime.getYear() + ", " + dateTime.getMonthOfYear() + ", " + dateTime.getDayOfMonth());
 
             for (int i = 0; i < 7; i++) {
                 List<Map<String, Object>> works = workRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(dateTime.getYear(), dateTime.getMonthOfYear() - 1, dateTime.getDayOfMonth(), taskUUID.toString(), userUUID);

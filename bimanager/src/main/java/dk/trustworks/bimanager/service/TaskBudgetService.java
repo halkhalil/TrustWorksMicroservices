@@ -2,6 +2,7 @@ package dk.trustworks.bimanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dk.trustworks.bimanager.client.RestClient;
+import dk.trustworks.bimanager.client.RestDelegate;
 import dk.trustworks.bimanager.dto.TaskWorkerConstraintBudget;
 import dk.trustworks.bimanager.persistence.TaskBudgetRepository;
 import dk.trustworks.framework.persistence.GenericRepository;
@@ -22,8 +23,11 @@ public class TaskBudgetService extends DefaultLocalService {
     private static final Logger log = LogManager.getLogger(TaskBudgetService.class);
     private TaskBudgetRepository taskBudgetRepository;
 
+    private final RestDelegate restDelegate;
+
     public TaskBudgetService() {
         taskBudgetRepository = new TaskBudgetRepository();
+        restDelegate = RestDelegate.getInstance();
     }
 
     public Map<String, Object> findByTaskUUIDAndUserUUID(Map<String, Deque<String>> queryParameters) {
