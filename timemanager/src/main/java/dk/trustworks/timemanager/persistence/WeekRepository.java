@@ -48,6 +48,7 @@ public class WeekRepository extends GenericRepository {
                     .executeAndFetchTable().asList());
             return result;
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("LOG00580:", e);
             throw new RuntimeException(e);
         }

@@ -49,9 +49,7 @@ public class TaskWeekViewService extends DefaultLocalService {
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Project>>() {});
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnirestException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new ArrayList<>();
@@ -100,7 +98,7 @@ public class TaskWeekViewService extends DefaultLocalService {
             Object taskUUID = week.get("taskuuid");
             Task task = getTask(taskUUID.toString(), projects);//new TaskService().getOneEntity("tasks", taskUUID.toString());
             Map<String, Object> taskWeekView = new HashMap<>();
-            Project project = task.getProject();
+            Project project = getProject(task.getProjectUUID(), projects);
             Map<String, Object> client = new ClientService().getOneEntity("clients", project.getClientUUID().toString());
             taskWeekView.put("taskname", task.getName() + " / " + project.getName() + " / " + client.get("name"));
             taskWeekView.put("taskuuid", taskUUID.toString());
