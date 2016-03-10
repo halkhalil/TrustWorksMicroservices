@@ -3,18 +3,21 @@ package dk.trustworks.timemanager.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import dk.trustworks.framework.network.Locator;
 import dk.trustworks.framework.persistence.GenericRepository;
 import dk.trustworks.framework.service.DefaultLocalService;
+import dk.trustworks.timemanager.dto.Client;
 import dk.trustworks.timemanager.dto.Project;
 import dk.trustworks.timemanager.dto.Task;
 import dk.trustworks.timemanager.dto.TaskWorkerConstraint;
 import dk.trustworks.timemanager.persistence.TaskWeekViewRepository;
 import dk.trustworks.timemanager.persistence.WeekRepository;
 import dk.trustworks.timemanager.persistence.WorkRepository;
+import io.undertow.server.handlers.cache.CacheHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -40,15 +43,15 @@ public class TaskWeekViewService extends DefaultLocalService {
         taskWeekViewRepository = new TaskWeekViewRepository();
     }
 
-    public List<Project> getAllProjects() {
+    public List<Client> getAllClients() {
         HttpResponse<com.mashape.unirest.http.JsonNode> jsonResponse = null;
         try {
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects")
-                    .queryString("children", "taskuuid/taskworkerconstraintuuid")
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/clients")
+                    .queryString("children", "projectuuid/taskuuid/taskworkerconstraintuuid")
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Project>>() {});
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Client>>() {});
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,18 +70,22 @@ public class TaskWeekViewService extends DefaultLocalService {
         return taskWorkerConstraintMap;
     }
 
-    private Task getTask(String taskUUID, List<Project> allProjects) {
-        for (Project project : allProjects) {
-            for (Task task : project.getTasks()) {
-                if(task.getUUID().equals(taskUUID)) return task;
+    private Task getTask(String taskUUID, List<Client> clients) {
+        for (Client client : clients) {
+            for (Project project : client.projects) {
+                for (Task task : project.getTasks()) {
+                    if(task.getUUID().equals(taskUUID)) return task;
+                }
             }
         }
         return null;
     }
 
-    private Project getProject(String projectUUID, List<Project> allProjects) {
-        for (Project project : allProjects) {
-            if(project.getUUID().equals(projectUUID)) return project;
+    private Project getProject(String projectUUID, List<Client> clients) {
+        for (Client client : clients) {
+            for (Project project : client.projects) {
+                if(project.getUUID().equals(projectUUID)) return project;
+            }
         }
         return null;
     }
@@ -90,15 +97,15 @@ public class TaskWeekViewService extends DefaultLocalService {
 
         WeekRepository weekRepository = new WeekRepository();
         WorkRepository workRepository = new WorkRepository();
-        List<Project> projects = getAllProjects();
+        List<Client> clients = getAllClients();
         List<Map<String, Object>> taskWeekViews = new ArrayList<>();
         List<Map<String, Object>> weeks = weekRepository.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
 
         StreamSupport.stream(weeks.spliterator(), true).map((week) -> {
             Object taskUUID = week.get("taskuuid");
-            Task task = getTask(taskUUID.toString(), projects);//new TaskService().getOneEntity("tasks", taskUUID.toString());
+            Task task = getTask(taskUUID.toString(), clients);
             Map<String, Object> taskWeekView = new HashMap<>();
-            Project project = getProject(task.getProjectUUID(), projects);
+            Project project = getProject(task.getProjectUUID(), clients);
             Map<String, Object> client = new ClientService().getOneEntity("clients", project.getClientUUID().toString());
             taskWeekView.put("taskname", task.getName() + " / " + project.getName() + " / " + client.get("name"));
             taskWeekView.put("taskuuid", taskUUID.toString());
@@ -118,16 +125,8 @@ public class TaskWeekViewService extends DefaultLocalService {
 
             taskWeekView.put("budgetleft", budgetLeft);
 
-            Calendar c = getInstance();
-            c.setFirstDayOfWeek(MONDAY);
-            c.clear();
-            c.set(YEAR, year);
-            c.set(WEEK_OF_YEAR, weekNumber);
-
-
             DateTime dateTime = new DateTime();
             dateTime = dateTime.withYear(year).withDayOfWeek(1).withWeekOfWeekyear(weekNumber);
-
 
             for (int i = 0; i < 7; i++) {
                 List<Map<String, Object>> works = workRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(dateTime.getYear(), dateTime.getMonthOfYear() - 1, dateTime.getDayOfMonth(), taskUUID.toString(), userUUID);
