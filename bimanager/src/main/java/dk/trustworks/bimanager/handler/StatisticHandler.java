@@ -3,9 +3,9 @@ package dk.trustworks.bimanager.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import dk.trustworks.bimanager.caches.CacheHandler;
 import dk.trustworks.bimanager.client.RestClient;
+import dk.trustworks.bimanager.client.RestDelegate;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.bimanager.service.StatisticService;
 import dk.trustworks.framework.server.DefaultHandler;
@@ -19,7 +19,6 @@ import org.joda.time.Period;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by hans on 16/03/15.
@@ -29,6 +28,7 @@ public class StatisticHandler extends DefaultHandler {
     private static final Logger log = LogManager.getLogger(StatisticHandler.class);
     private final StatisticService statisticService;
     private final RestClient restClient = new RestClient();
+    private final RestDelegate restDelegate = RestDelegate.getInstance();
 
     public StatisticHandler() {
         super("statistic");
@@ -57,8 +57,8 @@ public class StatisticHandler extends DefaultHandler {
         DateTime today = new DateTime();
         DateTime oneMonthAgo = new DateTime().minusDays(30);
         Interval pastMonth = new Interval(oneMonthAgo, today);
-        List<Work> allWork = getAllWork(Calendar.getInstance().get(Calendar.YEAR));
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        List<Work> allWork = restDelegate.getAllWork(Calendar.getInstance().get(Calendar.YEAR));
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         double revenueperday[] = new double[30];
 
@@ -83,9 +83,9 @@ public class StatisticHandler extends DefaultHandler {
     public void billablehoursperuserperday(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        List<Work> allWork = getAllWork(year);
+        List<Work> allWork = restDelegate.getAllWork(year);
 
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         double billablehoursperday[] = new double[7];
 
@@ -108,8 +108,8 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenuepermonth(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = getAllWork(year);
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         double revenuepermonth[] = new double[12];
 
@@ -132,8 +132,8 @@ public class StatisticHandler extends DefaultHandler {
     public void revenuepermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        List<Work> allWork = getAllWork(year);
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         double revenuepermonth[] = new double[12];
 
@@ -155,9 +155,9 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenuepermonthbycapacity(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = getAllWork(year);
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
-        List<Integer> capacityPerMonth = getCapacityPerMonthByYear(year);
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
+        List<Integer> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(year);
         int revenuepermonth[] = new int[12];
 
         for (Work work : allWork) {
@@ -184,8 +184,8 @@ public class StatisticHandler extends DefaultHandler {
 
     public void expensepermonthbycapacity(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Expense> allExpensesByYear = getAllExpensesByYear(year);
-        List<Integer> capacityPerMonth = getCapacityPerMonthByYear(year);
+        List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
+        List<Integer> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(year);
         long expensepermonth[] = new long[12];
 
         for (Expense expense : allExpensesByYear) {
@@ -209,7 +209,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void expensepermonth(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Expense> allExpensesByYear = getAllExpensesByYear(year);
+        List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
         long expensepermonth[] = new long[12];
 
         for (Expense expense : allExpensesByYear) {
@@ -226,17 +226,17 @@ public class StatisticHandler extends DefaultHandler {
     }
 
     public void revenuerate(HttpServerExchange exchange, String[] params) {
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         DateTime today = new DateTime();
-        List<Work> allWorkThisYear = getAllWork(today.getYear());
-        List<Work> allWorkLastYear = getAllWork(today.getYear()-1);
+        List<Work> allWorkThisYear = restDelegate.getAllWork(today.getYear());
+        List<Work> allWorkLastYear = restDelegate.getAllWork(today.getYear()-1);
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(allWorkThisYear);
         allWork.addAll(allWorkLastYear);
 
-        List<Integer> capacityPerMonthThisYear = getCapacityPerMonthByYear(today.getYear());
-        List<Integer> capacityPerMonthLastYear = getCapacityPerMonthByYear(today.getYear()-1);
+        List<Integer> capacityPerMonthThisYear = restDelegate.getCapacityPerMonthByYear(today.getYear());
+        List<Integer> capacityPerMonthLastYear = restDelegate.getCapacityPerMonthByYear(today.getYear()-1);
 
         double revenueLastYearsMonth = 0;
         int thisMonth = today.getMonthOfYear()-1;
@@ -279,7 +279,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void budgetpermonth(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<TaskWorkerConstraintBudget> allBudgets = getAllBudgets(year);
+        List<TaskWorkerConstraintBudget> allBudgets = restDelegate.getAllBudgets(year);
 
         double budgetpermonth[] = new double[12];
 
@@ -299,7 +299,7 @@ public class StatisticHandler extends DefaultHandler {
     public void budgetpermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        List<TaskWorkerConstraintBudget> allBudgets = getAllBudgetsByUser(year, userUUID);
+        List<TaskWorkerConstraintBudget> allBudgets = restDelegate.getAllBudgetsByUser(year, userUUID);
 
         double budgetpermonth[] = new double[12];
 
@@ -319,7 +319,7 @@ public class StatisticHandler extends DefaultHandler {
     public void sickdayspermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        List<Work> allWork = getAllWork(year);
+        List<Work> allWork = restDelegate.getAllWork(year);
 
         double sickdaysPerMonth[] = new double[12];
 
@@ -342,7 +342,7 @@ public class StatisticHandler extends DefaultHandler {
     public void freedayspermonthperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         String userUUID = exchange.getQueryParameters().get("useruuid").getFirst();
-        List<Work> allWork = getAllWork(year);
+        List<Work> allWork = restDelegate.getAllWork(year);
 
         double freedaysPerMonth[] = new double[12];
 
@@ -364,9 +364,9 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = getAllWork(year);
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
-        Map<String, User> userMap = getAllUsersMap();
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
+        Map<String, User> userMap = restDelegate.getAllUsersMap();
 
         Map<String, Double> revenuePerUser = new HashMap<>();
         List<AmountPerItem> listOfUsers = new ArrayList<>();
@@ -392,9 +392,9 @@ public class StatisticHandler extends DefaultHandler {
 
     public void billablehoursperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = getAllWork(year);
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
-        Map<String, User> userMap = getAllUsersMap();
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
+        Map<String, User> userMap = restDelegate.getAllUsersMap();
 
         Map<String, Double> revenuePerUser = new HashMap<>();
         List<AmountPerItem> listOfUsers = new ArrayList<>();
@@ -421,8 +421,8 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperproject(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = getAllWork(year);
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = getTaskWorkerConstraintMap(getAllProjects());
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         Map<String, Double> revenuePerProject = new HashMap<>();
         List<AmountPerItem> listOfProjects = new ArrayList<>();
@@ -430,15 +430,15 @@ public class StatisticHandler extends DefaultHandler {
         for (Work work : allWork) {
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
-            Project project = findProjectByTask(getAllProjects(), work.getTaskUUID());
+            Project project = restDelegate.findProjectByTask(restDelegate.getAllProjects(), work.getTaskUUID());
             if (!revenuePerProject.containsKey(project.getUUID())) revenuePerProject.put(project.getUUID(), 0.0);
             revenuePerProject.put(project.getUUID(), revenuePerProject.get(project.getUUID()) + (work.getWorkDuration() * taskWorkerConstraint.getPrice()));
         }
 
         for (String projectUUID : revenuePerProject.keySet()) {
-            Project project = findProjectByUUID(projectUUID);
+            Project project = restDelegate.findProjectByUUID(projectUUID);
             if(project == null) continue;
-            Client client = findClientByUUID(project.getClientUUID());
+            Client client = restDelegate.findClientByUUID(project.getClientUUID());
             if(client == null) continue;
             listOfProjects.add(new AmountPerItem(projectUUID, client.name + " / " + project.getName(), revenuePerProject.get(projectUUID)));
         }
@@ -453,8 +453,8 @@ public class StatisticHandler extends DefaultHandler {
     public void revenuepertaskperpersonbyproject(HttpServerExchange exchange, String[] params) {
         String projectuuid = exchange.getQueryParameters().get("projectuuid").getFirst();
         List<AmountPerItem> listOfTasks = new ArrayList<>();
-        for (Task task : findTaskByProject(projectuuid)) {
-            for (User user : getAllUsersMap().values()) {
+        for (Task task : restDelegate.findTaskByProject(projectuuid)) {
+            for (User user : restDelegate.getAllUsersMap().values()) {
                 double hours = restClient.getTaskUserWorkHours(task.getUUID(), user.getUseruuid());
                 if(hours > 0) listOfTasks.add(new AmountPerItem(task.getName(), user.getFirstname() + " " + user.getLastname(), hours));
             }
@@ -469,7 +469,7 @@ public class StatisticHandler extends DefaultHandler {
     public void workregisterdelay(HttpServerExchange exchange, String[] params) {
         try {
             int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-            List<Work> allWork = getAllWork(year);
+            List<Work> allWork = restDelegate.getAllWork(year);
 
             HashMap<String, Map<String, Integer>> listOfDays = new HashMap<>();
 
@@ -498,7 +498,7 @@ public class StatisticHandler extends DefaultHandler {
             int count = 0;
             ArrayList<AmountPerItem> amountPerItems = new ArrayList<>();
 
-            Map<String, User> usersMap = getAllUsersMap();
+            Map<String, User> usersMap = restDelegate.getAllUsersMap();
             for (String userUUID : listOfDays.keySet()) {
                 Map<String, Integer> delayPerDay = listOfDays.get(userUUID);
                 for (int delay : delayPerDay.values()) {
@@ -531,133 +531,9 @@ public class StatisticHandler extends DefaultHandler {
         }
     }
 
-    private Map<String, User> getAllUsersMap() {
-        try {
-            return getMapCache().get("users", () -> {
-                Map<String, User> userMap = new HashMap<>();
-                for (User user : restClient.getUsers()) {
-                    userMap.put(user.getUUID(), user);
-                }
-                return userMap;
-            });
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Work> getAllWork(int year) {
-        try {
-            return getListCache().get("work"+year, () -> restClient.getRegisteredWorkByYear(year));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<TaskWorkerConstraintBudget> getAllBudgets(int year) {
-        try {
-            return getListCache().get("budgets"+year, () -> restClient.getBudgetsByYear(year));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<TaskWorkerConstraintBudget> getAllBudgetsByUser(int year, String userUUID) {
-        try {
-            return getListCache().get("budgets"+year+userUUID, () -> restClient.getBudgetsByYearAndUser(year, userUUID));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    private List<Integer> getCapacityPerMonthByYear(int year) {
-        //try { //listCache.get("capacitypermonth"+year, (Callable<? extends List>)
-            return new ArrayList<>(Arrays.asList(restClient.getCapacityPerMonthByYear(year)));
-        //} catch (ExecutionException e) {
-          //  throw new RuntimeException(e.getCause());
-        //}
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Project> getAllProjects() {
-        try {
-            return getListCache().get("projects", restClient::getProjectsAndTasksAndTaskWorkerConstraints);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Client> getAllClients() {
-        try {
-            return getListCache().get("clients", () -> restClient.getClients());
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Expense> getAllExpensesByYear(int year) {
-        try {
-            return getListCache().get("expenses"+year, () -> restClient.getExpensesByYear(year));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    private Map<String, TaskWorkerConstraint> getTaskWorkerConstraintMap(List<Project> allProjects) {
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = new HashMap<>();
-        for (Project project : allProjects) {
-            for (Task task : project.getTasks()) {
-                for (TaskWorkerConstraint taskWorkerConstraint : task.getTaskWorkerConstraints()) {
-                    taskWorkerConstraintMap.put(taskWorkerConstraint.getUserUUID()+taskWorkerConstraint.getTaskUUID(), taskWorkerConstraint);
-                }
-            }
-        }
-        return taskWorkerConstraintMap;
-    }
-
-    private Project findProjectByTask(List<Project> allProjects, String taskUUID) {
-        for (Project project : allProjects) {
-            for (Task task : project.getTasks()) {
-                if(task.getUUID().equals(taskUUID)) return project;
-            }
-        }
-        return null;
-    }
-
-    private List<Task> findTaskByProject(String projectUUID) {
-        for (Project project : getAllProjects()) {
-            if (project.getUUID().equals(projectUUID)) return project.getTasks();
-        }
-        return null;
-    }
 
 
-    private Project findProjectByUUID(String projectUUID) {
-        for (Project project : getAllProjects()) {
-            if(project.getUUID().equals(projectUUID)) return project;
-        }
-        return null;
-    }
 
-    private Client findClientByUUID(String clientUUID) {
-        for (Client client : getAllClients()) {
-            if(client.uuid.equals(clientUUID)) return client;
-        }
-        return null;
-    }
-
-    public Cache<String, List> getListCache() {
-        return CacheHandler.createCacheHandler().getListCache();
-    }
-
-    public Cache<String, Map> getMapCache() {
-        return CacheHandler.createCacheHandler().getMapCache();
-    }
 
     @Override
     protected DefaultLocalService getService() {
