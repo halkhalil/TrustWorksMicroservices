@@ -107,38 +107,8 @@
         <jackson.version>2.4.5</jackson.version>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <build.profile.id>dev</build.profile.id>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>prod</id>
-            <properties>
-                <build.profile.id>prod</build.profile.id>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>raspi</id>
-            <properties>
-                <build.profile.id>raspi</build.profile.id>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <finalName>timemanager</finalName>
-
-        <filters>
-            <filter>profiles/${build.profile.id}/config.properties</filter>
-        </filters>
 
         <resources>
             <resource>
