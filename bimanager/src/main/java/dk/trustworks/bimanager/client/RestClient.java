@@ -6,10 +6,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import dk.trustworks.bimanager.client.commands.GetClientsCommand;
-import dk.trustworks.bimanager.client.commands.GetExpensesByYearCommand;
-import dk.trustworks.bimanager.client.commands.GetProjectsAndTasksAndTaskWorkerConstraintsCommand;
-import dk.trustworks.bimanager.client.commands.GetUsersCommand;
+import dk.trustworks.bimanager.client.commands.*;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.framework.network.Locator;
 import org.apache.logging.log4j.LogManager;
@@ -451,6 +448,8 @@ public class RestClient {
     public List<Client> getClients() {
         return new GetClientsCommand().execute();
     }
+
+    public List<Client> getClientsGraph() { return new GetClientsGraphCommand().execute(); }
 
     public List<Project> getProjectsAndTasksAndTaskWorkerConstraints() {
         return new GetProjectsAndTasksAndTaskWorkerConstraintsCommand().execute();

@@ -1,6 +1,10 @@
 package dk.trustworks.bimanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hans on 24/09/15.
@@ -13,6 +17,9 @@ public class Client implements Serializable {
     public String contactname;
     public String created;
     public String name;
+
+    @JsonProperty("projects")
+    public List<Project> projects = new ArrayList<>();
 
     public Client() {
     }

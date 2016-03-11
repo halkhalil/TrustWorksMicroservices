@@ -91,6 +91,15 @@ public class RestDelegate {
     }
 
     @SuppressWarnings("unchecked")
+    public List<Client> getAllClientsGraph() {
+        try {
+            return listCache.get("clientsgraph", () -> restClient.getClientsGraph());
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public List<Expense> getAllExpensesByYear(int year) {
         try {
             return listCache.get("expenses"+year, () -> restClient.getExpensesByYear(year));
