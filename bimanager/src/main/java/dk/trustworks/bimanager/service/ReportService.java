@@ -39,9 +39,9 @@ public class ReportService extends DefaultLocalService {
                 reportDTO = new ReportDTO();
                 if (work.getWorkDuration() > 0) {
                     reportDTOs.add(reportDTO);
-                } else {
-                    continue;
-                }
+                //} else {
+                    //continue;
+                //}
             }
 
             User user = restDelegate.getAllUsersMap().get(work.getUserUUID());
