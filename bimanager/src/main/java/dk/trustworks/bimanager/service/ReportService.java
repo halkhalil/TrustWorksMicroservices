@@ -26,7 +26,7 @@ public class ReportService extends DefaultLocalService {
     public ArrayList<ReportDTO> findByTaskUUIDAndUserUUID(Map<String, Deque<String>> queryParameters) {
         ArrayList<ReportDTO> reportDTOs = new ArrayList<>();
         List<Client> clients = restDelegate.getAllClientsGraph();
-
+        System.out.println("clients.size() = " + clients.size());
         for (Work work : restClient.getRegisteredWorkByMonth(Integer.parseInt(queryParameters.get("year").getFirst()), Integer.parseInt(queryParameters.get("month").getFirst()))) {
             ReportDTO reportDTO = null;
             for (ReportDTO newReportDTO : reportDTOs) {
@@ -75,7 +75,11 @@ public class ReportService extends DefaultLocalService {
                                 return result;
                             }
                         }
-
+                        result.put("taskname", task.getName());
+                        result.put("projectname", project.getName());
+                        result.put("clientname", client.name);
+                        result.put("rate", "0.0");
+                        return result;
                     }
                 }
             }
