@@ -108,7 +108,7 @@ public class TaskWeekViewService extends DefaultLocalService {
 
         WeekRepository weekRepository = new WeekRepository();
         WorkRepository workRepository = new WorkRepository();
-        List<Client> clients = listCache.get("projects", this::getAllClients);
+        List<Client> clients = listCache.get("clients", this::getAllClients);
         List<Map<String, Object>> taskWeekViews = new ArrayList<>();
         List<Map<String, Object>> weeks = weekRepository.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
 
