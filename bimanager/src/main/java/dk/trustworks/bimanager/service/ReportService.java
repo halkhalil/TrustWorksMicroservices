@@ -37,27 +37,23 @@ public class ReportService extends DefaultLocalService {
 
             if (reportDTO == null) {
                 reportDTO = new ReportDTO();
-                if (work.getWorkDuration() > 0)
-                    reportDTOs.add(reportDTO);
-                //} else {
-                    //continue;
-                //}
+                if (work.getWorkDuration() > 0) reportDTOs.add(reportDTO);
+                User user = restDelegate.getAllUsersMap().get(work.getUserUUID());
+                reportDTO.setWorkerName(user.getFirstname() + " " + user.getLastname());
+                reportDTO.setWorkerUUID(work.getUserUUID());
+
+                Map<String, String> taskProjectClient = extractNames(clients, work.getTaskUUID(), work.getUserUUID());
+                reportDTO.setClientName(taskProjectClient.get("clientname"));
+                reportDTO.setProjectName(taskProjectClient.get("projectname"));
+                reportDTO.setTaskName(taskProjectClient.get("taskname"));
+                reportDTO.setTaskUUID(work.getTaskUUID());
+                double workerRate = Double.parseDouble(taskProjectClient.get("rate"));//restClient.getTaskWorkerRate(work.getTaskUUID(), work.getUserUUID());
+                reportDTO.setRate(workerRate);
+
             }
-
-            User user = restDelegate.getAllUsersMap().get(work.getUserUUID());
-            reportDTO.setWorkerName(user.getFirstname() + " " + user.getLastname());
-            reportDTO.setWorkerUUID(work.getUserUUID());
-
-            Map<String, String> taskProjectClient = extractNames(clients, work.getTaskUUID(), work.getUserUUID());
-            reportDTO.setClientName(taskProjectClient.get("clientname"));
-            reportDTO.setProjectName(taskProjectClient.get("projectname"));
-            reportDTO.setTaskName(taskProjectClient.get("taskname"));
-            reportDTO.setTaskUUID(work.getTaskUUID());
 
             reportDTO.setHours(reportDTO.getHours() + work.getWorkDuration());
 
-            double workerRate = Double.parseDouble(taskProjectClient.get("rate"));//restClient.getTaskWorkerRate(work.getTaskUUID(), work.getUserUUID());
-            reportDTO.setRate(workerRate);
             reportDTO.setSum(reportDTO.getHours() * reportDTO.getRate());
         }
 
