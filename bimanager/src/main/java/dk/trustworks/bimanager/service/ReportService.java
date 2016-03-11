@@ -37,7 +37,7 @@ public class ReportService extends DefaultLocalService {
 
             if (reportDTO == null) {
                 reportDTO = new ReportDTO();
-                if (work.getWorkDuration() > 0) {
+                if (work.getWorkDuration() > 0)
                     reportDTOs.add(reportDTO);
                 //} else {
                     //continue;
