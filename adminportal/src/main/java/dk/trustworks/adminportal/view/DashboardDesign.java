@@ -371,16 +371,21 @@ public class DashboardDesign extends CssLayout {
 
             Map<String, Integer> userVacation = new HashMap<>();
             for (User user : dataAccess.getUsers()) {
+                System.out.println("user.getUsername() = " + user.getUsername());
                 int vacationDays = 0;
                 for (Double days : dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
                     vacationDays += days;
-                    for (int i = 0; i < 12; i++) {
-                        int[] availabilityPerMonth = userAvailabilityPerMonthByYear.get(user.getUseruuid());
-                        int available = 0;
-                        if(availabilityPerMonth!=null)available = availabilityPerMonth[i];
-                        if(available==1) vacationDays += new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue();
+                }
+                for (int i = 0; i < 12; i++) {
+                    int[] availabilityPerMonth = userAvailabilityPerMonthByYear.get(user.getUseruuid());
+                    int available = 0;
+                    if(availabilityPerMonth!=null) available = availabilityPerMonth[i];
+                    if(available==0) {
+                        System.out.println("new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue(); = " + new DateTime(year, i + 1, 1, 1, 1).dayOfMonth().getMaximumValue());
+                        vacationDays += new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue();
                     }
                 }
+                System.out.println("vacationDays = " + vacationDays);
                 userVacation.put(user.getUseruuid(), vacationDays);
             }
 
