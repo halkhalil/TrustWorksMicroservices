@@ -375,8 +375,10 @@ public class DashboardDesign extends CssLayout {
                 for (Double days : dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
                     vacationDays += days;
                     for (int i = 0; i < 12; i++) {
-                        int available = userAvailabilityPerMonthByYear.get(user.getUuid())[i];
-                        if(i==1) vacationDays += new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue();
+                        int[] availabilityPerMonth = userAvailabilityPerMonthByYear.get(user.getUseruuid());
+                        int available = 0;
+                        if(availabilityPerMonth!=null)available = availabilityPerMonth[i];
+                        if(available==1) vacationDays += new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue();
                     }
                 }
                 userVacation.put(user.getUseruuid(), vacationDays);
