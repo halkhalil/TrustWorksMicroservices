@@ -1,6 +1,8 @@
 package dk.trustworks.adminportal.domain;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -10,9 +12,11 @@ import dk.trustworks.framework.network.Locator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DataAccess implements Serializable {
 
@@ -245,7 +249,6 @@ public class DataAccess implements Serializable {
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonth");
-            ArrayList<Integer> list = new ArrayList<Integer>();
             int[] result = new int[12];
             if (jsonArray != null) {
                 int len = jsonArray.length();
@@ -256,6 +259,26 @@ public class DataAccess implements Serializable {
             return result;
         } catch (UnirestException e) {
             System.err.println(e);
+        }
+        return null;
+    }
+
+    public Map<String, int[]> getUserAvailabilityPerMonthByYear(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/useravailabilitypermonthbyyear")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, int[]>>() {});
+        } catch (UnirestException e) {
+            System.err.println(e);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }

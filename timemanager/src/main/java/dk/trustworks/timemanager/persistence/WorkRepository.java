@@ -205,8 +205,6 @@ public class WorkRepository extends GenericRepository {
     public double calculateTaskUserTotalDuration(String taskUUID, String userUUID) {
         log.debug("WorkRepository.calculateTaskUserTotalDuration");
         log.debug("taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
-        //try {
-        //return calculateTaskUserTotalDurationCache.get(taskUUID+userUUID, () -> {
         try (org.sql2o.Connection con = database.open()) {
             return con.createQuery("SELECT sum(workduration) sum FROM ( " +
                     "SELECT yt.year, yt.month, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
@@ -224,11 +222,6 @@ public class WorkRepository extends GenericRepository {
             log.error("LOG00700:", e);
         }
         return 0.0;
-            /*});
-        } catch (ExecutionException e) {
-            log.error("LOG00860:", e);
-            throw new RuntimeException(e);
-        }*/
     }
 
     @Override

@@ -149,7 +149,7 @@ public class UserRepository extends GenericRepository {
                     "inner join ( " +
                     "select useruuid, status, max(statusdate) as MaxDate " +
                     "from userstatus " +
-                    "WHERE statusdate < :toDate " +
+                    "WHERE statusdate <= :toDate " +
                     "group by useruuid " +
                     ") " +
                     "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
@@ -160,6 +160,26 @@ public class UserRepository extends GenericRepository {
             log.error("LOG00771:", e);
         }
         return 0;
+    }
+
+    public List<String> getAvailabilityByMonth(DateTime toDate) {
+        try (org.sql2o.Connection con = database.open()) {
+            return con.createQuery("SELECT uuid FROM user u RIGHT JOIN ( " +
+                    "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                    "from userstatus t " +
+                    "inner join ( " +
+                    "select useruuid, status, max(statusdate) as MaxDate " +
+                    "from userstatus " +
+                    "WHERE statusdate <= :toDate " +
+                    "group by useruuid ) " +
+                    "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate and t.status LIKE 'ACTIVE' " +
+                    ") usi ON u.uuid = usi.useruuid;")
+                    .addParameter("toDate", toDate)
+                    .executeAndFetch(String.class);
+        } catch (Exception e) {
+            log.error("LOG00778:", e);
+        }
+        return new ArrayList<>();
     }
 
     @Override

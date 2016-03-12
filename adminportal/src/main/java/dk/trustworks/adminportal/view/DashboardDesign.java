@@ -15,6 +15,7 @@ import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.Expense;
 import dk.trustworks.adminportal.domain.User;
 import org.joda.time.DateTime;
+import org.joda.time.Months;
 
 import java.lang.reflect.Array;
 import java.text.DateFormatSymbols;
@@ -281,13 +282,11 @@ public class DashboardDesign extends CssLayout {
         public RevenuePerMonthByCapacityChart(int year) {
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
-            //setSizeFull();
 
             setCaption("Revenue per month by Capacity");
             getConfiguration().setTitle("");
             getConfiguration().getChart().setType(ChartType.AREASPLINE);
             getConfiguration().getChart().setAnimation(true);
-            //getConfiguration().getxAxis().getLabels().setEnabled(false);
             getConfiguration().getxAxis().setCategories(new DateFormatSymbols(Locale.ENGLISH).getShortMonths());
             getConfiguration().getxAxis().setTickWidth(0);
             getConfiguration().getyAxis().setTitle("Revenue");
@@ -298,7 +297,7 @@ public class DashboardDesign extends CssLayout {
             for (Long amountPerItem : revenuePerMonth) {
                 sumRevenue += amountPerItem;
             }
-            double avgRevenue = sumRevenue / revenuePerMonth.length;
+            double avgRevenue = sumRevenue / new DateTime().getMonthOfYear();
 
             DataSeries avgRevenueList = new DataSeries("Average Revenue");
             PlotOptionsLine options2 = new PlotOptionsLine();
@@ -317,7 +316,7 @@ public class DashboardDesign extends CssLayout {
             DataSeries revenueSeries = new DataSeries("Revenue");
             for (int i = 0; i < 12; i++) {
                 revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
-                avgRevenueList.add(new DataSeriesItem("Average revenue for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), avgRevenue));
+                avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));// for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), avgRevenue));
                 expensesList.add(new DataSeriesItem("Expense for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i]));
             }
 
@@ -368,11 +367,17 @@ public class DashboardDesign extends CssLayout {
 
             List<AmountPerItem> amountPerItemList = dataAccess.getBillableHoursPerUser(year);
 
+            Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year);
+
             Map<String, Integer> userVacation = new HashMap<>();
             for (User user : dataAccess.getUsers()) {
                 int vacationDays = 0;
                 for (Double days : dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
                     vacationDays += days;
+                    for (int i = 0; i < 12; i++) {
+                        int available = userAvailabilityPerMonthByYear.get(user.getUuid())[i];
+                        if(i==1) vacationDays += new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue();
+                    }
                 }
                 userVacation.put(user.getUseruuid(), vacationDays);
             }
