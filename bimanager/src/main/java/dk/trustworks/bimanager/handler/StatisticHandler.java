@@ -49,6 +49,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("workregisterdelay");
         addCommand("revenuerate");
         addCommand("expensepermonthbycapacity");
+        addCommand("expensepermonthbycapacityexceptsalary");
         addCommand("expensepermonth");
         addCommand("revenuepertaskperpersonbyproject");
     }
@@ -189,6 +190,32 @@ public class StatisticHandler extends DefaultHandler {
         long expensepermonth[] = new long[12];
 
         for (Expense expense : allExpensesByYear) {
+            expensepermonth[expense.getMonth()] += expense.getExpense();
+        }
+
+        for (int i = 0; i < 12; i++) {
+            if(capacityPerMonth.get(i) == 0) continue;
+            if(expensepermonth[i] == 0) continue;
+            expensepermonth[i] = Math.round(expensepermonth[i] / (capacityPerMonth.get(i) / 37.0));
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("expensepermonthbycapacity", expensepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void expensepermonthbycapacityexceptsalary(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
+        List<Integer> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(year);
+        long expensepermonth[] = new long[12];
+
+        for (Expense expense : allExpensesByYear) {
+            if(expense.getType().equals("PAYCHECK")) continue;
             expensepermonth[expense.getMonth()] += expense.getExpense();
         }
 

@@ -221,6 +221,27 @@ public class DataAccess implements Serializable {
         return null;
     }
 
+    public Long[] getExpensesByCapacityByYearExceptSalary(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonthbycapacityexceptsalary")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonthbycapacity");
+            ArrayList<Long> list = new ArrayList<>();
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i = 0; i < len; i++) {
+                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
+                }
+            }
+            return list.toArray(new Long[12]);
+        } catch (UnirestException e) {
+            System.err.println(e);
+        }
+        return null;
+    }
+
     public Long[] getExpensesByYear(int year) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonth")
@@ -228,7 +249,7 @@ public class DataAccess implements Serializable {
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonth");
-            ArrayList<Long> list = new ArrayList<Long>();
+            ArrayList<Long> list = new ArrayList<>();
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
@@ -271,6 +292,28 @@ public class DataAccess implements Serializable {
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, int[]>>() {});
+        } catch (UnirestException e) {
+            System.err.println(e);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
+    public Map<String, double[]> getUserSalaryPerMonthByYear(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/salaries/usersalarypermonthbyyear")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, double[]>>() {});
         } catch (UnirestException e) {
             System.err.println(e);
         } catch (JsonParseException e) {

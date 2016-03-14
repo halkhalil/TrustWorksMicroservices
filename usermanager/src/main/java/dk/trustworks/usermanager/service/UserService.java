@@ -41,13 +41,9 @@ public class UserService extends DefaultLocalService {
     }
 
     public Map<String, Object> findByUsernameAndPasswordAndActiveTrue(Map<String, Deque<String>> queryParameters) {
-        System.out.println("UserService.findByUsernameAndPasswordAndActiveTrue");
         String username = queryParameters.get("username").getFirst();
         String password = queryParameters.get("password").getFirst();
-        System.out.println("username = " + username);
-        System.out.println("password = " + password);
         Map<String, Object> credentials = userRepository.findByUsernameAndPasswordAndActiveTrue(username, password);
-        System.out.println("credentials = " + credentials);
         return credentials;
     }
 

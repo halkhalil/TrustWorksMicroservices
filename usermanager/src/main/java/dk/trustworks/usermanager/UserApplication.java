@@ -4,6 +4,7 @@ import com.google.common.net.MediaType;
 import com.vaadin.server.VaadinServlet;
 import dk.trustworks.framework.BaseApplication;
 import dk.trustworks.framework.persistence.Helper;
+import dk.trustworks.usermanager.handlers.SalaryHandler;
 import dk.trustworks.usermanager.handlers.UserHandler;
 import dk.trustworks.usermanager.web.UserList;
 import io.undertow.Handlers;
@@ -60,6 +61,7 @@ public class UserApplication extends BaseApplication {
                 .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
                 .setHandler(Handlers.header(Handlers.path()
                         .addPrefixPath("/api/users", new UserHandler())
+                        .addPrefixPath("/api/salaries", new SalaryHandler())
                         .addPrefixPath("/servlets", manager.start())
                         , Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
