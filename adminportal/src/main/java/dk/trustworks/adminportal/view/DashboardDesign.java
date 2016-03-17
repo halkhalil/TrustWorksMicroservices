@@ -50,6 +50,7 @@ public class DashboardDesign extends CssLayout {
     protected CssLayout dashboard_item30;
     protected CssLayout dashboard_item31;
     protected CssLayout dashboard_item32;
+    protected CssLayout dashboard_item33;
     protected HorizontalLayout sparkline_horizontal;
 
     public static void main(String[] args) {
@@ -111,6 +112,10 @@ public class DashboardDesign extends CssLayout {
         RevenuePerMonthChart revenuePerMonthChart = new RevenuePerMonthChart(year);
         dashboard_item27.removeAllComponents();
         dashboard_item27.addComponent(revenuePerMonthChart);
+
+        CumulativeRevenuePerMonthChart cumulativeRevenuePerMonthChart = new CumulativeRevenuePerMonthChart(year);
+        dashboard_item33.removeAllComponents();
+        dashboard_item33.addComponent(cumulativeRevenuePerMonthChart);
 
         RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart(year);
         dashboard_item28.removeAllComponents();
@@ -273,6 +278,50 @@ public class DashboardDesign extends CssLayout {
             }
 
             getConfiguration().addSeries(budgetSeries);
+            getConfiguration().addSeries(revenueSeries);
+            getConfiguration().addSeries(expensesList);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
+
+    public class CumulativeRevenuePerMonthChart extends Chart {
+
+        public CumulativeRevenuePerMonthChart(int year) {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("Cumulative Revenue and Budget per month");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.AREASPLINE);
+            getConfiguration().getChart().setAnimation(true);
+            //getConfiguration().getxAxis().getLabels().setEnabled(false);
+            getConfiguration().getxAxis().setCategories(new DateFormatSymbols(Locale.ENGLISH).getShortMonths());
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(year);
+
+            Long[] allExpenses = dataAccess.getExpensesByYear(year);
+
+            DataSeries expensesList = new DataSeries("Expenses");
+            PlotOptionsAreaSpline options3 = new PlotOptionsAreaSpline();
+            options3.setColor(SolidColor.RED);
+            options3.setMarker(new Marker(false));
+            expensesList.setPlotOptions(options3);
+
+            DataSeries revenueSeries = new DataSeries("Revenue");
+            double cumulativeRevenuePerMonth = 0.0;
+            double cumulativeExpensesPerMonth = 0.0;
+            for (int i = 0; i < 12; i++) {
+                revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i] + cumulativeRevenuePerMonth));
+                expensesList.add(new DataSeriesItem("Expense for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i] + cumulativeExpensesPerMonth));
+                cumulativeRevenuePerMonth += revenuePerMonth[i];
+                cumulativeExpensesPerMonth += allExpenses[i];
+            }
+
             getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(expensesList);
             Credits c = new Credits("");
@@ -447,7 +496,10 @@ public class DashboardDesign extends CssLayout {
             setHeight("280px"); // 400px by default
             //setSizeFull();
 
-            setCaption("Net Profit per Employee");
+            if(DateTime.now().getYear()==year)
+                setCaption("Net Profit Per Employee to and including last month");
+            else
+                setCaption("Net Profit per Employee for full year");
             getConfiguration().setTitle("");
             getConfiguration().getChart().setType(ChartType.COLUMN);
             getConfiguration().getChart().setAnimation(true);
@@ -459,34 +511,54 @@ public class DashboardDesign extends CssLayout {
 
             Map<String, double[]> userSalaryPerMonthByYear = dataAccess.getUserSalaryPerMonthByYear(year);
             Long[] expensesByYear = dataAccess.getExpensesByCapacityByYearExceptSalary(year);
+            Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year);
+            int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
 
             Map<String, User> userMap = new HashMap<>();
             for (User user : dataAccess.getUsers()) {
-                userMap.put(user.getUseruuid(), user);
+                userMap.put(user.getUuid(), user);
             }
 
             DataSeries netIncomeList = new DataSeries("Net Income");
+
+            List<String> cats = new ArrayList<>();
 
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
                 double netIncome = 0.0;
 
                 Long[] revenuePerMonthPerUser = dataAccess.getRevenuePerMonthPerUser(year, userUUID);
                 double[] salaries = userSalaryPerMonthByYear.get(userUUID);
-                for (int i = 0; i < 12; i++) {
-                    if(salaries[i] > 0.0) {
+                int monthLimit = new DateTime().getMonthOfYear()-1;
+                if(DateTime.now().getYear() > year) monthLimit = 12;
+                for (int i = 0; i < monthLimit; i++) {
+                    if(salaries[i] > 0.0 && userAvailabilityPerMonthByYear.get(userUUID) != null && userAvailabilityPerMonthByYear.get(userUUID)[i] == 1) {
                         netIncome += revenuePerMonthPerUser[i] * 1000;
                         netIncome -= salaries[i];
-                        netIncome -= expensesByYear[i] / salaries.length;
+                        netIncome -= expensesByYear[i] / capacityPerMonthByYear[i];
                     }
-                }
 
-                StringBuilder shortname = new StringBuilder();
-                for (String s : (userMap.get(userUUID).getFirstname()+" "+userMap.get(userUUID).getLastname()).split(" ")) {
-                    shortname.append(s.charAt(0));
                 }
-                netIncomeList.add(new DataSeriesItem(shortname.toString(), netIncome));
+                if(netIncome > 0) {
+                    StringBuilder shortname = new StringBuilder();
+                    String name = userUUID;
+                    if (userMap.get(userUUID) != null)
+                        name = (userMap.get(userUUID).getFirstname() + " " + userMap.get(userUUID).getLastname());
+
+                    for (String s : name.split(" ")) {
+                        shortname.append(s.charAt(0));
+                    }
+                    cats.add(shortname.toString());
+                    netIncomeList.add(new DataSeriesItem(name, netIncome));
+                }
             }
 
+            //Collections.sort(cats);
+            String[] categories = new String[cats.size()];
+            for (int i = 0; i < cats.size(); i++) {
+                categories[i] = cats.get(i);
+            }
+
+            getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(netIncomeList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
