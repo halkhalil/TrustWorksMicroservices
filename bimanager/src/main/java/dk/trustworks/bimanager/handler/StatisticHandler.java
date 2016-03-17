@@ -153,7 +153,8 @@ public class StatisticHandler extends DefaultHandler {
             income[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
 
-        List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
+        List<Expense> allExpensesByYear = new ArrayList<>();
+        allExpensesByYear.addAll(restDelegate.getAllExpensesByYear(year));
         allExpensesByYear.addAll(restDelegate.getAllExpensesByYear(year-1));
 
         for (Expense expense : allExpensesByYear) {
