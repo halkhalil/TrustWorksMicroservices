@@ -51,6 +51,7 @@ public class DashboardDesign extends CssLayout {
     protected CssLayout dashboard_item31;
     protected CssLayout dashboard_item32;
     protected CssLayout dashboard_item33;
+    protected CssLayout dashboard_item34;
     protected HorizontalLayout sparkline_horizontal;
 
     public static void main(String[] args) {
@@ -134,6 +135,10 @@ public class DashboardDesign extends CssLayout {
         NetProfitPerEmployeesChart netProfitPerEmployeesChart = new NetProfitPerEmployeesChart(year);
         dashboard_item32.removeAllComponents();
         dashboard_item32.addComponent(netProfitPerEmployeesChart);
+
+        CumulativeFiscalYearIncomeChart cumulativeFiscalYearIncomeChart = new CumulativeFiscalYearIncomeChart(year);
+        dashboard_item34.removeAllComponents();
+        dashboard_item34.addComponent(cumulativeFiscalYearIncomeChart);
     }
 
     public class TopGrossingEmployeesChart extends Chart {
@@ -324,6 +329,42 @@ public class DashboardDesign extends CssLayout {
 
             getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(expensesList);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
+
+    public class CumulativeFiscalYearIncomeChart extends Chart {
+
+        public CumulativeFiscalYearIncomeChart(int year) {
+            setWidth("100%");  // 100% by default
+            setHeight("280px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("Cumulative Income Fiscal Year 07/"+(year-1)+" - 06/"+year);
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.AREASPLINE);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            double[] income = dataAccess.getFiscalYearIncome(year);
+
+            DataSeries revenueSeries = new DataSeries("Income");
+            double cumulativeIncomePerMonth = 0.0;
+            String[] categories = new String[12];
+            for (int i = 6; i < 18; i++) {
+                int month = i;
+                if(i>11) month = i-12;
+                revenueSeries.add(new DataSeriesItem(Month.of(month+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), income[month] + cumulativeIncomePerMonth));
+                categories[i-6] = Month.of(month+1).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+                cumulativeIncomePerMonth += income[month];
+            }
+
+            getConfiguration().getxAxis().setCategories(categories);
+
+            getConfiguration().addSeries(revenueSeries);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }

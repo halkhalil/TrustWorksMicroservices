@@ -52,6 +52,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("expensepermonthbycapacityexceptsalary");
         addCommand("expensepermonth");
         addCommand("revenuepertaskperpersonbyproject");
+        addCommand("fiscalyearincome");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -123,6 +124,46 @@ public class StatisticHandler extends DefaultHandler {
 
         Map<String, Object> result = new HashMap<>();
         result.put("revenuepermonth", revenuepermonth);
+        try {
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void fiscalyearincome(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        List<Work> allWork = new ArrayList<>();
+        allWork.addAll(restDelegate.getAllWork(year));
+        allWork.addAll(restDelegate.getAllWork(year-1));
+
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
+
+        double income[] = new double[12];
+
+        DateTime fromDate = new DateTime(year-1, 7, 1, 0, 0);
+        DateTime toDate = new DateTime(year, 6, 30, 23, 59);
+        Interval fiscalPeriod = new Interval(fromDate, toDate);
+
+        for (Work work : allWork) {
+            DateTime workDate = new DateTime(work.getYear(), work.getMonth()+1, work.getDay(), 0, 0);
+            if(!fiscalPeriod.contains(workDate)) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null) continue;
+            income[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+        }
+
+        List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
+        allExpensesByYear.addAll(restDelegate.getAllExpensesByYear(year-1));
+
+        for (Expense expense : allExpensesByYear) {
+            DateTime expenseDate = new DateTime(expense.getYear(), expense.getMonth()+1, 15, 0, 0);
+            if(!fiscalPeriod.contains(expenseDate)) continue;
+            income[expense.getMonth()] -= expense.getExpense();
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("income", income);
         try {
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
         } catch (JsonProcessingException e) {

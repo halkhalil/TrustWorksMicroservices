@@ -334,7 +334,7 @@ public class DataAccess implements Serializable {
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("budgetpermonth");
-            ArrayList<Long> list = new ArrayList<Long>();
+            ArrayList<Long> list = new ArrayList<>();
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
@@ -468,6 +468,31 @@ public class DataAccess implements Serializable {
             e.printStackTrace();
         }
         return 0.0;
+    }
+
+    public double[] getFiscalYearIncome(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/fiscalyearincome")
+                    .header("accept", "application/json")
+                    .queryString("year", year)
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return ((Map<String, double[]>)mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, double[]>>() {})).get("income");
+            /*
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("income");
+            double[] result = new double[12];
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i = 0; i < len; i++) {
+                    result[i] = jsonArray.getDouble(i);
+                }
+            }
+            */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new double[12];
     }
 
     public JSONObject getBiServiceMetrics() {
