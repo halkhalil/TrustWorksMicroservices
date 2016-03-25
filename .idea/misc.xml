@@ -6,9 +6,11 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="gwt" url="file://$PROJECT_DIR$/adminportal" />
     <file type="gwt" url="file://$PROJECT_DIR$/bimanager" />
+    <file type="gwt" url="file://$PROJECT_DIR$/invoiceportal" />
     <file type="gwt" url="file://$PROJECT_DIR$/usermanager" />
     <file type="gwt" url="file://$PROJECT_DIR$/webadmin" />
     <file type="web" url="file://$PROJECT_DIR$/adminportal" />
+    <file type="web" url="file://$PROJECT_DIR$/invoiceportal" />
     <file type="web" url="file://$PROJECT_DIR$/webadmin" />
   </component>
   <component name="MavenProjectsManager">
@@ -18,7 +20,6 @@
         <option value="$PROJECT_DIR$/bimanager/pom.xml" />
         <option value="$PROJECT_DIR$/clientmanager/pom.xml" />
         <option value="$PROJECT_DIR$/cronmanager/pom.xml" />
-        <option value="$PROJECT_DIR$/invoicemanager/pom.xml" />
         <option value="$PROJECT_DIR$/servicemanager/pom.xml" />
         <option value="$PROJECT_DIR$/timemanager/pom.xml" />
         <option value="$PROJECT_DIR$/trustworks-framework/pom.xml" />

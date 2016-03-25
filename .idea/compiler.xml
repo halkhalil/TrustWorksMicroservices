@@ -17,88 +17,21 @@
       <profile default="true" name="Default" enabled="false">
         <processorPath useClasspath="true" />
       </profile>
-      <profile default="false" name="Annotation profile for usermanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="usermanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for bimanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="bimanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for clientmanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="clientmanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for cronmanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="cronmanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for invoicemanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="invoicemanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for servicemanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="servicemanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for timemanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="timemanager" />
-      </profile>
-      <profile default="false" name="Annotation profile for trustworks-framework" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="trustworks-framework" />
-      </profile>
-      <profile default="false" name="Annotation profile for adminportal" enabled="true">
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="adminportal" />
-      </profile>
-      <profile default="false" name="Annotation profile for webadmin" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Annotation profile for userservice" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="userservice" />
-      </profile>
-      <profile default="false" name="Annotation profile for financemanager" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
+        <module name="bimanager" />
+        <module name="clientmanager" />
+        <module name="cronmanager" />
         <module name="financemanager" />
+        <module name="servicemanager" />
+        <module name="timemanager" />
+        <module name="trustworks-framework" />
+        <module name="usermanager" />
+        <module name="userservice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -108,6 +41,7 @@
       <module name="cronmanager" target="1.8" />
       <module name="financemanager" target="1.8" />
       <module name="invoicemanager" target="1.8" />
+      <module name="invoiceportal" target="1.8" />
       <module name="servicemanager" target="1.8" />
       <module name="timemanager" target="1.8" />
       <module name="trustworks-framework" target="1.8" />

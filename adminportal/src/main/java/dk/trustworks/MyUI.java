@@ -1,5 +1,7 @@
 package dk.trustworks;
 
+import com.ejt.vaadin.loginform.DefaultVerticalLoginForm;
+import com.ejt.vaadin.loginform.LoginForm;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
@@ -28,10 +30,26 @@ public class MyUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        System.out.println("MyUI.init");
-        System.out.println("System.getenv(\"ZK_SERVER_HOST\") = " + System.getenv("ZK_SERVER_HOST"));
-        System.out.println("System.getProperty(\"ZK_SERVER_HOST\") = " + System.getProperty("ZK_SERVER_HOST"));
-        setContent(new MenuDesign());
+        String username = (String)VaadinSession.getCurrent().getAttribute("username");
+        if(username!=null && username.equals("admin")) {
+            setContent(new MenuDesign());
+        } else {
+            DefaultVerticalLoginForm loginForm = new DefaultVerticalLoginForm();
+            loginForm.addLoginListener(new com.ejt.vaadin.loginform.LoginForm.LoginListener() {
+                @Override
+                public void onLogin(LoginForm.LoginEvent event) {
+                    if(event.getUserName().equals("admin") && event.getPassword().equals("volenti")) {
+                        setContent(new MenuDesign());
+                    }
+                    System.err.println(
+                            "Logged in with user name " + event.getUserName() +
+                                    " and password of length " + event.getPassword());
+                    VaadinSession.getCurrent().setAttribute("username", "admin");
+                }
+            });
+            setContent(loginForm);
+        }
+        //setContent(new MenuDesign());
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
@@ -40,13 +58,6 @@ public class MyUI extends UI {
         @Override
         public void init(ServletConfig servletConfig) throws ServletException {
             super.init(servletConfig);
-            /*
-            try {
-                registerInZookeeper("adminservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            */
         }
 
         @Override
