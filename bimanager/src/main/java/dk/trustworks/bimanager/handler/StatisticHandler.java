@@ -298,26 +298,30 @@ public class StatisticHandler extends DefaultHandler {
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         DateTime today = new DateTime();
-        List<Work> allWorkThisYear = restDelegate.getAllWork(today.getYear());
-        List<Work> allWorkLastYear = restDelegate.getAllWork(today.getYear()-1);
         List<Work> allWork = new ArrayList<>();
-        allWork.addAll(allWorkThisYear);
-        allWork.addAll(allWorkLastYear);
+        allWork.addAll(restDelegate.getAllWork(today.getYear()));
+        allWork.addAll(restDelegate.getAllWork(today.getYear()-1));
+        allWork.addAll(restDelegate.getAllWork(today.getYear()-2));
 
         List<Integer> capacityPerMonthThisYear = restDelegate.getCapacityPerMonthByYear(today.getYear());
         List<Integer> capacityPerMonthLastYear = restDelegate.getCapacityPerMonthByYear(today.getYear()-1);
 
         double revenueLastYearsMonth = 0;
-        int thisMonth = today.getMonthOfYear()-1;
+        //int thisMonth = today.getMonthOfYear()-1;
 
-        for (Work work : allWorkLastYear) {
-            if(!(work.getMonth() == thisMonth)) continue;
+        DateTime lastYearWorkDate = today.minusYears(1);
+        DateTime lastYearLastMonthWorkDate = today.minusYears(1).minusMonths(1);
+        Interval lastYearPastMonth = new Interval(lastYearLastMonthWorkDate, lastYearWorkDate);
+
+        for (Work work : allWork) {
+            DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 0, 0);
+            if(!lastYearPastMonth.contains(workDate)) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
             if(taskWorkerConstraint==null) continue;
             revenueLastYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
 
-        if(revenueLastYearsMonth > 0) revenueLastYearsMonth = Math.round((revenueLastYearsMonth / capacityPerMonthLastYear.get(thisMonth)) * 37);
+        if(revenueLastYearsMonth > 0) revenueLastYearsMonth = Math.round((revenueLastYearsMonth / capacityPerMonthLastYear.get(lastYearWorkDate.getMonthOfYear()-1)) * 37);
 
 
         double revenueThisYearsMonth = 0;
@@ -333,7 +337,7 @@ public class StatisticHandler extends DefaultHandler {
             revenueThisYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
 
-        if(revenueThisYearsMonth > 0) revenueThisYearsMonth = Math.round((revenueThisYearsMonth / capacityPerMonthThisYear.get(thisMonth)) * 37);
+        if(revenueThisYearsMonth > 0) revenueThisYearsMonth = Math.round((revenueThisYearsMonth / capacityPerMonthThisYear.get(today.getMonthOfYear()-1)) * 37);
 
         double percent = (100.0 / revenueLastYearsMonth) * revenueThisYearsMonth;
 

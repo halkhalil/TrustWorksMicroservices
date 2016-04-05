@@ -9,9 +9,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.User;
@@ -27,13 +25,16 @@ import java.util.Date;
 @DesignRoot
 @Theme("usermanagement")
 public class UserDesign extends VerticalLayout {
-    private final DataAccess dataAccess = new DataAccess();
 
+    private final DataAccess dataAccess = new DataAccess();
+    protected TextField filter = new TextField();
     protected Grid userGrid;
     protected CssLayout user_item1;
+    protected Button newUser = new Button("New user");
+    protected Button newUserStatus = new Button("New user status");
 
     public UserDesign() {
-        Design.read(this);
+        //Design.read(this);
         setSizeFull();
         ArrayList<User> users = (ArrayList<User>) dataAccess.getUsers();
 
@@ -87,7 +88,7 @@ public class UserDesign extends VerticalLayout {
             }
         });
 
-        createGraphs(2015);
+        //createGraphs(2015);
     }
 
     private void createGraphs(int year) {

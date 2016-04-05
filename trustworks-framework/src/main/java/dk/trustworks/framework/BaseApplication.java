@@ -20,6 +20,14 @@ import javax.servlet.DispatcherType;
  * Created by hans on 06/02/16.
  */
 public class BaseApplication {
+    protected void printEnvironment() {
+        System.out.println("BaseApplication.printEnvironment");
+        for (String env : System.getenv().keySet()) {
+            System.out.println("System.getenv("+env+") = " + System.getenv(env));
+        }
+        System.out.println("--- end ---");
+    }
+
     protected DeploymentManager getMetricsDeploymentManager() {
         DeploymentInfo servletBuilder = Servlets.deployment()
                 .setClassLoader(this.getClass().getClassLoader())

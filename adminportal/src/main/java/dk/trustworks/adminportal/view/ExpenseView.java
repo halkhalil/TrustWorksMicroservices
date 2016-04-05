@@ -16,12 +16,11 @@ import java.text.ChoiceFormat;
  */
 public class ExpenseView extends HorizontalLayout {
 
-    public DataAccess dataAccess = new DataAccess();
+    private final DataAccess dataAccess = new DataAccess();
     TextField filter = new TextField();
     public Grid expenseList = new Grid();
     Button newExpense = new Button("New expense");
 
-    // ContactForm is an example of a custom component class
     ExpenseForm expenseForm = new ExpenseForm(this);
 
     public ExpenseView() {
@@ -31,12 +30,6 @@ public class ExpenseView extends HorizontalLayout {
     }
 
     private void configureComponents() {
-         /* Synchronous event handling.
-         *
-         * Receive user interaction events on the server-side. This allows you
-         * to synchronously handle those events. Vaadin automatically sends
-         * only the needed changes to the web page without loading a new page.
-         */
         newExpense.addClickListener(e -> expenseForm.edit(new Expense()));
 
         filter.setInputPrompt("Filter expenses...");
@@ -53,17 +46,6 @@ public class ExpenseView extends HorizontalLayout {
         refreshContacts();
     }
 
-    /* Robust layouts.
-     *
-     * Layouts are components that contain other components.
-     * HorizontalLayout contains TextField and Button. It is wrapped
-     * with a Grid into VerticalLayout for the left side of the screen.
-     * Allow user to resize the components with a SplitPanel.
-     *
-     * In addition to programmatically building layout in Java,
-     * you may also choose to setup layout declaratively
-     * with Vaadin Designer, CSS and HTML.
-     */
     private void buildLayout() {
         HorizontalLayout actions = new HorizontalLayout(filter, newExpense);
         actions.setWidth("100%");
@@ -79,18 +61,9 @@ public class ExpenseView extends HorizontalLayout {
         mainLayout.setSizeFull();
         mainLayout.setExpandRatio(left, 1);
 
-        // Split and allow resizing
         addComponent(mainLayout);
     }
 
-    /* Choose the design patterns you like.
-     *
-     * It is good practice to have separate data access methods that
-     * handle the back-end access and/or the user interface updates.
-     * You can further split your code into classes to easier maintenance.
-     * With Vaadin you can follow MVC, MVP or any other design pattern
-     * you choose.
-     */
     public void refreshContacts() {
         refreshContacts(filter.getValue());
     }

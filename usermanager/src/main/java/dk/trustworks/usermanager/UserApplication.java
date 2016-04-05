@@ -49,6 +49,8 @@ public class UserApplication extends BaseApplication {
     }
 
     public UserApplication() throws Exception {
+        printEnvironment();
+
         DeploymentManager manager = getMetricsDeploymentManager();
         manager.deploy();
 
