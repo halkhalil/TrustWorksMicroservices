@@ -16,7 +16,7 @@ import java.text.ChoiceFormat;
  */
 public class ExpenseView extends HorizontalLayout {
 
-    private final DataAccess dataAccess = new DataAccess();
+    public final DataAccess dataAccess = new DataAccess();
     TextField filter = new TextField();
     public Grid expenseList = new Grid();
     Button newExpense = new Button("New expense");

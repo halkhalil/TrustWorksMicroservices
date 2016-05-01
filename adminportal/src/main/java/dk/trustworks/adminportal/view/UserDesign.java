@@ -34,7 +34,7 @@ public class UserDesign extends VerticalLayout {
     protected Button newUserStatus = new Button("New user status");
 
     public UserDesign() {
-        //Design.read(this);
+        Design.read(this);
         setSizeFull();
         ArrayList<User> users = (ArrayList<User>) dataAccess.getUsers();
 

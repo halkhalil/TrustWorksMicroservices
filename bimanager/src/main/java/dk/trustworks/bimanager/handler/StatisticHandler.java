@@ -257,7 +257,7 @@ public class StatisticHandler extends DefaultHandler {
         long expensepermonth[] = new long[12];
 
         for (Expense expense : allExpensesByYear) {
-            if(expense.getType().equals("PAYCHECK")) continue;
+            if(expense.getType().equals(ExpenseType.PAYCHECK)) continue;
             expensepermonth[expense.getMonth()] += expense.getExpense();
         }
 

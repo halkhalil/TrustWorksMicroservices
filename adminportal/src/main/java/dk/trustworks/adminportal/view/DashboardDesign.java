@@ -573,17 +573,26 @@ public class DashboardDesign extends CssLayout {
             List<String> cats = new ArrayList<>();
 
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
+                boolean debug = false;
+                if(userUUID.equals("7948c5e8-162c-4053-b905-0f59a21d7746")) debug = true;
+                if(debug) System.out.println("Hans...");
                 double netIncome = 0.0;
 
                 Long[] revenuePerMonthPerUser = dataAccess.getRevenuePerMonthPerUser(year, userUUID);
                 double[] salaries = userSalaryPerMonthByYear.get(userUUID);
+                if(debug) System.out.println("salaries = " + salaries);
                 int monthLimit = new DateTime().getMonthOfYear()-1;
                 if(DateTime.now().getYear() > year) monthLimit = 12;
                 for (int i = 0; i < monthLimit; i++) {
                     if(salaries[i] > 0.0 && userAvailabilityPerMonthByYear.get(userUUID) != null && userAvailabilityPerMonthByYear.get(userUUID)[i] == 1) {
+                        if(debug) System.out.println("netIncome = " + netIncome + " + " + (revenuePerMonthPerUser[i]*1000));
                         netIncome += revenuePerMonthPerUser[i] * 1000;
+                        if(debug) System.out.println("netIncome = " + netIncome + " + " + salaries[i]);
                         netIncome -= salaries[i];
-                        netIncome -= expensesByYear[i] / capacityPerMonthByYear[i];
+                        if(debug) System.out.println("expensesByYear = " + expensesByYear[i]*1000);
+                        if(debug) System.out.println("capacityPerMonthByYear = " + capacityPerMonthByYear[i]);
+                        if(debug) System.out.println("netIncome = " + netIncome + " + " + ((expensesByYear[i]*1000) + capacityPerMonthByYear[i]));
+                        netIncome -= (expensesByYear[i]*1000);// / capacityPerMonthByYear[i];
                     }
 
                 }

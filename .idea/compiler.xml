@@ -27,6 +27,7 @@
         <module name="clientmanager" />
         <module name="cronmanager" />
         <module name="financemanager" />
+        <module name="personalassistant" />
         <module name="servicemanager" />
         <module name="timemanager" />
         <module name="trustworks-framework" />
@@ -42,6 +43,7 @@
       <module name="financemanager" target="1.8" />
       <module name="invoicemanager" target="1.8" />
       <module name="invoiceportal" target="1.8" />
+      <module name="personalassistant" target="1.8" />
       <module name="servicemanager" target="1.8" />
       <module name="timemanager" target="1.8" />
       <module name="trustworks-framework" target="1.8" />
