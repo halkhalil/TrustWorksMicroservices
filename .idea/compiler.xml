@@ -32,7 +32,6 @@
         <module name="timemanager" />
         <module name="trustworks-framework" />
         <module name="usermanager" />
-        <module name="userservice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
