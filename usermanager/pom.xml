@@ -79,21 +79,6 @@
             <version>1.5.4</version>
         </dependency>
         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-server</artifactId>
-            <version>${vaadin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-client-compiled</artifactId>
-            <version>${vaadin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-themes</artifactId>
-            <version>${vaadin.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
@@ -106,28 +91,11 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>angular-ui-bootstrap</artifactId>
-            <version>0.14.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>angular-ui-router</artifactId>
-            <version>0.2.15</version>
-        </dependency>
-        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.9.1</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>vaadin-addons</id>
-            <url>http://maven.vaadin.com/vaadin-addons</url>
-        </repository>
-    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -135,8 +103,6 @@
         <java.version>1.8</java.version>
         <jackson.version>2.4.5</jackson.version>
         <project.encoding>UTF-8</project.encoding>
-        <vaadin.version>7.4.3</vaadin.version>
-        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
     </properties>
 
     <build>
@@ -157,29 +123,6 @@
                 <configuration>
                     <encoding>${project.encoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.plugin.version}</version>
-                <configuration>
-                    <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-                    <webappDirectory>${basedir}/target/classes/VAADIN/widgetsets</webappDirectory>
-                    <draftCompile>false</draftCompile>
-                    <compileReport>false</compileReport>
-                    <style>OBF</style>
-                    <strict>true</strict>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>update-widgetset</goal>
-                            <goal>compile</goal>
-                            <!-- disabled by default to use on-the-fly theme compilation -->
-                            <!-- <goal>compile-theme</goal> -->
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <inherited>true</inherited>
@@ -218,23 +161,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.6.1</version>
-                <!-- Clean up also any pre-compiled themes -->
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>src/main/webapp/VAADIN/themes</directory>
-                            <includes>
-                                <include>**/styles.css</include>
-                                <include>**/styles.scss.cache</include>
-                            </includes>
-                        </fileset>
-                    </filesets>
-                </configuration>
             </plugin>
         </plugins>
     </build>
