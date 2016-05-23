@@ -197,6 +197,7 @@
             <plugin>
                 <groupId>org.jooby</groupId>
                 <artifactId>jooby-maven-plugin</artifactId>
+                <version>LATEST</version>
                 <executions>
                     <execution>
                         <goals>
