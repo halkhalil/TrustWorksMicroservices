@@ -265,7 +265,7 @@ public class DataAccess implements Serializable {
 
     public int[] getCapacityPerMonthByYear(int year) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/capacitypermonth")
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/capacitypermonth")
                     .queryString("year", year)
                     .header("accept", "application/json")
                     .asJson();
@@ -286,7 +286,7 @@ public class DataAccess implements Serializable {
 
     public Map<String, int[]> getUserAvailabilityPerMonthByYear(int year) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/useravailabilitypermonthbyyear")
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/useravailabilitypermonthbyyear")
                     .queryString("year", year)
                     .header("accept", "application/json")
                     .asJson();
@@ -308,7 +308,7 @@ public class DataAccess implements Serializable {
 
     public Map<String, double[]> getUserSalaryPerMonthByYear(int year) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/salaries/usersalarypermonthbyyear")
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/salaries/command/usersalarypermonthbyyear")
                     .queryString("year", year)
                     .header("accept", "application/json")
                     .asJson();

@@ -118,7 +118,7 @@ public class RestClient {
     public Integer[] getCapacityPerMonthByYear(int year) {
         log.entry(year);
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/capacitypermonth")
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/capacitypermonth")
                     .queryString("year", year)
                     .header("accept", "application/json")
                     .asJson();

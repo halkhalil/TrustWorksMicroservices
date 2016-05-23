@@ -150,9 +150,9 @@ public class UserApplication extends Jooby {
                 } finally {
                     context.stop();
                 }
-            });
+            })
 
-            get("/command/usersalarypermonthbyyear", (req, resp) -> {
+            .get("/command/usersalarypermonthbyyear", (req, resp) -> {
                 final Timer timer = metricRegistry.timer(name("salary", "command", "usersalarypermonthbyyear", "response"));
                 final Timer.Context context = timer.time();
                 try {
@@ -166,7 +166,7 @@ public class UserApplication extends Jooby {
                     .produces("json")
                     .consumes("json");
 
-        use("/metrics")
+        use("/servlets/metrics")
                 .get("/", (req, resp) -> {
                     resp.send(metricsMapper.valueToTree(metricRegistry));
                 });
