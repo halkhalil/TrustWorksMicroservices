@@ -1,30 +1,33 @@
 package dk.trustworks.usermanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.framework.persistence.GenericRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import dk.trustworks.usermanager.dto.Salary;
 import org.joda.time.DateTime;
 import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class SalaryRepository extends GenericRepository {
+public class SalaryRepository {
 
-    private static final Logger log = LogManager.getLogger(SalaryRepository.class);
+    private final Sql2o sql2o;
 
-    public SalaryRepository() {
-        super();
+    public SalaryRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    public List<Map<String, Object>> findActiveByDate(DateTime date) {
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT uuid, useruuid, salary FROM user u RIGHT JOIN ( " +
+    public List<Salary> findActiveByDate(DateTime date) {
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT uuid, useruuid, salary FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.salary, t.activefrom " +
                     "from salary t " +
                     "inner join ( " +
@@ -35,17 +38,15 @@ public class SalaryRepository extends GenericRepository {
                     "tm on t.useruuid = tm.useruuid and t.activefrom = tm.MaxDate " +
                     ") usi ON u.uuid = usi.useruuid;")
                     .addParameter("date", date)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Salary.class);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("LOG00778:", e);
         }
         return new ArrayList<>();
     }
 
-    @Override
     public void create(JsonNode jsonNode) throws SQLException {
-        try (Connection con = database.open()) {
+        try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO user (uuid, active, created, email, firstname, lastname, password, username)" +
                     " VALUES (:uuid, :active, :created, :email, :firstname, :lastname, :password, :username)")
                     .addParameter("uuid", jsonNode.get("uuid").asText())
@@ -58,9 +59,8 @@ public class SalaryRepository extends GenericRepository {
                     .addParameter("username", jsonNode.get("username").asText())
                     .executeUpdate();
         } catch (Exception e) {
-            log.error("LOG00600:", e);
         }
-        try (Connection con = database.open()) {
+        try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO userstatus (uuid, useruuid, status, statusdate, allocation)" +
                     " VALUES (:uuid, :useruuid, :status, :statusdate, :allocation)")
                     .addParameter("uuid", UUID.randomUUID().toString())
@@ -70,13 +70,11 @@ public class SalaryRepository extends GenericRepository {
                     .addParameter("allocation", jsonNode.get("allocation").asText())
                     .executeUpdate();
         } catch (Exception e) {
-            log.error("LOG00600:", e);
         }
     }
 
-    @Override
     public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        try (Connection con = database.open()) {
+        try (Connection con = sql2o.open()) {
             con.createQuery("UPDATE user u SET u.email = :email, u.firstname = :firstname, u.lastname = :lastname WHERE u.uuid LIKE :uuid")
                     .addParameter("email", jsonNode.get("email").asText())
                     .addParameter("firstname", jsonNode.get("firstname").asText())
@@ -86,7 +84,7 @@ public class SalaryRepository extends GenericRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Connection con = database.open()) {
+        try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO userstatus (uuid, useruuid, status, statusdate, allocation)" +
                     " VALUES (:uuid, :useruuid, :status, :statusdate, :allocation)")
                     .addParameter("uuid", UUID.randomUUID().toString())

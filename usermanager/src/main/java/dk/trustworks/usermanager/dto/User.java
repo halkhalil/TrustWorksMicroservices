@@ -1,5 +1,8 @@
 package dk.trustworks.usermanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Date;
 
 /**
@@ -13,9 +16,12 @@ import java.util.Date;
  * R = Retired
  * T = Terminated
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
 
     private String UUID;
+
+    private String useruuid;
 
     private String username = "";
 
@@ -27,24 +33,20 @@ public class User {
 
     private String email = "";
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date created;
 
     private boolean active = true;
 
+    private String status;
+
+    private String statusdate;
+
+    private Long allocation;
+
     public User() {
         UUID = java.util.UUID.randomUUID().toString();
         created = new Date();
-    }
-
-    public User(String username, String password, String firstname, String lastname, String email) {
-        this.UUID = java.util.UUID.randomUUID().toString();
-        this.username = username;
-        this.password = password;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.email = email;
-        this.created = new Date();
-        this.active = true;
     }
 
     public String getUUID() {
@@ -109,5 +111,37 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getUseruuid() {
+        return useruuid;
+    }
+
+    public void setUseruuid(String useruuid) {
+        this.useruuid = useruuid;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatusdate() {
+        return statusdate;
+    }
+
+    public void setStatusdate(String statusdate) {
+        this.statusdate = statusdate;
+    }
+
+    public Long getAllocation() {
+        return allocation;
+    }
+
+    public void setAllocation(Long allocation) {
+        this.allocation = allocation;
     }
 }

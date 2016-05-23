@@ -3,38 +3,37 @@ package dk.trustworks.usermanager.persistence;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import dk.trustworks.framework.persistence.GenericRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import dk.trustworks.usermanager.dto.User;
 import org.joda.time.DateTime;
 import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class UserRepository extends GenericRepository {
+public class UserRepository {
 
-    private static final Logger log = LogManager.getLogger(UserRepository.class);
+    private final Sql2o sql2o;
 
-    Cache<String, List<Map<String, Object>>> activeUsersCache = CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES).build();
+    Cache<String, List<User>> activeUsersCache = CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES).build();
 
-    public UserRepository() {
-        super();
+    public UserRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    public List<Map<String, Object>> findByActiveTrue() {
-        log.debug("UserRepository.findByActiveTrue");
+    public List<User> findAll() {
+        System.out.println("findAll()");
         try {
             return activeUsersCache.get("allActive", () -> {
-                try (org.sql2o.Connection con = database.open()) {
-                    return getEntitiesFromMapSet(con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+                try (Connection con = sql2o.open()) {
+                    return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -43,22 +42,54 @@ public class UserRepository extends GenericRepository {
                             "group by useruuid " +
                             ") " +
                             "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
-                            ") usi ON u.uuid = usi.useruuid WHERE usi.status LIKE 'ACTIVE' OR usi.status LIKE 'NON_PAY_LEAVE';").executeAndFetchTable().asList());
+                            ") usi ON u.uuid = usi.useruuid;").executeAndFetch(User.class);
                 } catch (Exception e) {
-                    log.error("LOG00720:", e);
+                    e.printStackTrace();
                 }
                 return new ArrayList<>();
             });
         } catch (ExecutionException e) {
-            log.error("LOG00860:", e);
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
-    public List<Map<String, Object>> findByActiveTrueOrderByFirstnameAsc() {
-        log.debug("UserRepository.findByActiveTrueOrderByFirstnameAsc");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+    public User findByUUID(String uuid) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM user WHERE uuid LIKE :uuid").addParameter("uuid", uuid).executeAndFetch(User.class).get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new User();
+    }
+
+    public List<User> findByActiveTrue() {
+        try {
+            return activeUsersCache.get("allActive", () -> {
+                try (Connection con = sql2o.open()) {
+                    return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+                            "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                            "from userstatus t " +
+                            "inner join ( " +
+                            "select useruuid, status, max(statusdate) as MaxDate " +
+                            "from userstatus " +
+                            "group by useruuid " +
+                            ") " +
+                            "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
+                            ") usi ON u.uuid = usi.useruuid WHERE usi.status LIKE 'ACTIVE' OR usi.status LIKE 'NON_PAY_LEAVE';").executeAndFetch(User.class);
+                } catch (Exception e) {
+
+                }
+                return new ArrayList<>();
+            });
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<User> findByActiveTrueOrderByFirstnameAsc() {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -67,18 +98,16 @@ public class UserRepository extends GenericRepository {
                     "group by useruuid " +
                     ") " +
                     "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
-                    ") usi ON u.uuid = usi.useruuid WHERE usi.status LIKE 'ACTIVE' OR usi.status LIKE 'NON_PAY_LEAVE' ORDER BY firstname ASC;").executeAndFetchTable().asList());
+                    ") usi ON u.uuid = usi.useruuid WHERE usi.status LIKE 'ACTIVE' OR usi.status LIKE 'NON_PAY_LEAVE' ORDER BY firstname ASC;").executeAndFetch(User.class);
         } catch (Exception e) {
-            log.error("LOG00730:", e);
+
         }
         return new ArrayList<>();
     }
 
-    public Map<String, Object> findByEmail(String email) {
-        log.debug("UserRepository.findByEmail");
-        log.debug("email = [" + email + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntityFromMap(con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+    public User findByEmail(String email) {
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -89,18 +118,15 @@ public class UserRepository extends GenericRepository {
                     "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
                     ") usi ON u.uuid = usi.useruuid WHERE u.email LIKE :email;")
                     .addParameter("email", email)
-                    .executeAndFetchTable().asList().get(0));
+                    .executeAndFetch(User.class).get(0);
         } catch (Exception e) {
-            log.error("LOG00760:", e);
         }
         return null;
     }
 
-    public Map<String, Object> findByUsername(String username) {
-        log.debug("UserRepository.findByUsername");
-        log.debug("username = [" + username + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntityFromMap(con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+    public User findByUsername(String username) {
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -111,18 +137,15 @@ public class UserRepository extends GenericRepository {
                     "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
                     ") usi ON u.uuid = usi.useruuid WHERE u.username LIKE :username;")
                     .addParameter("username", username)
-                    .executeAndFetchTable().asList().get(0));
+                    .executeAndFetch(User.class).get(0);
         } catch (Exception e) {
-            log.error("LOG00750:", e);
         }
         return null;
     }
 
-    public Map<String, Object> findByUsernameAndPasswordAndActiveTrue(String username, String password) {
-        log.debug("UserRepository.findByUsernameAndPasswordAndActiveTrue");
-        log.debug("username = [" + username + "], password = [" + password + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntityFromMap(con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+    public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -134,15 +157,14 @@ public class UserRepository extends GenericRepository {
                     ") usi ON u.uuid = usi.useruuid WHERE u.username LIKE :username AND u.password LIKE :password AND (usi.status LIKE 'ACTIVE' OR usi.status LIKE 'NON_PAY_LEAVE');")
                     .addParameter("username", username)
                     .addParameter("password", password)
-                    .executeAndFetchTable().asList().get(0));
+                    .executeAndFetch(User.class).get(0);
         } catch (Exception e) {
-            log.error("LOG00770:", e);
         }
         return null;
     }
 
     public int calculateCapacityByMonth(DateTime toDate) {
-        try (org.sql2o.Connection con = database.open()) {
+        try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT SUM(allocation) capacity FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
@@ -157,13 +179,12 @@ public class UserRepository extends GenericRepository {
                     .addParameter("toDate", toDate)
                     .executeScalar(Integer.class);
         } catch (Exception e) {
-            log.error("LOG00771:", e);
         }
         return 0;
     }
 
     public List<String> getAvailabilityByMonth(DateTime toDate) {
-        try (org.sql2o.Connection con = database.open()) {
+        try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT uuid FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
@@ -177,35 +198,16 @@ public class UserRepository extends GenericRepository {
                     .addParameter("toDate", toDate)
                     .executeAndFetch(String.class);
         } catch (Exception e) {
-            log.error("LOG00778:", e);
         }
         return new ArrayList<>();
     }
 
-    @Override
-    public List<Map<String, Object>> getAllEntities(String entityName) {
-        try (Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
-                    "select t.useruuid, t.status, t.statusdate, t.allocation " +
-                    "from userstatus t " +
-                    "inner join ( " +
-                    "select useruuid, status, max(statusdate) as MaxDate " +
-                    "from userstatus " +
-                    "group by useruuid " +
-                    ") " +
-                    "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
-                    ") usi ON u.uuid = usi.useruuid;").executeAndFetchTable().asList());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        try (org.sql2o.Connection con = database.open()) {
+    public void create(User user) throws SQLException {
+        try (org.sql2o.Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO user (uuid, active, created, email, firstname, lastname, password, username)" +
-                    " VALUES (:uuid, :active, :created, :email, :firstname, :lastname, :password, :username)")
+                    " VALUES (:UUID, :active, :created, :email, :firstname, :lastname, :password, :username)")
+                    .bind(user)
+                    /*
                     .addParameter("uuid", jsonNode.get("uuid").asText())
                     .addParameter("active", jsonNode.get("active").asText())
                     .addParameter("created", new Date())
@@ -214,27 +216,30 @@ public class UserRepository extends GenericRepository {
                     .addParameter("lastname", jsonNode.get("lastname").asText())
                     .addParameter("password", jsonNode.get("password").asText())
                     .addParameter("username", jsonNode.get("username").asText())
+                    */
                     .executeUpdate();
         } catch (Exception e) {
-            log.error("LOG00600:", e);
         }
-        try (org.sql2o.Connection con = database.open()) {
+        /*
+        try (org.sql2o.Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO userstatus (uuid, useruuid, status, statusdate, allocation)" +
                     " VALUES (:uuid, :useruuid, :status, :statusdate, :allocation)")
+                    .bind(user.getUserstatus())
+                    /*
                     .addParameter("uuid", UUID.randomUUID().toString())
                     .addParameter("useruuid", jsonNode.get("uuid").asText())
                     .addParameter("status", jsonNode.get("status").asText())
                     .addParameter("statusdate", new java.sql.Date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonNode.get("statusdate").asText()).getTime()))
                     .addParameter("allocation", jsonNode.get("allocation").asText())
+                    *//*
                     .executeUpdate();
         } catch (Exception e) {
-            log.error("LOG00600:", e);
         }
+    */
     }
 
-    @Override
     public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        try (org.sql2o.Connection con = database.open()) {
+        try (org.sql2o.Connection con = sql2o.open()) {
             con.createQuery("UPDATE user u SET u.email = :email, u.firstname = :firstname, u.lastname = :lastname WHERE u.uuid LIKE :uuid")
                     .addParameter("email", jsonNode.get("email").asText())
                     .addParameter("firstname", jsonNode.get("firstname").asText())
@@ -244,7 +249,7 @@ public class UserRepository extends GenericRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (org.sql2o.Connection con = database.open()) {
+        try (org.sql2o.Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO userstatus (uuid, useruuid, status, statusdate, allocation)" +
                     " VALUES (:uuid, :useruuid, :status, :statusdate, :allocation)")
                     .addParameter("uuid", UUID.randomUUID().toString())

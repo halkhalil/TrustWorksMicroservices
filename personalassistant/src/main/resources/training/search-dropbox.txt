@@ -1,0 +1,13 @@
+find files containing: <START:words> architecture <END>
+search for files containing <START:words> målarkitektur <END>
+search for files containing: <START:words> målarkitektur <END>
+search dropbox for: <START:words> risikolog <END>
+search dropbox for <START:words> risikolog <END>
+search dropbox: <START:words> risikolog <END>
+find files containing: <START:words> projekt plan <END>
+search for files containing: <START:words> risikolog <END>
+search for files with words <START:words> risikolog <END>
+find files containing words <START:words> risikolog <END>
+find documents containing words <START:words> risikolog <END>
+search in documents on dropbox for <START:words> risk log <END>
+search for documents on dropbox containing the following words: <START:words> projekt plan <END>

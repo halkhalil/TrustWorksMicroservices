@@ -180,6 +180,7 @@ public abstract class DefaultHandler implements HttpHandler {
                         }
                     }
                 }
+                System.out.println("mapper.writeValueAsString(result) = " + mapper.writeValueAsString(result));
                 exchange.getResponseSender().send(mapper.writeValueAsString(result));
             }
         } finally {

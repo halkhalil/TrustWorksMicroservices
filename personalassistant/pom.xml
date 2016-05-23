@@ -68,6 +68,13 @@
             <version>19.0</version>
         </dependency>
 
+        <!-- NLP -->
+        <dependency>
+            <groupId>org.apache.opennlp</groupId>
+            <artifactId>opennlp-tools</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
         <!-- LUCENE -->
         <dependency>
             <groupId>org.apache.poi</groupId>
