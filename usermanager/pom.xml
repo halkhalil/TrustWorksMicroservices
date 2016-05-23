@@ -197,7 +197,7 @@
             <plugin>
                 <groupId>org.jooby</groupId>
                 <artifactId>jooby-maven-plugin</artifactId>
-                <version>LATEST</version>
+                <version>1.0.0.CR3</version>
                 <executions>
                     <execution>
                         <goals>
