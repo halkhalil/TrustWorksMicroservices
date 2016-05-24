@@ -56,6 +56,24 @@
             <version>1.25.1</version>
         </dependency>
 
+        <!-- web socket -->
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-server</artifactId>
+            <version>1.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-container-grizzly-server</artifactId>
+            <version>1.12</version>
+        </dependency>
+
+        <!-- REST JSON -->
         <dependency>
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
@@ -122,6 +140,8 @@
             <version>1.44</version>
         </dependency>
     </dependencies>
+
+
 
     <repositories>
         <repository>
