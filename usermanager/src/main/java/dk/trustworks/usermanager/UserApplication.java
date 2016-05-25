@@ -100,6 +100,18 @@ public class UserApplication extends Jooby {
                 }
             })//.name("findByUsernameAndPasswordAndActiveTrue");
 
+            .get("/search/findByUsername", (req, resp) -> {
+                final Timer timer = metricRegistry.timer(name("user", "search", "findByActiveTrue", "response"));
+                final Timer.Context context = timer.time();
+                try {
+                    String username = req.param("username").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new UserService(db).findByUsername(username));
+                } finally {
+                    context.stop();
+                }
+            })
+
             .get("/search/findByUsernameAndPasswordAndActiveTrue", (req, resp) -> {
                 final Timer timer = metricRegistry.timer(name("user", "search", "findByUsernameAndPasswordAndActiveTrue", "response"));
                 final Timer.Context context = timer.time();

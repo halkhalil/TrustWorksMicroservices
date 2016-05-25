@@ -35,6 +35,10 @@ public class UserService {
         return userRepository.findByActiveTrue();
     }
 
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
     public List<User> findByActiveTrueOrderByFirstnameAsc(Map<String, Deque<String>> queryParameters) {
         return userRepository.findByActiveTrueOrderByFirstnameAsc();
     }
