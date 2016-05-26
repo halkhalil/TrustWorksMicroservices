@@ -78,16 +78,17 @@ public class TaskWorkerConstraintBudget implements Serializable {
         this.taskWorkerConstraintUUID = taskWorkerConstraintUUID;
     }
 
-
     @Override
     public String toString() {
-        return "TaskWorkerConstraintBudget{" +
-                "uuid='" + uuid + '\'' +
-                ", budget=" + budget +
-                ", month=" + month +
-                ", year=" + year +
-                ", taskWorkerConstraintUUID='" + taskWorkerConstraintUUID + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder("TaskWorkerConstraintBudget{");
+        sb.append("uuid='").append(uuid).append('\'');
+        sb.append(", budget=").append(budget);
+        sb.append(", month=").append(month);
+        sb.append(", year=").append(year);
+        sb.append(", taskWorkerConstraintUUID='").append(taskWorkerConstraintUUID).append('\'');
+        sb.append(", taskWorkerConstraint=").append(taskWorkerConstraint);
+        sb.append('}');
+        return sb.toString();
     }
 
     public TaskWorkerConstraint getTaskWorkerConstraint() {

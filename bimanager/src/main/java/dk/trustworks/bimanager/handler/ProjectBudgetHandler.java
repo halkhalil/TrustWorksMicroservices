@@ -58,30 +58,35 @@ public class ProjectBudgetHandler extends DefaultHandler {
     }
 
     public void budgetcleanup(HttpServerExchange exchange, String[] params) {
-        log.entry(exchange, params);
+        System.out.println("ProjectBudgetHandler.budgetcleanup");
         int month = Integer.parseInt(exchange.getQueryParameters().get("month").getFirst());
-        log.debug("month = " + month);
+        System.out.println("month = " + month);
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        log.debug("year = " + year);
+        System.out.println("year = " + year);
 
         RestClient restClient = new RestClient();
         List<TaskWorkerConstraintBudget> workBudgets = new ArrayList<>();
         Map<String, TaskWorkerConstraintBudget> workBudgetMap = new HashMap<>();
+        System.out.println("workBudgetMap.size() = " + workBudgetMap.size());
         for (Work work : restClient.getRegisteredWorkByMonth(month, year)) {
             TaskWorkerConstraint taskWorkerConstraint = restClient.getTaskWorkerConstraint(work.getTaskUUID(), work.getUserUUID());
-            log.debug("work (" + taskWorkerConstraint.getUUID() + ") = " + work);
-            log.debug("taskWorkerConstraint = " + taskWorkerConstraint);
+            //System.out.println("work (" + taskWorkerConstraint.getUUID() + ") = " + work);
+            //System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
             if (!workBudgetMap.containsKey(taskWorkerConstraint.getUUID())) {
                 workBudgetMap.put(taskWorkerConstraint.getUUID(), new TaskWorkerConstraintBudget(0.0, month, "", UUID.randomUUID().toString(), year));
             }
             TaskWorkerConstraintBudget currentBudget = workBudgetMap.get(taskWorkerConstraint.getUUID());
-            if (taskWorkerConstraint.getUUID() == null) log.error("LOG00180: " + taskWorkerConstraint);
+            if (taskWorkerConstraint.getUUID() == null) System.err.println("LOG00180: " + taskWorkerConstraint);
             currentBudget.setBudget(currentBudget.getBudget() + (work.getWorkDuration() * taskWorkerConstraint.getPrice()));
             currentBudget.setTaskWorkerConstraintUUID(taskWorkerConstraint.getUUID());
             currentBudget.setTaskWorkerConstraint(taskWorkerConstraint);
-            log.debug("currentBudget (" + taskWorkerConstraint.getUUID() + ") = " + currentBudget);
+            System.out.println("currentBudget (" + taskWorkerConstraint.getUUID() + ") = " + currentBudget);
         }
         workBudgets.addAll(workBudgetMap.values());
+        for (TaskWorkerConstraintBudget workBudget : workBudgets) {
+            System.out.println("workBudget = " + workBudget);
+        }
+
 
         List<TaskWorkerConstraintBudget> actualBudgets = restClient.getBudgetsByMonthAndYear(month, year);
         List<TaskWorkerConstraintBudget> newBudgets = new ArrayList<>();
