@@ -352,7 +352,10 @@ public class StatisticHandler extends DefaultHandler {
 
     public void budgetpermonth(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<TaskWorkerConstraintBudget> allBudgets = restDelegate.getAllBudgets(year);
+        int ahead = 0;
+        Deque<String> aheadParam = exchange.getQueryParameters().get("ahead");
+        if(aheadParam != null) ahead = Integer.parseInt(aheadParam.getFirst());
+        List<TaskWorkerConstraintBudget> allBudgets = restDelegate.getAllBudgets(year, ahead);
 
         double budgetpermonth[] = new double[12];
 

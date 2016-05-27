@@ -64,10 +64,11 @@ public class DataAccess implements Serializable {
         return null;
     }
 
-    public Long[] getBudgetPerMonth(int year) {
+    public Long[] getBudgetPerMonth(int year, int ahead) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/budgetpermonth")
                     .queryString("year", year)
+                    .queryString("ahead", ahead)
                     .header("accept", "application/json")
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("budgetpermonth");

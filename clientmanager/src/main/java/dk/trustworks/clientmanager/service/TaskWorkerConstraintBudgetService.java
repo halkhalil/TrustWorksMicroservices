@@ -8,10 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hans on 17/03/15.
@@ -42,6 +39,23 @@ public class TaskWorkerConstraintBudgetService extends DefaultLocalService {
     public List<Map<String, Object>> findByYear(Map<String, Deque<String>> queryParameters) {
         logger.debug("TaskWorkerConstraintBudgetService.findByYear");
         int year = Integer.parseInt(queryParameters.get("year").getFirst());
+        Deque<String> aheadParam = queryParameters.get("ahead");
+        //System.out.println("aheadParam = " + aheadParam.getFirst());
+        if(aheadParam!=null && !aheadParam.getFirst().trim().equals("")) {
+            System.out.println("ahead");
+            int ahead = Integer.parseInt(aheadParam.getFirst());
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (int month = 0; month < 12; month++) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(year, month, 1, 1, 0, 0);
+                calendar.add(Calendar.MONTH, -ahead);
+                System.out.println("calendar = " + calendar.getTime());
+                System.out.println("month = " + month);
+                result.addAll(taskWorkerConstraintBudgetRepository.findByMonthAndYearAndDate(month, year, calendar.getTime()));
+            }
+            System.out.println("result.size() = " + result.size());
+            return result;
+        }
         return taskWorkerConstraintBudgetRepository.findByYear(year);
     }
 

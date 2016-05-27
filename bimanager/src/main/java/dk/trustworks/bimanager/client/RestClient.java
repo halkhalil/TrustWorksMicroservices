@@ -234,13 +234,14 @@ public class RestClient {
         }
     }
 
-    public List<TaskWorkerConstraintBudget> getBudgetsByYear(int year) {
+    public List<TaskWorkerConstraintBudget> getBudgetsByYear(int year, int ahead) {
         log.debug("RestClient.getBudgetsByYear");
         log.debug("year = [" + year + "]");
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets/search/findByYear")
                     .queryString("year", year)
+                    .queryString("ahead", ahead)
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();

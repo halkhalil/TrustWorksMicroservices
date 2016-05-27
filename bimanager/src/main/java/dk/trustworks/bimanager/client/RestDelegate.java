@@ -47,9 +47,9 @@ public class RestDelegate {
     }
 
     @SuppressWarnings("unchecked")
-    public List<TaskWorkerConstraintBudget> getAllBudgets(int year) {
+    public List<TaskWorkerConstraintBudget> getAllBudgets(int year, int ahead) {
         try {
-            return listCache.get("budgets"+year, () -> restClient.getBudgetsByYear(year));
+            return listCache.get("budgets"+year+ahead, () -> restClient.getBudgetsByYear(year, ahead));
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
