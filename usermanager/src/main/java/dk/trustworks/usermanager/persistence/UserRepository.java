@@ -184,6 +184,26 @@ public class UserRepository {
         return 0;
     }
 
+    public int calculateCapacityByMonthByUser(DateTime toDate, String userUUID) {
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT allocation FROM user u RIGHT JOIN ( " +
+                    "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                    "from userstatus t " +
+                    "inner join ( " +
+                    "select useruuid, status, max(statusdate) as MaxDate " +
+                    "from userstatus  WHERE statusdate < :toDate " +
+                    "group by useruuid " +
+                    ") " +
+                    "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
+                    ") usi ON u.uuid = usi.useruuid WHERE u.uuid LIKE :useruuid;")
+                    .addParameter("toDate", toDate)
+                    .addParameter("useruuid", userUUID)
+                    .executeScalar(Integer.class);
+        } catch (Exception e) {
+        }
+        return 0;
+    }
+
     public List<String> getAvailabilityByMonth(DateTime toDate) {
         try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT uuid FROM user u RIGHT JOIN ( " +

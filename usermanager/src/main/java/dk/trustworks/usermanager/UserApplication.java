@@ -135,7 +135,20 @@ public class UserApplication extends Jooby {
                 } finally {
                     context.stop();
                 }
-            })//.name("capacitypermonth");
+            })
+
+            .get("/command/capacitypermonthbyuser", (req, resp) -> {
+                final Timer timer = metricRegistry.timer(name("user", "command", "capacitypermonthbyuser", "response"));
+                final Timer.Context context = timer.time();
+                try {
+                    int year = req.param("year").intValue();
+                    String userUUID = req.param("useruuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new UserService(db).capacitypermonthbyuser(year, userUUID));
+                } finally {
+                    context.stop();
+                }
+            })
 
             .get("/command/useravailabilitypermonthbyyear", (req, resp) -> {
                 final Timer timer = metricRegistry.timer(name("user", "command", "useravailabilitypermonthbyyear", "response"));

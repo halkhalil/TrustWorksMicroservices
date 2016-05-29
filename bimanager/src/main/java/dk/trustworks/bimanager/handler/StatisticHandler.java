@@ -13,9 +13,8 @@ import dk.trustworks.framework.service.DefaultLocalService;
 import io.undertow.server.HttpServerExchange;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.joda.time.Period;
+import org.joda.time.*;
+import org.joda.time.chrono.GJChronology;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -53,6 +52,7 @@ public class StatisticHandler extends DefaultHandler {
         addCommand("expensepermonth");
         addCommand("revenuepertaskperpersonbyproject");
         addCommand("fiscalyearincome");
+        addCommand("billablehourspercentageperuser");
     }
 
     public void revenueperday(HttpServerExchange exchange, String[] params) {
@@ -194,6 +194,100 @@ public class StatisticHandler extends DefaultHandler {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void billablehourspercentageperuser(HttpServerExchange exchange, String[] params) {
+        int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        List<Work> allWork = restDelegate.getAllWork(year);
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
+        Map<String, User> users = restDelegate.getAllUsersMap();
+
+        List<AmountPerItem> listOfUsers = new ArrayList<>();
+        Map<String, Double> userWorkHours = new HashMap<>();
+
+        for (Work work : allWork) {
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
+            if(taskWorkerConstraint==null) continue;
+            if(!userWorkHours.containsKey(work.getUserUUID())) userWorkHours.put(work.getUserUUID(), 0.0);
+            userWorkHours.put(work.getUserUUID(), userWorkHours.get(work.getUserUUID())+work.getWorkDuration());
+        }
+        DateTime dt = new DateTime();
+        double dayOfYear = dt.getDayOfYear();
+        LocalDate ld = new LocalDate(year,1,1, GJChronology.getInstance());
+        double daysInYear = Days.daysBetween(ld,ld.plusYears(1)).getDays();
+        double workDays = 224.0;
+        double workDaysInYearToDate = (workDays / daysInYear) * dayOfYear;
+        for (String userUUID : userWorkHours.keySet()) {
+            double avgCapacityPerUser = 0.0;
+            if(year==dt.getYear())
+                avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), dt.monthOfYear().get());
+            else
+                avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), 12);
+            double avgCapacityPerUserPerDay = avgCapacityPerUser / 5.0;
+            double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
+            //System.out.println("user = " + users.get(userUUID).getUsername());
+            //System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
+            //System.out.println("userWorkHours = " + userWorkHours.get(userUUID));
+            double billableHoursPercentage = (userWorkHours.get(userUUID) / workableHoursInYearToDate) * 100.0;
+            listOfUsers.add(new AmountPerItem(userUUID, users.get(userUUID).getFirstname() + " " + users.get(userUUID).getLastname(), billableHoursPercentage));
+            //userWorkHours.put(userUUID, billableHoursPercentage);
+        }
+        System.out.println("\n --- \n");
+        //Map<String, Object> result = new HashMap<>();
+        //result.put("revenuepermonth", revenuepermonth);
+        try {
+            //exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfUsers));
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfUsers));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        DateTime dt = new DateTime();
+        double dayOfYear = dt.getDayOfYear();
+        System.out.println("dayOfYear = " + dayOfYear);
+        LocalDate ld = new LocalDate(2016,1,1, GJChronology.getInstance());
+        double daysInYear = Days.daysBetween(ld,ld.plusYears(1)).getDays();
+        System.out.println("daysInYear = " + daysInYear);
+        //double percentageOfYearPassed = dayOfYear / daysInYear;
+        //System.out.println("percentageOfYearPassed = " + percentageOfYearPassed);
+        double workDays = 224.0;
+        System.out.println("workDays = " + workDays);
+        double workDaysInYearToDate = (workDays / daysInYear) * dayOfYear;
+        System.out.println("workDaysInYearToDate = " + workDaysInYearToDate);
+        //for (String userUUID : userWorkHours.keySet()) {
+        int[] cap = {0,0,0,30,30,30,30,30,30,30,30,30};
+        //int[] cap = {37,37,37,37,37,37,37,37,37,37,37,37};
+        System.out.println("dt.monthOfYear().get() = " + dt.monthOfYear().get());
+        double average = average(cap, dt.monthOfYear().get());
+        System.out.println("average = " + average);
+        double avgCapacityPerUserPerDay = average / 5.0;
+        System.out.println("avgCapacityPerUserPerDay = " + avgCapacityPerUserPerDay);
+        double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
+        System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
+        System.out.println("---");
+        double billableHoursPercentage = (204.5 / workableHoursInYearToDate) * 100.0;
+        System.out.println("billableHoursPercentage = " + billableHoursPercentage);
+
+        //userWorkHours.put(userUUID, userWorkHours.get(userUUID) );
+    }
+
+    private static double average(int[] array, int length) {
+        // 'average' is undefined if there are no elements in the list.
+        System.out.println("array.length = " + array.length);
+        System.out.println("array == null = " + array == null);
+        if (array == null || array.length == 0)
+            return 0.0;
+        // Calculate the summation of the elements in the list
+        long sum = 0;
+        int n = length;
+        // Iterating manually is faster than using an enhanced for loop.
+        for (int i = 0; i < n; i++)
+            sum += array[i];
+        // We don't want to perform an integer division, so the cast is mandatory.
+        System.out.println("((double) sum) / n = " + ((double) sum) / n);
+        return ((double) sum) / n;
     }
 
     public void revenuepermonthbycapacity(HttpServerExchange exchange, String[] params) {

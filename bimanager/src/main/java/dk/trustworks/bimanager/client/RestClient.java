@@ -139,6 +139,31 @@ public class RestClient {
         return new Integer[12];
     }
 
+    public int[] getCapacityPerMonthByYearByUser(int year, String userUUID) {
+        log.entry(year);
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/capacitypermonthbyuser")
+                    .queryString("year", year)
+                    .queryString("useruuid", userUUID)
+                    .header("accept", "application/json")
+                    .asJson();
+            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonthbyuser");
+            int[] result = new int[12];
+            if (jsonArray != null) {
+                int len = jsonArray.length();
+                for (int i=0;i<len;i++){
+                    result[i] = jsonArray.getInt(i);
+                }
+            }
+            return result;
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            log.catching(e);
+        }
+        log.exit(new int[12]);
+        return new int[12];
+    }
+
     public List<Work> getRegisteredWorkByUserAndYear(String userUUID, int year) {
         log.entry(userUUID, year);
         try {

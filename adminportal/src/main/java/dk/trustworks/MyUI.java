@@ -35,17 +35,14 @@ public class MyUI extends UI {
             setContent(new MenuDesign());
         } else {
             DefaultVerticalLoginForm loginForm = new DefaultVerticalLoginForm();
-            loginForm.addLoginListener(new com.ejt.vaadin.loginform.LoginForm.LoginListener() {
-                @Override
-                public void onLogin(LoginForm.LoginEvent event) {
-                    if(event.getUserName().equals("admin") && event.getPassword().equals("volenti")) {
-                        setContent(new MenuDesign());
-                    }
-                    System.err.println(
-                            "Logged in with user name " + event.getUserName() +
-                                    " and password of length " + event.getPassword());
-                    VaadinSession.getCurrent().setAttribute("username", "admin");
+            loginForm.addLoginListener((LoginForm.LoginListener) event -> {
+                if(event.getUserName().equals("admin") && event.getPassword().equals("volenti")) {
+                    setContent(new MenuDesign());
                 }
+                System.err.println(
+                        "Logged in with user name " + event.getUserName() +
+                                " and password of length " + event.getPassword());
+                VaadinSession.getCurrent().setAttribute("username", "admin");
             });
             setContent(loginForm);
         }
@@ -67,22 +64,4 @@ public class MyUI extends UI {
         }
     }
 
-    protected static void registerInZookeeper(String serviceName, String zooHost, String appHost, int port) throws Exception {
-        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
-        curatorFramework.start();
-
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
-                .address(appHost)
-                .port(port)
-                .name(serviceName)
-                .build();
-
-        ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
-                .client(curatorFramework)
-                .thisInstance(serviceInstance)
-                .build()
-                .start();
-    }
 }

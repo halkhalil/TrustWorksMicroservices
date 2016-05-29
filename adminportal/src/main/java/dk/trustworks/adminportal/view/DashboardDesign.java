@@ -27,8 +27,8 @@ import java.util.Calendar;
 @SuppressWarnings("serial")
 public class DashboardDesign extends CssLayout {
     private final DataAccess dataAccess = new DataAccess();
+    private final Slider slider = new Slider();;
 
-	protected Label billing_header_label;
 	protected CssLayout dashboard_item5;
 	protected CssLayout dashboard_item26;
 	protected CssLayout dashboard_item27;
@@ -51,7 +51,6 @@ public class DashboardDesign extends CssLayout {
     }
 
 	public DashboardDesign() {
-
         initPage();
     }
 
@@ -106,7 +105,6 @@ public class DashboardDesign extends CssLayout {
         absoluteLayout.setWidth("100%");
         absoluteLayout.setHeight("280px");
 
-        Slider slider = new Slider();
         slider.setImmediate(true);
         slider.setMin(0.0);
         slider.setMax(5.0);
@@ -297,7 +295,7 @@ public class DashboardDesign extends CssLayout {
 
             getConfiguration().addSeries(budgetSeries);
             getConfiguration().addSeries(revenueSeries);
-            getConfiguration().addSeries(expensesList);
+            if(slider.getValue() < 1) getConfiguration().addSeries(expensesList);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
@@ -471,8 +469,9 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> amountPerItemList = dataAccess.getBillableHoursPerUser(year);
-
+            List<AmountPerItem> billableHoursPerUserList = dataAccess.getBillableHoursPerUser(year);
+            List<AmountPerItem> billableHoursPercentagePerUserList = dataAccess.getBillableHoursPercentagePerUser(year);
+/*
             Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year);
 
             Map<String, Integer> userVacation = new HashMap<>();
@@ -490,27 +489,27 @@ public class DashboardDesign extends CssLayout {
                     }
                 }
                 userVacation.put(user.getUseruuid(), vacationDays);
-            }
+            }*/
 
             double sumHours = 0.0;
-            for (AmountPerItem amountPerItem : amountPerItemList) {
+            for (AmountPerItem amountPerItem : billableHoursPerUserList) {
                 sumHours += amountPerItem.amount;
             }
-            double avgRevenue = sumHours / amountPerItemList.size();
+            double avgRevenue = sumHours / billableHoursPerUserList.size();
 
-            Collections.sort(amountPerItemList);
-            String[] categories = new String[amountPerItemList.size()];
+            Collections.sort(billableHoursPerUserList);
+            String[] categories = new String[billableHoursPerUserList.size()];
             DataSeries revenueList = new DataSeries("Hours");
             DataSeries avgRevenueList = new DataSeries("Average Hours");
             PlotOptionsLine options2 = new PlotOptionsLine();
             options2.setColor(SolidColor.BLACK);
             options2.setMarker(new Marker(false));
             avgRevenueList.setPlotOptions(options2);
-
-            DataSeries avgPerWeek = new DataSeries("Average per week");
+/*
+            DataSeries avgPerWeek = new DataSeries("Billable Hours Percentage");
 
             YAxis yaxis = new YAxis();
-            yaxis.setTitle("Avg per week");
+            yaxis.setTitle("Billable Hours Percentage");
             yaxis.setOpposite(true);
             yaxis.setMin(0);
             getConfiguration().addyAxis(yaxis);
@@ -518,13 +517,31 @@ public class DashboardDesign extends CssLayout {
             PlotOptionsLine options3 = new PlotOptionsLine();
             options3.setColor(SolidColor.RED);
             avgPerWeek.setPlotOptions(options3);
+*/
+            DataSeries billableHoursPercentage = new DataSeries("Billable Hours Percentage");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Billable Hours Percentage");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            billableHoursPercentage.setPlotOptions(options3);
+
+            Map<String, Double> userBillableHoursPercentageMap = new HashMap<>();
+            for (AmountPerItem amountPerItem : billableHoursPercentagePerUserList) {
+                userBillableHoursPercentageMap.put(amountPerItem.uuid, amountPerItem.amount);
+            }
 
             int i = 0;
-            for (AmountPerItem amountPerItem : amountPerItemList) {
+            for (AmountPerItem amountPerItem : billableHoursPerUserList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
-                double weeks = 52;
-                if(year == new DateTime().getYear()) weeks = ((new DateTime().getDayOfYear() - userVacation.get(amountPerItem.uuid)) / 7.0);
-                avgPerWeek.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1) * 100.0) / 100.0)));
+                billableHoursPercentage.add(new DataSeriesItem(amountPerItem.description, userBillableHoursPercentageMap.get(amountPerItem.uuid)));
+                //double weeks = 52;
+                //if(year == new DateTime().getYear()) weeks = ((new DateTime().getDayOfYear() - userVacation.get(amountPerItem.uuid)) / 7.0);
+                //avgPerWeek.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1) * 100.0) / 100.0)));
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
@@ -536,8 +553,9 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueList);
             getConfiguration().addSeries(avgRevenueList);
-            getConfiguration().addSeries(avgPerWeek);
-            avgPerWeek.setyAxis(yaxis);
+            //getConfiguration().addSeries(avgPerWeek);
+            getConfiguration().addSeries(billableHoursPercentage);
+            billableHoursPercentage.setyAxis(yaxis);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }

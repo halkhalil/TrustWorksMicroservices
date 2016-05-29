@@ -60,13 +60,20 @@ public class UserService {
         Map<String, Object> result = new HashMap<>();
         result.put("capacitypermonth", capacityPerMonth);
         return result;
-        /*
-        try {
-            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+    }
+
+    public Map<String, Object> capacitypermonthbyuser(int year, String userUUID) {
+        int capacityPerMonth[] = new int[12];
+
+        for (int i = 0; i < 12; i++) {
+            DateTime dateTime = new DateTime(year, i+1, 1, 0, 0);
+            int capacityByMonth = userRepository.calculateCapacityByMonthByUser(dateTime, userUUID);
+            capacityPerMonth[i] = capacityByMonth;
         }
-        */
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("capacitypermonthbyuser", capacityPerMonth);
+        return result;
     }
 
     public Map<String, int[]> useravailabilitypermonthbyyear(int year) {

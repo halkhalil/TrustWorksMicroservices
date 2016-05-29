@@ -72,6 +72,10 @@ public class RestDelegate {
         //}
     }
 
+    public int[] getCapacityPerMonthByYearByUser(int year, String userUUID) {
+        return restClient.getCapacityPerMonthByYearByUser(year, userUUID);
+    }
+
     @SuppressWarnings("unchecked")
     public List<Project> getAllProjects() {
         try {

@@ -100,6 +100,20 @@ public class DataAccess implements Serializable {
         }
     }
 
+    public List<AmountPerItem> getBillableHoursPercentagePerUser(int year) {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/billablehourspercentageperuser")
+                    .queryString("year", year)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
+        } catch (Exception e) {
+            throw new RuntimeException("Kunne ikke loade: billablehourspercentageperuser ", e);
+        }
+    }
+
     public List<AmountPerItem> getWorkPerUserPerTaskByProject(String projectUUID) {
         try {
             HttpResponse<JsonNode> jsonResponse;
