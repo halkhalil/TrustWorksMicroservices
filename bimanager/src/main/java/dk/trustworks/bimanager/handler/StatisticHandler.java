@@ -219,14 +219,20 @@ public class StatisticHandler extends DefaultHandler {
         double workDays = 224.0;
         double workDaysInYearToDate = (workDays / daysInYear) * dayOfYear;
         for (String userUUID : userWorkHours.keySet()) {
+            System.out.println("user = " + users.get(userUUID).getUsername());
             double avgCapacityPerUser = 0.0;
+            for (int i : restDelegate.getCapacityPerMonthByYearByUser(year, userUUID)) {
+                System.out.print(i + ", ");
+            }
+            System.out.println();
+
             if(year==dt.getYear())
                 avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), dt.monthOfYear().get());
             else
                 avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), 12);
             double avgCapacityPerUserPerDay = avgCapacityPerUser / 5.0;
             double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
-            System.out.println("user = " + users.get(userUUID).getUsername());
+
             System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
             System.out.println("userWorkHours = " + userWorkHours.get(userUUID));
             double billableHoursPercentage = (userWorkHours.get(userUUID) / workableHoursInYearToDate) * 100.0;
@@ -246,6 +252,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public static void main(String[] args) {
         DateTime dt = new DateTime();
+        if(2015 != new DateTime().getYear()) dt = new DateTime(2015, 12, 31, 23, 59);
         double dayOfYear = dt.getDayOfYear();
         System.out.println("dayOfYear = " + dayOfYear);
         LocalDate ld = new LocalDate(2015,1,1, GJChronology.getInstance());
@@ -258,7 +265,7 @@ public class StatisticHandler extends DefaultHandler {
         double workDaysInYearToDate = (workDays / daysInYear) * dayOfYear;
         System.out.println("workDaysInYearToDate = " + workDaysInYearToDate);
         //for (String userUUID : userWorkHours.keySet()) {
-        int[] cap = {0,0,0,0,0,0,0,0,0,0,37,37};
+        int[] cap = {0,0,0,0,0,0,0,37,37,37,37,37};
         //int[] cap = {37,37,37,37,37,37,37,37,37,37,37,37};
         System.out.println("dt.monthOfYear().get() = " + dt.monthOfYear().get());
         double average = average(cap, 12);
@@ -268,7 +275,7 @@ public class StatisticHandler extends DefaultHandler {
         double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
         System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
         System.out.println("---");
-        double billableHoursPercentage = (138 / workableHoursInYearToDate) * 100.0;
+        double billableHoursPercentage = (788 / workableHoursInYearToDate) * 100.0;
         System.out.println("billableHoursPercentage = " + billableHoursPercentage);
 
         //userWorkHours.put(userUUID, userWorkHours.get(userUUID) );
@@ -569,14 +576,32 @@ public class StatisticHandler extends DefaultHandler {
 
         Map<String, Double> revenuePerUser = new HashMap<>();
         List<AmountPerItem> listOfUsers = new ArrayList<>();
-
+        System.out.println("55567dc6-f7d4-4fd5-8240-96787e492818");
+        Map<String, Double> bill = new HashMap<>();
         for (Work work : allWork) {
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             if (taskWorkerConstraint.getPrice() <= 0) continue;
             if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
+            if(work.getUserUUID().equals("55567dc6-f7d4-4fd5-8240-96787e492818")) {
+                for (Project project : restDelegate.getAllProjects()) {
+                    for (Task task : project.getTasks()) {
+                        if(task.getUUID().equals(work.getTaskUUID())) {
+                            String name = project.getName() + "/" + task.getName();
+                            System.out.println(name + ": " +work);
+                            if(!bill.containsKey(name)) bill.put(name, 0.0);
+                            bill.put(name, bill.get(name) + work.getWorkDuration());
+                        }
+                    }
+                }
+            }
             revenuePerUser.put(work.getUserUUID(), revenuePerUser.get(work.getUserUUID()) + (work.getWorkDuration()));
         }
+
+        for (String s : bill.keySet()) {
+            System.out.println(s + ": " + bill.get(s));
+        }
+
 
         for (String userUUID : revenuePerUser.keySet()) {
             if(!userMap.containsKey(userUUID)) continue;

@@ -66,7 +66,7 @@ public class UserService {
         int capacityPerMonth[] = new int[12];
 
         for (int i = 0; i < 12; i++) {
-            DateTime dateTime = new DateTime(year, i+1, 1, 0, 0);
+            DateTime dateTime = new DateTime(year, i+1, 15, 0, 0);
             int capacityByMonth = userRepository.calculateCapacityByMonthByUser(dateTime, userUUID);
             capacityPerMonth[i] = capacityByMonth;
         }
