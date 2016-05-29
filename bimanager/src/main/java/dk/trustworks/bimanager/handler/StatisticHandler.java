@@ -207,11 +207,12 @@ public class StatisticHandler extends DefaultHandler {
 
         for (Work work : allWork) {
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
-            if(taskWorkerConstraint==null) continue;
+            if(taskWorkerConstraint==null || taskWorkerConstraint.getPrice() <= 0.0) continue;
             if(!userWorkHours.containsKey(work.getUserUUID())) userWorkHours.put(work.getUserUUID(), 0.0);
             userWorkHours.put(work.getUserUUID(), userWorkHours.get(work.getUserUUID())+work.getWorkDuration());
         }
         DateTime dt = new DateTime();
+        if(year != new DateTime().getYear()) dt = new DateTime(year, 12, 31, 23, 59);
         double dayOfYear = dt.getDayOfYear();
         LocalDate ld = new LocalDate(year,1,1, GJChronology.getInstance());
         double daysInYear = Days.daysBetween(ld,ld.plusYears(1)).getDays();
@@ -225,9 +226,9 @@ public class StatisticHandler extends DefaultHandler {
                 avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), 12);
             double avgCapacityPerUserPerDay = avgCapacityPerUser / 5.0;
             double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
-            //System.out.println("user = " + users.get(userUUID).getUsername());
-            //System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
-            //System.out.println("userWorkHours = " + userWorkHours.get(userUUID));
+            System.out.println("user = " + users.get(userUUID).getUsername());
+            System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
+            System.out.println("userWorkHours = " + userWorkHours.get(userUUID));
             double billableHoursPercentage = (userWorkHours.get(userUUID) / workableHoursInYearToDate) * 100.0;
             listOfUsers.add(new AmountPerItem(userUUID, users.get(userUUID).getFirstname() + " " + users.get(userUUID).getLastname(), billableHoursPercentage));
             //userWorkHours.put(userUUID, billableHoursPercentage);
@@ -247,7 +248,7 @@ public class StatisticHandler extends DefaultHandler {
         DateTime dt = new DateTime();
         double dayOfYear = dt.getDayOfYear();
         System.out.println("dayOfYear = " + dayOfYear);
-        LocalDate ld = new LocalDate(2016,1,1, GJChronology.getInstance());
+        LocalDate ld = new LocalDate(2015,1,1, GJChronology.getInstance());
         double daysInYear = Days.daysBetween(ld,ld.plusYears(1)).getDays();
         System.out.println("daysInYear = " + daysInYear);
         //double percentageOfYearPassed = dayOfYear / daysInYear;
@@ -257,17 +258,17 @@ public class StatisticHandler extends DefaultHandler {
         double workDaysInYearToDate = (workDays / daysInYear) * dayOfYear;
         System.out.println("workDaysInYearToDate = " + workDaysInYearToDate);
         //for (String userUUID : userWorkHours.keySet()) {
-        int[] cap = {0,0,0,30,30,30,30,30,30,30,30,30};
+        int[] cap = {0,0,0,0,0,0,0,0,0,0,37,37};
         //int[] cap = {37,37,37,37,37,37,37,37,37,37,37,37};
         System.out.println("dt.monthOfYear().get() = " + dt.monthOfYear().get());
-        double average = average(cap, dt.monthOfYear().get());
+        double average = average(cap, 12);
         System.out.println("average = " + average);
         double avgCapacityPerUserPerDay = average / 5.0;
         System.out.println("avgCapacityPerUserPerDay = " + avgCapacityPerUserPerDay);
         double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
         System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
         System.out.println("---");
-        double billableHoursPercentage = (204.5 / workableHoursInYearToDate) * 100.0;
+        double billableHoursPercentage = (138 / workableHoursInYearToDate) * 100.0;
         System.out.println("billableHoursPercentage = " + billableHoursPercentage);
 
         //userWorkHours.put(userUUID, userWorkHours.get(userUUID) );

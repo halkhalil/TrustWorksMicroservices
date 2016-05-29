@@ -68,7 +68,7 @@ public class ProjectBudgetHandler extends DefaultHandler {
         List<TaskWorkerConstraintBudget> workBudgets = new ArrayList<>();
         Map<String, TaskWorkerConstraintBudget> workBudgetMap = new HashMap<>();
         System.out.println("workBudgetMap.size() = " + workBudgetMap.size());
-        for (Work work : restClient.getRegisteredWorkByMonth(month, year)) {
+        for (Work work : restClient.getRegisteredWorkByMonth(year, month)) {
             TaskWorkerConstraint taskWorkerConstraint = restClient.getTaskWorkerConstraint(work.getTaskUUID(), work.getUserUUID());
             //System.out.println("work (" + taskWorkerConstraint.getUUID() + ") = " + work);
             //System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
