@@ -55,8 +55,18 @@ public class MotherApplication extends Jooby {
         use(new Jackson());
 
         use("/api/commands")
+                .get("/", (req, resp) -> {
+                    System.out.println("req = " + req);
+                    final Timer timer = metricRegistry.timer(name("command", "all", "response"));
+                    final Timer.Context context = timer.time();
+                    try {
+                        resp.send("ok");
+                    } finally {
+                        context.stop();
+                    }
+                })
                 .post("/", (req, resp) -> {
-                    final Timer timer = metricRegistry.timer(name("user", "all", "response"));
+                    final Timer timer = metricRegistry.timer(name("command", "create", "response"));
                     final Timer.Context context = timer.time();
                     try {
                         Command command = req.body().to(Command.class);
