@@ -8,13 +8,68 @@
     <artifactId>personalassistant</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <properties>
-        <com.fasterxml.jackson.version>2.5.4</com.fasterxml.jackson.version>
-        <org.apache.httpcomponents.version>4.3.6</org.apache.httpcomponents.version>
-    </properties>
-
+    
     <dependencies>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-undertow</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jdbc</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-metrics</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-swagger</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-raml</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-servlets</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jackson</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.1</version>
+        </dependency>
         <dependency>
             <groupId>com.github.flowctrl</groupId>
             <artifactId>slack-api</artifactId>
@@ -141,7 +196,15 @@
         </dependency>
     </dependencies>
 
-
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <start-class>dk.trustworks.personalassistant.MotherApplication</start-class>
+        <java.version>1.8</java.version>
+        <jackson.version>2.4.5</jackson.version>
+        <project.encoding>UTF-8</project.encoding>
+        <com.fasterxml.jackson.version>2.5.4</com.fasterxml.jackson.version>
+        <org.apache.httpcomponents.version>4.3.6</org.apache.httpcomponents.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -152,7 +215,23 @@
 
     <build>
         <finalName>personalassistant</finalName>
+
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>${project.encoding}</encoding>
+                </configuration>
+            </plugin>
             <plugin>
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -175,7 +254,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>dk.trustworks.personalassistant.App</mainClass>
+                            <mainClass>dk.trustworks.personalassistant.MotherApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

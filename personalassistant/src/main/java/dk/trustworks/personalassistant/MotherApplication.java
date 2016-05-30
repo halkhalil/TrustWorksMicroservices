@@ -1,5 +1,11 @@
 package dk.trustworks.personalassistant;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.codahale.metrics.json.MetricsModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dk.trustworks.personalassistant.dto.Command;
+import dk.trustworks.personalassistant.service.CommandService;
 import dk.trustworks.personalassistant.topics.*;
 import flowctrl.integration.slack.SlackClientFactory;
 import flowctrl.integration.slack.rtm.Event;
@@ -7,17 +13,75 @@ import flowctrl.integration.slack.rtm.SlackRealTimeMessagingClient;
 import flowctrl.integration.slack.type.Channel;
 import flowctrl.integration.slack.webapi.SlackWebApiClient;
 import flowctrl.integration.slack.webhook.SlackWebhookClient;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryNTimes;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.UriSpec;
+import org.jooby.Jooby;
+import org.jooby.jdbc.Jdbc;
+import org.jooby.json.Jackson;
+import org.jooby.raml.Raml;
+import org.jooby.swagger.SwaggerUI;
+
+import javax.sql.DataSource;
+import java.util.concurrent.TimeUnit;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * Created by hans on 20/01/16.
  */
-public class App {
+public class MotherApplication extends Jooby {
 
-    //public static final String channel = "U036JELTN";
+    public static final MetricRegistry metricRegistry = new MetricRegistry();
+    private transient ObjectMapper metricsMapper;
 
     static Topic topics[] = {new Mother(), new Pictures(), new Templates(), new FileSearch(), new Connect()};
 
-    public static void main(final String[] args) throws Exception {
+    {
+        this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));
+
+        try {
+            registerInZookeeper("motherservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.setProperty("application.port", System.getenv("PORT"));
+        System.setProperty("application.host", System.getenv("APPLICATION_URL"));
+
+        use(new Jackson());
+
+        use("/api/commands")
+                .post("/", (req, resp) -> {
+                    final Timer timer = metricRegistry.timer(name("user", "all", "response"));
+                    final Timer.Context context = timer.time();
+                    try {
+                        Command command = req.body().to(Command.class);
+                        resp.send(new CommandService().create(command));
+                    } finally {
+                        context.stop();
+                    }
+                }).produces("json");
+
+        use("/servlets/metrics")
+                .get("/", (req, resp) -> {
+                    resp.send(metricsMapper.valueToTree(metricRegistry));
+                });
+
+
+        new Raml().install(this);
+        new SwaggerUI().install(this);
+    }
+
+    public static void main(final String[] args) throws Throwable {
+        new MotherApplication().start();
+        //slackClient();
+    }
+
+    public static void slackClient() {
         SlackRealTimeMessagingClient slackRealTimeMessagingClient = SlackClientFactory.createSlackRealTimeMessagingClient("xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61");
         SlackWebhookClient webhookClient = SlackClientFactory.createWebhookClient("https://hooks.slack.com/services/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");
         SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient("xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61");
@@ -46,6 +110,25 @@ public class App {
         });
 
         slackRealTimeMessagingClient.connect();
+    }
+
+    protected static void registerInZookeeper(String serviceName, String zooHost, String appHost, int port) throws Exception {
+        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
+        curatorFramework.start();
+
+        ServiceInstance serviceInstance = ServiceInstance.builder()
+                .uriSpec(new UriSpec("{scheme}://{address}:{port}"))
+                .address(appHost)
+                .port(port)
+                .name(serviceName)
+                .build();
+
+        ServiceDiscoveryBuilder.builder(Object.class)
+                .basePath("trustworks")
+                .client(curatorFramework)
+                .thisInstance(serviceInstance)
+                .build()
+                .start();
     }
 
 }

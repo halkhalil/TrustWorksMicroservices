@@ -44,6 +44,7 @@ public class ServiceApplication {
         ClientProxyZookeeper biManagerProxy = new ClientProxyZookeeper("biservice");
         ClientProxyZookeeper adminPortalProxy = new ClientProxyZookeeper("adminportal");
         ClientProxyZookeeper financeProxy = new ClientProxyZookeeper("financeservice");
+        ClientProxyZookeeper motherProxy = new ClientProxyZookeeper("motherservice");
 
         final Map<String, char[]> users = new HashMap<>(2);
         users.put("userOne", "passwordOne".toCharArray());
@@ -62,6 +63,7 @@ public class ServiceApplication {
                         .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                        .addPrefixPath("/motherservice", new ProxyHandler(motherProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/version", new VersionHandler())
                         .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404))
                 )
@@ -81,6 +83,7 @@ public class ServiceApplication {
                             .addPrefixPath("/biservice", new ProxyHandler(biManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/timeservice", new ProxyHandler(timeManagerProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
+                            .addPrefixPath("/motherservice", new ProxyHandler(motherProxy, 30000, ResponseCodeHandler.HANDLE_404))
                             .addPrefixPath("/version", new VersionHandler())
                             .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404)))
                     .build();
