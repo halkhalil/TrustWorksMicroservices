@@ -3,7 +3,9 @@ package dk.trustworks.personalassistant;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.json.MetricsModule;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.Unirest;
 import dk.trustworks.personalassistant.dto.Command;
 import dk.trustworks.personalassistant.service.CommandService;
 import dk.trustworks.personalassistant.topics.*;
@@ -20,12 +22,11 @@ import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.jooby.Jooby;
-import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.raml.Raml;
 import org.jooby.swagger.SwaggerUI;
 
-import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -88,6 +89,27 @@ public class MotherApplication extends Jooby {
 
     public static void main(final String[] args) throws Throwable {
         new MotherApplication().start();
+
+        Unirest.setObjectMapper(new com.mashape.unirest.http.ObjectMapper() {
+            private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper
+                    = new com.fasterxml.jackson.databind.ObjectMapper();
+
+            public <T> T readValue(String value, Class<T> valueType) {
+                try {
+                    return jacksonObjectMapper.readValue(value, valueType);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            public String writeValue(Object value) {
+                try {
+                    return jacksonObjectMapper.writeValueAsString(value);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
         //slackClient();
     }
 

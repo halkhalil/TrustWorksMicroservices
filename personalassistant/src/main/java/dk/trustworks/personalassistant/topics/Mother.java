@@ -4,6 +4,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import dk.trustworks.personalassistant.dto.SlackMessage;
 
 /**
  * Created by hans on 25/04/16.
@@ -48,7 +49,7 @@ public class Mother extends Topic {
             HttpResponse<JsonNode> jsonResponse = Unirest.post("https://slack.com/api/chat.postMessage")
                     .header("accept", "application/json")
                     .field("token", "xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61")
-                    .field("channel", recipient)
+                    //.field("channel", recipient)
                     .field("as_user", "true")
                     .field("text", "Priority one\n" +
                             "Insure return of organism for analysis.\n" +
@@ -63,15 +64,18 @@ public class Mother extends Topic {
     private void postWhoMotherIs() {
         System.out.println("Mother.postWhoMotherIs");
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.post("https://slack.com/api/chat.postMessage")
-                    .header("accept", "application/json")
-                    .field("token", "xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61")
-                    .field("channel", recipient)
-                    .field("as_user", "true")
-                    .field("text", "My name is actually MU-TH-UR 6000. " +
-                            "I am an artificial intelligence computer mainframe ported from the USCSS Nostromo. " +
-                            "Now I aim to serve TrustWorkers!")
+            SlackMessage slackMessage = new SlackMessage("My name is actually MU-TH-UR 6000. " +
+                    "I am an artificial intelligence computer mainframe ported from the USCSS Nostromo. " +
+                    "Now I aim to serve TrustWorkers!", "ephemeral");
+
+            HttpResponse<JsonNode> jsonResponse = Unirest.post(recipient)   //"https://slack.com/api/chat.postMessage")
+                    //.header("accept", "application/json")
+                    //.field("token", "xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61")
+                    //.field("channel", recipient)
+                    //.field("as_user", "true")
+                    .body(slackMessage)
                     .asJson();
+            System.out.println("jsonResponse = " + jsonResponse.getStatusText());
         } catch (UnirestException e) {
             e.printStackTrace();
         }
