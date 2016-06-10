@@ -63,6 +63,8 @@ public class DropboxAPI {
     }
 
     public byte[] getRandomFile(String folder) {
+        System.out.println("DropboxAPI.getRandomFile");
+        System.out.println("folder = [" + folder + "]");
         try {
             DbxUserFilesRequests files = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").files();
 

@@ -41,6 +41,11 @@
             <version>1.0.0.CR3</version>
         </dependency>
         <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-executor</artifactId>
+            <version>1.0.0.CR3</version>
+        </dependency>
+        <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>LATEST</version>
@@ -69,11 +74,6 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.flowctrl</groupId>
-            <artifactId>slack-api</artifactId>
-            <version>v1.1.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -111,22 +111,30 @@
             <version>1.25.1</version>
         </dependency>
 
-        <!-- web socket -->
+        <!-- mysql -->
         <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-            <version>1.1</version>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jdbc</artifactId>
+            <version>1.0.0.CR3</version>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-server</artifactId>
-            <version>1.12</version>
+            <groupId>org.sql2o</groupId>
+            <artifactId>sql2o</artifactId>
+            <version>1.5.4</version>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-container-grizzly-server</artifactId>
-            <version>1.12</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.37</version>
         </dependency>
+
+        <!-- SLACK -->
+        <dependency>
+            <groupId>com.github.allbegray</groupId>
+            <artifactId>slack-api</artifactId>
+            <version>v1.2.1.RELEASE</version>
+        </dependency>
+
 
         <!-- REST JSON -->
         <dependency>

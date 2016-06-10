@@ -6,3 +6,4 @@ send a picture from <START:person> trustworks <END> tour to <START:city> paris <
 display a photo from <START:person> paula <END> vacation in <START:city> paris <END>
 display a photo from <START:person> trustworks <END> trip to <START:city> paris <END>
 show a photo from <START:person> paula <END> trip to <START:city> costa rica <END>
+please send photo from <START:city> costa rica <END>

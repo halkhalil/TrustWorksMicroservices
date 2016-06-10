@@ -1,9 +1,9 @@
-package dk.trustworks.personalassistant.dto;
+package dk.trustworks.personalassistant.dto.slack;
 
 /**
  * Created by hans on 30/05/16.
  */
-public class Command {
+public class SlackSlashCommand {
     public String token;
     public String team_id;
     public String team_domain;
@@ -17,7 +17,7 @@ public class Command {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Command{");
+        final StringBuilder sb = new StringBuilder("SlackSlashCommand{");
         sb.append("token='").append(token).append('\'');
         sb.append(", team_id='").append(team_id).append('\'');
         sb.append(", team_domain='").append(team_domain).append('\'');

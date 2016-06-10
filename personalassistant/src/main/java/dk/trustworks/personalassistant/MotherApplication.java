@@ -6,15 +6,10 @@ import com.codahale.metrics.json.MetricsModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
-import dk.trustworks.personalassistant.dto.Command;
+import dk.trustworks.personalassistant.dto.slack.SlackMessage;
+import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
 import dk.trustworks.personalassistant.service.CommandService;
 import dk.trustworks.personalassistant.topics.*;
-import flowctrl.integration.slack.SlackClientFactory;
-import flowctrl.integration.slack.rtm.Event;
-import flowctrl.integration.slack.rtm.SlackRealTimeMessagingClient;
-import flowctrl.integration.slack.type.Channel;
-import flowctrl.integration.slack.webapi.SlackWebApiClient;
-import flowctrl.integration.slack.webhook.SlackWebhookClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -22,11 +17,14 @@ import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.jooby.Jooby;
+import org.jooby.MediaType;
+import org.jooby.exec.Exec;
 import org.jooby.json.Jackson;
 import org.jooby.raml.Raml;
 import org.jooby.swagger.SwaggerUI;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -53,7 +51,9 @@ public class MotherApplication extends Jooby {
         System.setProperty("application.port", System.getenv("PORT"));
         System.setProperty("application.host", System.getenv("APPLICATION_URL"));
 
+        //use(new Jdbc());
         use(new Jackson());
+        use(new Exec());
 
         use("/api/commands")
                 .get("/", (req, resp) -> {
@@ -70,12 +70,14 @@ public class MotherApplication extends Jooby {
                     final Timer timer = metricRegistry.timer(name("command", "create", "response"));
                     final Timer.Context context = timer.time();
                     try {
-                        Command command = req.body().to(Command.class);
-                        resp.send(new CommandService().create(command));
+                        ExecutorService executor = req.require(ExecutorService.class);
+                        SlackSlashCommand command = req.body().to(SlackSlashCommand.class);
+                        executor.execute(() -> new CommandService().create(command));
+                        resp.status(200).send(new SlackMessage("in_channel"));
                     } finally {
                         context.stop();
                     }
-                }).produces("json");
+                }).produces(MediaType.json);
 
         use("/servlets/metrics")
                 .get("/", (req, resp) -> {
@@ -112,7 +114,7 @@ public class MotherApplication extends Jooby {
         });
         //slackClient();
     }
-
+/*
     public static void slackClient() {
         SlackRealTimeMessagingClient slackRealTimeMessagingClient = SlackClientFactory.createSlackRealTimeMessagingClient("xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61");
         SlackWebhookClient webhookClient = SlackClientFactory.createWebhookClient("https://hooks.slack.com/services/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");
@@ -143,7 +145,7 @@ public class MotherApplication extends Jooby {
 
         slackRealTimeMessagingClient.connect();
     }
-
+*/
     protected static void registerInZookeeper(String serviceName, String zooHost, String appHost, int port) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zooHost + ":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();

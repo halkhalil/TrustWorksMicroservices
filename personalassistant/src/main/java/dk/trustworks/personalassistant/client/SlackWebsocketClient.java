@@ -1,12 +1,7 @@
 package dk.trustworks.personalassistant.client;
 
-import org.glassfish.tyrus.client.ClientManager;
 
-import javax.websocket.*;
-import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by hans on 24/05/16.
@@ -16,6 +11,7 @@ public class SlackWebsocketClient {
     private static final String SENT_MESSAGE = "Hello World";
 
     public static void main(String [] args){
+        /*
         try {
             messageLatch = new CountDownLatch(1);
 
@@ -45,5 +41,7 @@ public class SlackWebsocketClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
     }
+
 }

@@ -44,6 +44,7 @@
     <orderEntry type="library" name="Maven: org.webjars:swagger-ui:2.1.8-M1" level="project" />
     <orderEntry type="library" name="Maven: org.jooby:jooby-raml:1.0.0.CR3" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.8.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jooby:jooby-executor:1.0.0.CR3" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-core:3.1.2" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-servlets:3.1.2" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-json:3.1.2" level="project" />
@@ -60,7 +61,6 @@
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.13" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.13" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.1" level="project" />
-    <orderEntry type="library" name="Maven: com.github.flowctrl:slack-api:v1.1.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.7.1-1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.7.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.1" level="project" />
@@ -73,16 +73,9 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.4" level="project" />
     <orderEntry type="library" name="Maven: com.dropbox.core:dropbox-core-sdk:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.evernote:evernote-api:1.25.1" level="project" />
-    <orderEntry type="library" name="Maven: javax.websocket:javax.websocket-api:1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-server:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-client:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-core:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-spi:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-container-grizzly-client:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-container-grizzly-server:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-framework:2.3.22" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-http-server:2.3.22" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-http:2.3.22" level="project" />
+    <orderEntry type="library" name="Maven: org.sql2o:sql2o:1.5.4" level="project" />
+    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.37" level="project" />
+    <orderEntry type="library" name="Maven: com.github.allbegray:slack-api:v1.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: com.mashape.unirest:unirest-java:1.4.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpasyncclient:4.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore-nio:4.4.4" level="project" />
@@ -105,8 +98,8 @@
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queries:3.6.2" level="project" />
     <orderEntry type="library" name="Maven: jakarta-regexp:jakarta-regexp:1.4" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:20030203.000129" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:2.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:2.0.2" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15:1.44" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15:1.44" level="project" />

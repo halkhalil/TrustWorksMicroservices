@@ -1,8 +1,9 @@
 package dk.trustworks.personalassistant.service;
 
-import dk.trustworks.personalassistant.dto.Command;
+import dk.trustworks.personalassistant.commands.CommandFactory;
+import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
+import dk.trustworks.personalassistant.nlp.ApiAIClient;
 import dk.trustworks.personalassistant.topics.*;
-import org.jooby.Result;
 
 /**
  * Created by hans on 30/05/16.
@@ -11,8 +12,15 @@ public class CommandService {
 
     static Topic topics[] = {new Mother(), new Pictures(), new Templates(), new FileSearch(), new Connect()};
 
+    private final CommandFactory commandFactory;
+
+    public CommandService() {
+        commandFactory = CommandFactory.init();
+    }
+
+
     // command =
-    // Command{token='P5i2tVZ0P9WGGMsT0FkRhks2',
+    // SlackSlashCommand{token='P5i2tVZ0P9WGGMsT0FkRhks2',
     // team_id='T036JELTL',
     // team_domain='trustworks',
     // channel_id='D13E9H2N9',
@@ -23,9 +31,17 @@ public class CommandService {
     // text='test',
     // response_url='https://hooks.slack.com/commands/T036JELTL/46826048199/1nsSqrp5LgT7gLzFQ2Is5cQf'}
 
-    public String create(Command command) {
+    public void create(SlackSlashCommand command) {
+        System.out.println("CommandService.create");
+        System.out.println("command = [" + command + "]");
         //if(!jsonNode.get("text").asText().contains("<@U13EEAATT>")) return;
-        System.out.println("command = " + command);
+
+
+        //IntentOutcome intentOutcome = IntentTrainer.getInstance().process(command.text);
+        //commandFactory.executeCommand(intentOutcome, command);
+        commandFactory.executeCommand(ApiAIClient.sendQuery(command.text), command);
+
+        /*
         Topic actualTopic = null;
         double highScore = 0.0;
         for (Topic topic : topics) {
@@ -40,5 +56,6 @@ public class CommandService {
             actualTopic.postResponse(command.text, command.response_url, command.user_name);
         }
         return "Just a second...";
+        */
     }
 }
