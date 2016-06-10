@@ -50,6 +50,7 @@ public class MotherApplication extends Jooby {
 
         System.setProperty("application.port", System.getenv("PORT"));
         System.setProperty("application.host", System.getenv("APPLICATION_URL"));
+        System.setProperty("slack.token", System.getenv("SLACK_TOKEN"));
 
         //use(new Jdbc());
         use(new Jackson());
@@ -72,8 +73,14 @@ public class MotherApplication extends Jooby {
                     try {
                         ExecutorService executor = req.require(ExecutorService.class);
                         SlackSlashCommand command = req.body().to(SlackSlashCommand.class);
+
                         executor.execute(() -> new CommandService().create(command));
+                        /*
+                        if(!command.channel_name.equals("directmessage")) {
+                            resp.status(200).send(new SlackMessage("Some responses ", "ephemeral"));
+                        }
                         resp.status(200).send(new SlackMessage("in_channel"));
+                        */
                     } finally {
                         context.stop();
                     }

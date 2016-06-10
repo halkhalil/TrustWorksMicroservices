@@ -44,6 +44,7 @@ public class CommandFactory {
         instance.addCommand(ActionType.WhatAreYou, new WhatAreYouCommand());
         instance.addCommand(ActionType.WhatIsYourDirective, new WhatIsYourDirectiveCommand());
         instance.addCommand(ActionType.ShowPhotos, new PhotosCommand());
+        instance.addCommand(ActionType.SendTemplate, new TemplateCommand());
         //cf.addCommand("Light off", (slackSlashCommand) -> System.out.println("Light turned off"));
 
         return instance;

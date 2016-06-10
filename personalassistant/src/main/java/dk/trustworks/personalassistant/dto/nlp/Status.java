@@ -75,4 +75,13 @@ public class Status {
         this.additionalProperties.put(name, value);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Status{");
+        sb.append("code=").append(code);
+        sb.append(", errorType='").append(errorType).append('\'');
+        sb.append(", additionalProperties=").append(additionalProperties);
+        sb.append('}');
+        return sb.toString();
+    }
 }

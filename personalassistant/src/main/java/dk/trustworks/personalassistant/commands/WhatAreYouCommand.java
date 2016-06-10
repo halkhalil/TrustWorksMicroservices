@@ -13,7 +13,7 @@ import dk.trustworks.personalassistant.client.SlackResponseClient;
  */
 public class WhatAreYouCommand implements Command {
 
-    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient("xoxb-37490350945-6qMz8NFyXcHTMtPMl8hDpsTE");
+    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getenv("SLACK_TOKEN"));
 
     @Override
     public void execute(Result intentOutcome, SlackSlashCommand command) {

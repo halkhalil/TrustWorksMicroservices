@@ -34,28 +34,9 @@ public class CommandService {
     public void create(SlackSlashCommand command) {
         System.out.println("CommandService.create");
         System.out.println("command = [" + command + "]");
-        //if(!jsonNode.get("text").asText().contains("<@U13EEAATT>")) return;
 
-
-        //IntentOutcome intentOutcome = IntentTrainer.getInstance().process(command.text);
-        //commandFactory.executeCommand(intentOutcome, command);
         commandFactory.executeCommand(ApiAIClient.sendQuery(command.text), command);
 
-        /*
-        Topic actualTopic = null;
-        double highScore = 0.0;
-        for (Topic topic : topics) {
-            double probability = topic.getProbability(command.text);
-            if(probability> 0.8 && (actualTopic == null || probability > highScore)) {
-                actualTopic = topic;
-                highScore = probability;
-            }
-        }
-        if(actualTopic != null) {
-            System.out.println("actualTopic = " + actualTopic);
-            actualTopic.postResponse(command.text, command.response_url, command.user_name);
-        }
-        return "Just a second...";
-        */
+
     }
 }

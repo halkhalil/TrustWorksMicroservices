@@ -51,4 +51,12 @@ public class Fulfillment {
         this.additionalProperties.put(name, value);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Fulfillment{");
+        sb.append("speech='").append(speech).append('\'');
+        sb.append(", additionalProperties=").append(additionalProperties);
+        sb.append('}');
+        return sb.toString();
+    }
 }

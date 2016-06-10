@@ -20,7 +20,7 @@ public class PhotosCommand implements Command {
 
     private final Map<String, String> libraries;
 
-    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient("xoxb-37490350945-6qMz8NFyXcHTMtPMl8hDpsTE");
+    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getenv("SLACK_TOKEN"));
 
     public PhotosCommand() {
         dropboxAPI = new DropboxAPI();

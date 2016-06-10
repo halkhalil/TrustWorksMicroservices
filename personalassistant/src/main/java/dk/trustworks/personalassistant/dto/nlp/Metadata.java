@@ -97,4 +97,14 @@ public class Metadata {
         this.additionalProperties.put(name, value);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Metadata{");
+        sb.append("intentId='").append(intentId).append('\'');
+        sb.append(", webhookUsed='").append(webhookUsed).append('\'');
+        sb.append(", intentName='").append(intentName).append('\'');
+        sb.append(", additionalProperties=").append(additionalProperties);
+        sb.append('}');
+        return sb.toString();
+    }
 }
