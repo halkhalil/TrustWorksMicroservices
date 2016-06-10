@@ -23,8 +23,9 @@ public class WhoAreYouCommand implements Command {
         SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
 
         ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name,
-                "Priority one Insure return of organism for analysis. " +
-                        "All other considerations secondary. Crew expendable.");
+                "My name is actually MU-TH-UR 6000. " +
+                        "I am an artificial intelligence computer mainframe ported from the USCSS Nostromo. " +
+                        "Now I aim to serve TrustWorkers!");
         textMessage.setAs_user(true);
         webApiClient.postMessage(textMessage);
     }
