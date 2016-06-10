@@ -20,6 +20,8 @@ public class WhoAreYouCommand implements Command {
         System.out.println("WhoAreYouCommand.execute");
         System.out.println("intentOutcome = [" + intentOutcome + "], command = [" + command + "]");
 
+        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
+
         ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name,
                 "Priority one Insure return of organism for analysis. " +
                         "All other considerations secondary. Crew expendable.");

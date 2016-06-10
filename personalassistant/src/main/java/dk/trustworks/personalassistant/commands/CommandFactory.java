@@ -26,9 +26,7 @@ public class CommandFactory {
         System.out.println("CommandFactory.executeCommand");
         System.out.println("intentOutcome = [" + intentOutcome + "], slackSlashCommand = [" + slackSlashCommand + "]");
 
-        System.out.println("commands.containsKey(ActionType.valueOf(intentOutcome.getAction())) = " + commands.containsKey(ActionType.valueOf(intentOutcome.getAction())));
         if (commands.containsKey(ActionType.valueOf(intentOutcome.getAction()))) {
-            System.out.println("intentOutcome.getAction() = " + ActionType.valueOf(intentOutcome.getAction()));
             commands.get(ActionType.valueOf(intentOutcome.getAction())).execute(intentOutcome, slackSlashCommand);
         }
     }

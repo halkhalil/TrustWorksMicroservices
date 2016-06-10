@@ -3,8 +3,10 @@ package dk.trustworks.personalassistant.commands;
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
+import dk.trustworks.personalassistant.client.SlackResponseClient;
 import dk.trustworks.personalassistant.dropbox.DropboxAPI;
 import dk.trustworks.personalassistant.dto.nlp.Result;
+import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +35,8 @@ public class TemplateCommand implements Command {
     public void execute(Result intentOutcome, SlackSlashCommand command) {
         System.out.println("TemplateCommand.execute");
         System.out.println("intentOutcome = [" + intentOutcome + "], command = [" + command + "]");
+
+        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
 
         String color = (intentOutcome.getParameters().getAdditionalProperties().get("color")!=null)?intentOutcome.getParameters().getAdditionalProperties().get("color").toString():"blue";
         if(intentOutcome.getParameters().getAdditionalProperties().get("template-type")==null) {

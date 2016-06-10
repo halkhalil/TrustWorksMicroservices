@@ -75,6 +75,8 @@ public class MotherApplication extends Jooby {
                         SlackSlashCommand command = req.body().to(SlackSlashCommand.class);
 
                         executor.execute(() -> new CommandService().create(command));
+                        resp.status(200).send(new SlackMessage("ephemeral"));
+
                         /*
                         if(!command.channel_name.equals("directmessage")) {
                             resp.status(200).send(new SlackMessage("Some responses ", "ephemeral"));
