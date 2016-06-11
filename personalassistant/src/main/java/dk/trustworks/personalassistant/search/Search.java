@@ -17,8 +17,7 @@ public class Search {
         try {
             Searcher searcher = new Searcher(INDEX_DIR);
             List<IndexItem> result;
-            result = searcher.findByContent("Målarkitektur",
-                    DEFAULT_RESULT_SIZE);
+            result = searcher.findByContent("Målarkitektur", DEFAULT_RESULT_SIZE);
             for (IndexItem item : result) {
                 //System.out.println("item.getContent() = " + item.getContent());
                 //System.out.println("item.toString() = " + item.toString());

@@ -4,10 +4,7 @@ import com.dropbox.core.DbxDownloader;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxTeamClientV2;
-import com.dropbox.core.v2.files.DbxUserFilesRequests;
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.*;
 import com.dropbox.core.v2.sharing.CreateSharedLinkWithSettingsErrorException;
 import com.dropbox.core.v2.sharing.DbxUserSharingRequests;
 import com.dropbox.core.v2.sharing.ListSharedLinksErrorException;
@@ -17,10 +14,7 @@ import dk.trustworks.personalassistant.cache.CacheHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -60,6 +54,18 @@ public class DropboxAPI {
         } catch (DbxException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<SearchMatch> searchFiles(String query) {
+        try {
+            DbxUserFilesRequests files = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").files();
+            SearchResult searchResult = files.search("/SHARED", query);
+            return searchResult.getMatches();
+        } catch (DbxException e) {
+            e.printStackTrace();
+        }
+        System.out.println("no file");
+        return new ArrayList<>();
     }
 
     public byte[] getRandomFile(String folder) {
@@ -108,6 +114,7 @@ public class DropboxAPI {
 
         SharedLinkMetadata sharedLink = null;
         try {
+            /*
             Map<String, String> urls = cache.getMapCache().get("sharing", () -> {
                 Map<String, String> urlMap = new HashMap<>();
                 DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
@@ -117,21 +124,15 @@ public class DropboxAPI {
                 return urlMap;
             });
             if(urls.containsKey(relativeFilePath.toLowerCase())) return urls.get(relativeFilePath.toLowerCase());
-            /*
+            */
             DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
             for (SharedLinkMetadata linkMetadata : sharing.listSharedLinks().getLinks()) {
                 if(linkMetadata.getPathLower().equals(relativeFilePath.toLowerCase())) return linkMetadata.getUrl();
             }
-            */
-            DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
+
+            //DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
             sharedLink = sharing.createSharedLinkWithSettings(relativeFilePath);
             return sharedLink.getUrl();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (ListSharedLinksErrorException e) {
-            e.printStackTrace();
-        } catch (CreateSharedLinkWithSettingsErrorException e) {
-            e.printStackTrace();
         } catch (DbxException e) {
             e.printStackTrace();
         }
