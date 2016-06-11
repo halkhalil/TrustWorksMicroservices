@@ -59,7 +59,7 @@ public class DropboxAPI {
     public List<SearchMatch> searchFiles(String query) {
         try {
             DbxUserFilesRequests files = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").files();
-            SearchResult searchResult = files.search("/SHARED", query);
+            SearchResult searchResult = files.searchBuilder("/SHARED", query).withMaxResults(5l).withMode(SearchMode.FILENAME_AND_CONTENT).start();
             return searchResult.getMatches();
         } catch (DbxException e) {
             e.printStackTrace();
