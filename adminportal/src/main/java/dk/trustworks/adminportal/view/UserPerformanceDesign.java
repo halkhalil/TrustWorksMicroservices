@@ -53,9 +53,9 @@ public class UserPerformanceDesign extends CssLayout {
         year_select.setValue(currentYear);
 
         ListSelect userSelect = new ListSelect("Select an option");
-        for (int i = 0; i < users.size(); i++) {
-            userSelect.addItem(users.get(i));
-            userSelect.setItemCaption(users.get(i), users.get(i).getUsername());
+        for (User user : users) {
+            userSelect.addItem(user);
+            userSelect.setItemCaption(user, user.getUsername());
         }
 
         userSelect.setRows(6);

@@ -5,9 +5,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxTeamClientV2;
 import com.dropbox.core.v2.files.*;
-import com.dropbox.core.v2.sharing.CreateSharedLinkWithSettingsErrorException;
 import com.dropbox.core.v2.sharing.DbxUserSharingRequests;
-import com.dropbox.core.v2.sharing.ListSharedLinksErrorException;
 import com.dropbox.core.v2.sharing.SharedLinkMetadata;
 import com.dropbox.core.v2.team.TeamMemberInfo;
 import dk.trustworks.personalassistant.cache.CacheHandler;
@@ -83,9 +81,7 @@ public class DropboxAPI {
             thumbnail.download(outputStream);
             return outputStream.toByteArray();
 
-        } catch (DbxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (DbxException | IOException e) {
             e.printStackTrace();
         }
         System.out.println("no file");
@@ -102,9 +98,7 @@ public class DropboxAPI {
             file.download(outputStream);
             return outputStream.toByteArray();
 
-        } catch (DbxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (DbxException | IOException e) {
             e.printStackTrace();
         }
         System.out.println("no file");
@@ -151,9 +145,7 @@ public class DropboxAPI {
             urls.put(filePath.toLowerCase(), url);
             System.out.println("sharedLink.getUrl() = " + url);
             return url;
-        } catch (DbxException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (DbxException | ExecutionException e) {
             e.printStackTrace();
         }
         return "";

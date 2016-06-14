@@ -26,7 +26,7 @@ public class RestDelegate {
     public Map<String, User> getAllUsersMap() {
         try {
             return cacheHandler.getMapCache().get("users", () -> {
-                Map<String, User> userMap = new HashMap<String, User>();
+                Map<String, User> userMap = new HashMap<>();
                 for (User user : restClient.getUsers()) {
                     userMap.put(user.getUUID(), user);
                 }

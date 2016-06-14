@@ -501,12 +501,7 @@ public class StatisticHandler extends DefaultHandler {
 
         double sickdaysPerMonth[] = new double[12];
 
-        for (Work work : allWork) {
-            if(work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("02bf71c5-f588-46cf-9695-5864020eb1c4")) {
-                if(work.getWorkDuration() > 0)
-                    sickdaysPerMonth[work.getMonth()] += 1;
-            }
-        }
+        allWork.stream().filter(work -> work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("02bf71c5-f588-46cf-9695-5864020eb1c4")).filter(work -> work.getWorkDuration() > 0).forEach(work -> sickdaysPerMonth[work.getMonth()] += 1);
 
         Map<String, Object> result = new HashMap<>();
         result.put("sickdayspermonth", sickdaysPerMonth);
@@ -524,12 +519,7 @@ public class StatisticHandler extends DefaultHandler {
 
         double freedaysPerMonth[] = new double[12];
 
-        for (Work work : allWork) {
-            if(work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("f585f46f-19c1-4a3a-9ebd-1a4f21007282")) {
-                if(work.getWorkDuration() > 0)
-                    freedaysPerMonth[work.getMonth()] += 1;
-            }
-        }
+        allWork.stream().filter(work -> work.getUserUUID().equals(userUUID) && work.getTaskUUID().equals("f585f46f-19c1-4a3a-9ebd-1a4f21007282")).filter(work -> work.getWorkDuration() > 0).forEach(work -> freedaysPerMonth[work.getMonth()] += 1);
 
         Map<String, Object> result = new HashMap<>();
         result.put("freedayspermonth", freedaysPerMonth);
@@ -585,14 +575,12 @@ public class StatisticHandler extends DefaultHandler {
             if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
             if(work.getUserUUID().equals("55567dc6-f7d4-4fd5-8240-96787e492818")) {
                 for (Project project : restDelegate.getAllProjects()) {
-                    for (Task task : project.getTasks()) {
-                        if(task.getUUID().equals(work.getTaskUUID())) {
-                            String name = project.getName() + "/" + task.getName();
-                            System.out.println(name + ": " +work);
-                            if(!bill.containsKey(name)) bill.put(name, 0.0);
-                            bill.put(name, bill.get(name) + work.getWorkDuration());
-                        }
-                    }
+                    project.getTasks().stream().filter(task -> task.getUUID().equals(work.getTaskUUID())).forEach(task -> {
+                        String name = project.getName() + "/" + task.getName();
+                        System.out.println(name + ": " + work);
+                        if (!bill.containsKey(name)) bill.put(name, 0.0);
+                        bill.put(name, bill.get(name) + work.getWorkDuration());
+                    });
                 }
             }
             revenuePerUser.put(work.getUserUUID(), revenuePerUser.get(work.getUserUUID()) + (work.getWorkDuration()));
@@ -673,9 +661,7 @@ public class StatisticHandler extends DefaultHandler {
             Collections.sort(allWork, (m1, m2) -> m1.getCreated().compareTo(m2.getCreated()));
             for (Work work : allWork) {
                 if (work.getWorkDuration() > 0) {
-                    if (listOfDays.get(work.getUserUUID()) == null) {
-                        listOfDays.put(work.getUserUUID(), new HashMap<>());
-                    }
+                    listOfDays.putIfAbsent(work.getUserUUID(), new HashMap<>());
                     Map<String, Integer> delayPerMonth = listOfDays.get(work.getUserUUID());
                     DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 23, 59);
                     DateTime registeredDate = new DateTime(work.getCreated());

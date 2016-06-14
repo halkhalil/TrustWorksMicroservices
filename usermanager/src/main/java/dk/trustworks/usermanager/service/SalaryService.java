@@ -32,7 +32,7 @@ public class SalaryService {
             DateTime date = new DateTime(year, i+1, 1, 0, 0);
             List<Salary> activeUsers = salaryRepository.findActiveByDate(date);
             for (Salary activeUser : activeUsers) {
-                if(result.get(activeUser.getUseruuid()) == null) result.put(activeUser.getUseruuid(), new double[12]);
+                result.putIfAbsent(activeUser.getUseruuid(), new double[12]);
                 result.get(activeUser.getUseruuid())[i] = Double.parseDouble(activeUser.getSalary().toString());
             }
         }

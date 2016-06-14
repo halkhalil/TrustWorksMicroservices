@@ -93,17 +93,14 @@ public class ProjectBudgetHandler extends DefaultHandler {
         List<TaskWorkerConstraintBudget> newRemoveList = new ArrayList<>();
         for (TaskWorkerConstraintBudget newBudget : workBudgetMap.values()) {
             List<TaskWorkerConstraintBudget> actualRemoveList = new ArrayList<>();
-            for (TaskWorkerConstraintBudget actualBudget : actualBudgets) {
-                if (actualBudget.getTaskWorkerConstraintUUID().equals(newBudget.getTaskWorkerConstraintUUID()) &&
-                        actualBudget.getYear() == newBudget.getYear() &&
-                        actualBudget.getMonth() == newBudget.getMonth()
-                        ) {
-                    actualBudget.setBudget(newBudget.getBudget());
-                    newBudgets.add(actualBudget);
-                    actualRemoveList.add(actualBudget);
-                    newRemoveList.add(newBudget);
-                }
-            }
+            actualBudgets.stream().filter(actualBudget -> actualBudget.getTaskWorkerConstraintUUID().equals(newBudget.getTaskWorkerConstraintUUID()) &&
+                    actualBudget.getYear() == newBudget.getYear() &&
+                    actualBudget.getMonth() == newBudget.getMonth()).forEach(actualBudget -> {
+                actualBudget.setBudget(newBudget.getBudget());
+                newBudgets.add(actualBudget);
+                actualRemoveList.add(actualBudget);
+                newRemoveList.add(newBudget);
+            });
             actualBudgets.removeAll(actualRemoveList);
         }
         workBudgets.removeAll(newRemoveList);
@@ -114,9 +111,7 @@ public class ProjectBudgetHandler extends DefaultHandler {
             newBudgets.add(actualBudget);
         }
 
-        for (TaskWorkerConstraintBudget newBudget : newBudgets) {
-            restClient.postTaskBudget(newBudget);
-        }
+        newBudgets.forEach(restClient::postTaskBudget);
 
         log.exit();
     }

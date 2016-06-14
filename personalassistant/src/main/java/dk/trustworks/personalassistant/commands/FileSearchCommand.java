@@ -2,7 +2,6 @@ package dk.trustworks.personalassistant.commands;
 
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.type.Attachment;
-import allbegray.slack.type.Color;
 import allbegray.slack.type.Field;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;

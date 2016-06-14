@@ -1,7 +1,5 @@
 package dk.trustworks.personalassistant.dto.slack;
 
-import java.util.Arrays;
-
 /**
  * Created by hans on 31/05/16.
  */

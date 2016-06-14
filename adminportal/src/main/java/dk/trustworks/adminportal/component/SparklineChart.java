@@ -57,8 +57,8 @@ public class SparklineChart extends VerticalLayout {
         spark.setHeight("40px");
 
         DataSeries series = new DataSeries();
-        for (int i = 0; i < values.length; i++) {
-            DataSeriesItem item = new DataSeriesItem("", values[i]);
+        for (int value : values) {
+            DataSeriesItem item = new DataSeriesItem("", value);
             series.add(item);
         }
         spark.getConfiguration().setSeries(series);

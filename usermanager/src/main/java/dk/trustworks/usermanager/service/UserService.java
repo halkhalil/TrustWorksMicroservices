@@ -82,7 +82,7 @@ public class UserService {
             DateTime dateTime = new DateTime(year, i+1, 1, 0, 0);
             List<String> activeUsers = userRepository.getAvailabilityByMonth(dateTime);
             for (String activeUser : activeUsers) {
-                if(result.get(activeUser) == null) result.put(activeUser, new int[12]);
+                result.putIfAbsent(activeUser, new int[12]);
                 result.get(activeUser)[i] = 1;
             }
         }

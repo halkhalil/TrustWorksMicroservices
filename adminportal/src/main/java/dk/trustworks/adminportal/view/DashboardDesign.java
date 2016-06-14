@@ -76,14 +76,11 @@ public class DashboardDesign extends CssLayout {
         year_select.addItem(currentYear);
         year_select.setValue(currentYear);
 
-        year_select.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent e) {
-                Notification.show("Selected: ",
-                        String.valueOf(e.getProperty().getValue()),
-                        Notification.Type.TRAY_NOTIFICATION);
-                createGraphs(Integer.parseInt((String)e.getProperty().getValue()));
-            }
+        year_select.addValueChangeListener((Property.ValueChangeListener) e -> {
+            Notification.show("Selected: ",
+                    String.valueOf(e.getProperty().getValue()),
+                    Notification.Type.TRAY_NOTIFICATION);
+            createGraphs(Integer.parseInt((String)e.getProperty().getValue()));
         });
         sparkline_horizontal.addComponent(year_select);
     }
@@ -819,12 +816,9 @@ public class DashboardDesign extends CssLayout {
                 // TODO: FINISH DRILLSERIES
                 //drillSeries.setData(categories, ys);
                 Map<String, AmountPerItem> taskAmountPerItem = new HashMap<>();
-                for (AmountPerItem amountPerItem : dataAccess.getWorkPerUserPerTaskByProject(projectRevenue.uuid)) {
-                    if(!taskAmountPerItem.containsKey(amountPerItem.uuid)) taskAmountPerItem.put(amountPerItem.uuid, amountPerItem);
-
-                    //drillSeries.add(new DataSeriesItem(amountPerItem.uuid, amountPerItem.amount));
-                    //drillSeries.setStack(amountPerItem.description);
-                }
+                //drillSeries.add(new DataSeriesItem(amountPerItem.uuid, amountPerItem.amount));
+//drillSeries.setStack(amountPerItem.description);
+                dataAccess.getWorkPerUserPerTaskByProject(projectRevenue.uuid).stream().filter(amountPerItem -> !taskAmountPerItem.containsKey(amountPerItem.uuid)).forEach(amountPerItem -> taskAmountPerItem.put(amountPerItem.uuid, amountPerItem));
 
                 for (String taskName : taskAmountPerItem.keySet()) {
 

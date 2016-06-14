@@ -22,7 +22,7 @@ public class NlpResponse {
     @JsonProperty("status")
     private Status status;
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private Map<String, Object> additionalProperties = new HashMap<>();
 
     /**
      *

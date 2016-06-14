@@ -64,23 +64,19 @@ public class ProjectBudgetService extends DefaultLocalService {
 
             for (Work work : allWork) {
                 for (Project project : projects) {
-                    for (Task task : project.getTasks()) {
-                        if (work.getTaskUUID().equals(task.getUUID())) {
-                            for (TaskWorkerConstraint taskWorkerConstraint : task.getTaskWorkerConstraints()) {
-                                if (work.getUserUUID().equals(taskWorkerConstraint.getUserUUID())) {
-                                    if (projectYearBudgetsMap.containsKey(project.getUUID())) {
-                                        log.debug("project: {}", project);
-                                        projectYearBudgetsMap.get(project.getUUID()).getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
-                                        log.debug("budget: {}", projectYearBudgetsMap.get(project.getUUID()));
-                                    } else {
-                                        log.debug("new project: {}", project);
-                                        ProjectYearEconomy economy = projectYearBudgetsMap.put(project.getUUID(), new ProjectYearEconomy(project.getUUID(), project.getName()));
-                                        economy.getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
-                                    }
-                                }
+                    project.getTasks().stream().filter(task -> work.getTaskUUID().equals(task.getUUID())).forEach(task -> {
+                        task.getTaskWorkerConstraints().stream().filter(taskWorkerConstraint -> work.getUserUUID().equals(taskWorkerConstraint.getUserUUID())).forEach(taskWorkerConstraint -> {
+                            if (projectYearBudgetsMap.containsKey(project.getUUID())) {
+                                log.debug("project: {}", project);
+                                projectYearBudgetsMap.get(project.getUUID()).getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+                                log.debug("budget: {}", projectYearBudgetsMap.get(project.getUUID()));
+                            } else {
+                                log.debug("new project: {}", project);
+                                ProjectYearEconomy economy = projectYearBudgetsMap.put(project.getUUID(), new ProjectYearEconomy(project.getUUID(), project.getName()));
+                                economy.getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
                             }
-                        }
-                    }
+                        });
+                    });
                 }
             }
 
@@ -114,27 +110,23 @@ public class ProjectBudgetService extends DefaultLocalService {
 
             for (Work work : allWork) {
                 for (Project project : projects) {
-                    for (Task task : project.getTasks()) {
-                        if (work.getTaskUUID().equals(task.getUUID())) {
-                            for (TaskWorkerConstraint taskWorkerConstraint : task.getTaskWorkerConstraints()) {
-                                if (work.getUserUUID().equals(taskWorkerConstraint.getUserUUID())) {
-                                    if (projectYearBudgetsMap.containsKey(project.getUUID())) {
-                                        log.debug("project: {}", project);
-                                        projectYearBudgetsMap.get(project.getUUID()).getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
-                                        log.debug("budget: {}", projectYearBudgetsMap.get(project.getUUID()));
-                                    } else {
-                                        log.debug("new project: {}", project);
-                                        ProjectYearEconomy economy = new ProjectYearEconomy(project.getUUID(), project.getName());
-                                        projectYearBudgetsMap.put(project.getUUID(), economy);
-                                        System.out.println("economy = " + economy);
-                                        System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
-                                        System.out.println("work = " + work);
-                                        economy.getActual()[month] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
-                                    }
-                                }
+                    project.getTasks().stream().filter(task -> work.getTaskUUID().equals(task.getUUID())).forEach(task -> {
+                        task.getTaskWorkerConstraints().stream().filter(taskWorkerConstraint -> work.getUserUUID().equals(taskWorkerConstraint.getUserUUID())).forEach(taskWorkerConstraint -> {
+                            if (projectYearBudgetsMap.containsKey(project.getUUID())) {
+                                log.debug("project: {}", project);
+                                projectYearBudgetsMap.get(project.getUUID()).getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+                                log.debug("budget: {}", projectYearBudgetsMap.get(project.getUUID()));
+                            } else {
+                                log.debug("new project: {}", project);
+                                ProjectYearEconomy economy = new ProjectYearEconomy(project.getUUID(), project.getName());
+                                projectYearBudgetsMap.put(project.getUUID(), economy);
+                                System.out.println("economy = " + economy);
+                                System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
+                                System.out.println("work = " + work);
+                                economy.getActual()[month] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
                             }
-                        }
-                    }
+                        });
+                    });
                 }
             }
 
