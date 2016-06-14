@@ -6,12 +6,9 @@ import com.codahale.metrics.json.MetricsModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
-import dk.trustworks.personalassistant.commands.FileSearchCommand;
 import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
-import dk.trustworks.personalassistant.search.indexers.Searcher;
 import dk.trustworks.personalassistant.service.CommandService;
-import dk.trustworks.personalassistant.topics.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -38,8 +35,6 @@ public class MotherApplication extends Jooby {
 
     public static final MetricRegistry metricRegistry = new MetricRegistry();
     private transient ObjectMapper metricsMapper;
-
-    static Topic topics[] = {new Mother(), new Pictures(), new Templates(), new FileSearch(), new Connect()};
 
     {
         this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));

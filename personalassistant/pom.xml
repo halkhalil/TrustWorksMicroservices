@@ -22,11 +22,6 @@
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
-            <artifactId>jooby-jdbc</artifactId>
-            <version>1.0.0.CR3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
             <artifactId>jooby-metrics</artifactId>
             <version>1.0.0.CR3</version>
         </dependency>
@@ -91,11 +86,6 @@
             <version>1.9.31</version>
         </dependency>
         <dependency>
-            <groupId>com.textrazor</groupId>
-            <artifactId>textrazor</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
@@ -111,30 +101,12 @@
             <version>1.25.1</version>
         </dependency>
 
-        <!-- mysql -->
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-jdbc</artifactId>
-            <version>1.0.0.CR3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sql2o</groupId>
-            <artifactId>sql2o</artifactId>
-            <version>1.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.37</version>
-        </dependency>
-
         <!-- SLACK -->
         <dependency>
             <groupId>com.github.allbegray</groupId>
             <artifactId>slack-api</artifactId>
             <version>v1.2.1.RELEASE</version>
         </dependency>
-
 
         <!-- REST JSON -->
         <dependency>
@@ -147,60 +119,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>19.0</version>
-        </dependency>
-
-        <!-- NLP -->
-        <dependency>
-            <groupId>org.apache.opennlp</groupId>
-            <artifactId>opennlp-tools</artifactId>
-            <version>1.5.3</version>
-        </dependency>
-
-        <!-- LUCENE -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>3.6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-scratchpad</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-            <version>3.6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>20030203.000129</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>1.44</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15</artifactId>
-            <version>1.44</version>
         </dependency>
     </dependencies>
 

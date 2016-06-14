@@ -1,9 +1,0 @@
-show me some photos from <START:person> paula <END> trip to <START:city> new york <END>
-show me a random photo from <START:person> paula <END> trip to <START:city> new york <END>
-show me a random photo from <START:city> paris <END>
-show me a random picture from <START:person> paula <END> vacation in <START:city> paris <END>
-send a picture from <START:person> trustworks <END> tour to <START:city> paris <END>
-display a photo from <START:person> paula <END> vacation in <START:city> paris <END>
-display a photo from <START:person> trustworks <END> trip to <START:city> paris <END>
-show a photo from <START:person> paula <END> trip to <START:city> costa rica <END>
-please send photo from <START:city> costa rica <END>

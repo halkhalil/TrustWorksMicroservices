@@ -3,14 +3,11 @@ package dk.trustworks.personalassistant.service;
 import dk.trustworks.personalassistant.commands.CommandFactory;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
 import dk.trustworks.personalassistant.nlp.ApiAIClient;
-import dk.trustworks.personalassistant.topics.*;
 
 /**
  * Created by hans on 30/05/16.
  */
 public class CommandService {
-
-    static Topic topics[] = {new Mother(), new Pictures(), new Templates(), new FileSearch(), new Connect()};
 
     private final CommandFactory commandFactory;
 
