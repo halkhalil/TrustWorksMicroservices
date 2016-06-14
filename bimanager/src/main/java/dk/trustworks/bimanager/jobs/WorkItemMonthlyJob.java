@@ -19,7 +19,6 @@ import java.util.*;
  */
 public class WorkItemMonthlyJob implements Job {
 
-    private final int startYear = 2014;
     private final RestClient restClient = new RestClient();
 
     @Override
@@ -54,6 +53,7 @@ public class WorkItemMonthlyJob implements Job {
     private void loadHistoricWorkItems() {
         List<Project> projects = restClient.getProjectsAndTasksAndTaskWorkerConstraints();
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        int startYear = 2014;
         for (int year = startYear; year <= currentYear; year++) {
             List<Work> registeredWorkByYear = restClient.getRegisteredWorkByYear(year);
             List<WorkItem> workItems = WorkItem.createWorkItems(registeredWorkByYear, projects);

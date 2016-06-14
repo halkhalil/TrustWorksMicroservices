@@ -18,12 +18,10 @@ public final class Helper {
     private static final Logger log = LogManager.getLogger(Helper.class);
     private static Helper instance;
 
-    private final DataSource mysql;
-
     private final Sql2o sql2o;
 
     private Helper() {
-        mysql = Helper.newDataSource(
+        DataSource mysql = Helper.newDataSource(
                 System.getenv("DATABASE_URI"),
                 System.getenv("DATABASE_USER"),
                 System.getenv("DATABASE_PASS"));

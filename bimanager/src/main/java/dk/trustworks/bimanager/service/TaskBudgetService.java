@@ -21,13 +21,10 @@ import java.util.Map;
 public class TaskBudgetService extends DefaultLocalService {
 
     private static final Logger log = LogManager.getLogger(TaskBudgetService.class);
-    private TaskBudgetRepository taskBudgetRepository;
-
-    private final RestDelegate restDelegate;
 
     public TaskBudgetService() {
-        taskBudgetRepository = new TaskBudgetRepository();
-        restDelegate = RestDelegate.getInstance();
+        TaskBudgetRepository taskBudgetRepository = new TaskBudgetRepository();
+        RestDelegate restDelegate = RestDelegate.getInstance();
     }
 
     public Map<String, Object> findByTaskUUIDAndUserUUID(Map<String, Deque<String>> queryParameters) {

@@ -21,11 +21,10 @@ import java.util.concurrent.ExecutionException;
 public class DropboxAPI {
 
     private static final String ACCESS_TOKEN = "er5JfC5WCOAAAAAAAACBHbjYDH7GWXxx_YzmAmRMOpP8JKiNmoQDNxVhVlNsQkSn";
-    private final DbxRequestConfig config;
     private final DbxTeamClientV2 client;
 
     public DropboxAPI() {
-        config = new DbxRequestConfig("dropbox/java-tutorial", "en_US");
+        DbxRequestConfig config = new DbxRequestConfig("dropbox/java-tutorial", "en_US");
         client = new DbxTeamClientV2(config, ACCESS_TOKEN);
     }
 

@@ -8,6 +8,8 @@ import dk.trustworks.personalassistant.model.ActionType;
 
 import java.util.HashMap;
 
+import static dk.trustworks.personalassistant.client.SlackResponseClient.*;
+
 /**
  * Created by hans on 31/05/16.
  */
@@ -29,7 +31,7 @@ public class CommandFactory {
         System.out.println("intentOutcome = [" + intentOutcome + "], slackSlashCommand = [" + slackSlashCommand + "]");
 
         if(intentOutcome.getSource().trim().equals("domains")) {
-            SlackResponseClient.sendResponse(slackSlashCommand.response_url, new SlackMessage(intentOutcome.getFulfillment().getSpeech(), "in_channel"));
+            sendResponse(slackSlashCommand.response_url, new SlackMessage(intentOutcome.getFulfillment().getSpeech(), "in_channel"));
             return;
         }
 

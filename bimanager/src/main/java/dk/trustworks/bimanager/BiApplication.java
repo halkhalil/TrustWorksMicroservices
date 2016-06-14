@@ -85,7 +85,7 @@ public class BiApplication extends BaseApplication {
         registerInZookeeper("biservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
     }
 
-    private final void startSchedulers() throws SchedulerException {
+    private void startSchedulers() throws SchedulerException {
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
         JobDetail workItemRebaseJob = newJob(WorkItemMonthlyJob.class)
                 .withIdentity("WorkItemRebaseJob", "BiManagerJobs")

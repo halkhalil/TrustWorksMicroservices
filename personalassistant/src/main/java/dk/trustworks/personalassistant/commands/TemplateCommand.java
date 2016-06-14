@@ -20,13 +20,11 @@ public class TemplateCommand implements Command {
 
     private final DropboxAPI dropboxAPI;
 
-    private final Map<String, String> libraries;
-
     private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getenv("SLACK_TOKEN"));
 
     public TemplateCommand() {
         dropboxAPI = new DropboxAPI();
-        libraries = new HashMap<>();
+        Map<String, String> libraries = new HashMap<>();
         libraries.put("costa rica", "/Shared/TrustWorks/Billeder/andet/costa_rica");
         libraries.put("paris", "/Shared/TrustWorks/Billeder/Paris");
     }

@@ -19,7 +19,7 @@ public class RestDelegate {
         listCache = CacheHandler.createCacheHandler().getListCache();
     }
 
-    public static final RestDelegate getInstance() {
+    public static RestDelegate getInstance() {
         return ((instance!=null)?instance:(instance = new RestDelegate()));
     }
 

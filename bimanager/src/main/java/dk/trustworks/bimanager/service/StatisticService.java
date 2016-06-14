@@ -21,10 +21,8 @@ public class StatisticService extends DefaultLocalService {
 
     private static final Logger log = LogManager.getLogger(StatisticService.class);
 
-    private final RestClient restClient;
-
     public StatisticService() {
-        restClient = new RestClient();
+        RestClient restClient = new RestClient();
     }
 
     @Override

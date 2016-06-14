@@ -26,7 +26,6 @@ import java.util.Date;
 @Theme("usermanagement")
 public class UserDesign extends VerticalLayout {
 
-    private final DataAccess dataAccess = new DataAccess();
     protected TextField filter = new TextField();
     protected Grid userGrid;
     protected CssLayout user_item1;
@@ -36,6 +35,7 @@ public class UserDesign extends VerticalLayout {
     public UserDesign() {
         Design.read(this);
         setSizeFull();
+        DataAccess dataAccess = new DataAccess();
         ArrayList<User> users = (ArrayList<User>) dataAccess.getUsers();
 
         BeanItemContainer<User> container = new BeanItemContainer<>(User.class, users);
