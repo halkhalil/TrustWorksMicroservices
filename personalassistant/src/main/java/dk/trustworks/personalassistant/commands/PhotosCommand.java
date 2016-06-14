@@ -3,8 +3,10 @@ package dk.trustworks.personalassistant.commands;
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
+import dk.trustworks.personalassistant.client.SlackResponseClient;
 import dk.trustworks.personalassistant.dropbox.DropboxAPI;
 import dk.trustworks.personalassistant.dto.nlp.Result;
+import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
 
 import java.io.ByteArrayInputStream;
@@ -34,12 +36,23 @@ public class PhotosCommand implements Command {
         System.out.println("PhotosCommand.execute");
         System.out.println("intentOutcome = [" + intentOutcome + "], command = [" + command + "]");
 
+        /*
         ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name, "Attention. Finding a random photo from Paris - ETA 10 seconds");
         textMessage.setAs_user(true);
         webApiClient.postMessage(textMessage);
+        */
+        String location = "";
+        if(!(intentOutcome.getParameters().getGeoCity()==null) && !intentOutcome.getParameters().getGeoCity().trim().equals("")) {
+            location = intentOutcome.getParameters().getGeoCity();
+        }
+        if(!(intentOutcome.getParameters().getGeoCountry()==null) && !intentOutcome.getParameters().getGeoCountry().trim().equals("")) {
+            location = intentOutcome.getParameters().getGeoCountry();
+        }
 
-        byte[] randomFile = dropboxAPI.getRandomFile(libraries.get(intentOutcome.getParameters().getGeoCity().toLowerCase()));
+        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("Attention. Finding a random photo from "+location+" - ETA 10 seconds", "ephemeral"));
 
-        webApiClient.uploadFile(new ByteArrayInputStream(randomFile), "jpeg", "image.jpg", "image.jpg", "", "@"+command.user_name);
+        byte[] randomFile = dropboxAPI.getRandomFile(libraries.get(location.toLowerCase()));
+
+        webApiClient.uploadFile(new ByteArrayInputStream(randomFile), "jpeg", "image.jpg", "image.jpg", "", command.channel_id);
     }
 }

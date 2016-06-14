@@ -36,7 +36,8 @@ public class TemplateCommand implements Command {
         System.out.println("TemplateCommand.execute");
         System.out.println("intentOutcome = [" + intentOutcome + "], command = [" + command + "]");
 
-        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
+        if(!command.channel_name.equals("directmessage"))
+            SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
 
         String color = (intentOutcome.getParameters().getAdditionalProperties().get("color")!=null)?intentOutcome.getParameters().getAdditionalProperties().get("color").toString():"blue";
         if(intentOutcome.getParameters().getAdditionalProperties().get("template-type")==null) {
@@ -62,9 +63,12 @@ public class TemplateCommand implements Command {
             return;
         }
 
+        /*
         ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name, "Attention. Uploading "+templateType+" template - ETA 5 seconds");
         textMessage.setAs_user(true);
         webApiClient.postMessage(textMessage);
+        */
+        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("Attention. Uploading \"+templateType+\" template - ETA 5 seconds", "ephemeral"));
 
         byte[] randomFile = dropboxAPI.getSpecificFile("/Shared/Templates/TW Præsentation/TW_TEMPLATES/"+templateSize+"/TW-"+color+".pptx");
 

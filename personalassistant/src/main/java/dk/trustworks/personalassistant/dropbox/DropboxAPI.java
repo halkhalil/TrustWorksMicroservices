@@ -56,10 +56,11 @@ public class DropboxAPI {
         }
     }
 
-    public List<SearchMatch> searchFiles(String query) {
+    public List<SearchMatch> searchFiles(String query, long resultSize) {
         try {
             DbxUserFilesRequests files = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").files();
-            SearchResult searchResult = files.searchBuilder("/SHARED", query).withMaxResults(5l).withMode(SearchMode.FILENAME_AND_CONTENT).start();
+            SearchResult searchResult = (resultSize==0)?files.searchBuilder("/SHARED", query).withMode(SearchMode.FILENAME_AND_CONTENT).start():
+                    files.searchBuilder("/SHARED", query).withMaxResults(resultSize).withMode(SearchMode.FILENAME_AND_CONTENT).start();
             return searchResult.getMatches();
         } catch (DbxException e) {
             e.printStackTrace();
@@ -109,31 +110,48 @@ public class DropboxAPI {
     }
 
     public String getFileURL(String filePath) {
-        String relativeFilePath = filePath.replace("/Users/hans/Dropbox (TrustWorks ApS)","");
+        System.out.println("DropboxAPI.getFileURL");
+        System.out.println("filePath = [" + filePath + "]");
+        //String relativeFilePath = filePath.replace("/Users/hans/Dropbox (TrustWorks ApS)","");
         CacheHandler cache = CacheHandler.createCacheHandler();
 
         SharedLinkMetadata sharedLink = null;
         try {
-            /*
-            Map<String, String> urls = cache.getMapCache().get("sharing", () -> {
+
+            Map<String, String> urls = null;
+
+            urls = cache.getMapCache().get("sharing", () -> {
                 Map<String, String> urlMap = new HashMap<>();
                 DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
                 for (SharedLinkMetadata url : sharing.listSharedLinks().getLinks()) {
                     urlMap.put(url.getPathLower(), url.getUrl());
+                    System.out.println("url.getPathLower() = " + url.getPathLower() + " | url.getUrl() = " + url.getUrl());
                 }
                 return urlMap;
             });
-            if(urls.containsKey(relativeFilePath.toLowerCase())) return urls.get(relativeFilePath.toLowerCase());
-            */
-            DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
-            for (SharedLinkMetadata linkMetadata : sharing.listSharedLinks().getLinks()) {
-                if(linkMetadata.getPathLower().equals(relativeFilePath.toLowerCase())) return linkMetadata.getUrl();
+
+            if(urls.containsKey(filePath.toLowerCase())) {
+                System.out.println("filePath.toLowerCase() = " + filePath.toLowerCase());
+                System.out.println("urls.get(filePath.toLowerCase()) = " + urls.get(filePath.toLowerCase()));
+                return urls.get(filePath.toLowerCase());
             }
 
-            //DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
-            sharedLink = sharing.createSharedLinkWithSettings(relativeFilePath);
-            return sharedLink.getUrl();
+/*
+            DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
+            for (SharedLinkMetadata linkMetadata : sharing.listSharedLinks().getLinks()) {
+                if(linkMetadata.getPathLower().equals(filePath.toLowerCase())) return linkMetadata.getUrl();
+            }
+*/
+
+            DbxUserSharingRequests sharing = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").sharing();
+            sharedLink = sharing.createSharedLinkWithSettings(filePath);
+            String url = sharedLink.getUrl();
+            urls.put(filePath.toLowerCase(), url);
+            System.out.println("sharedLink.getUrl() = " + url);
+            return url;
         } catch (DbxException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return "";

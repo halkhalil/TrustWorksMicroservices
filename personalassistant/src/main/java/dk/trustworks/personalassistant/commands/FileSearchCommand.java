@@ -9,10 +9,8 @@ import dk.trustworks.personalassistant.dropbox.DropboxAPI;
 import dk.trustworks.personalassistant.dto.nlp.Result;
 import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
-import dk.trustworks.personalassistant.search.indexers.IndexItem;
-import dk.trustworks.personalassistant.search.indexers.Searcher;
 
-import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,26 +20,21 @@ import java.util.Map;
  */
 public class FileSearchCommand implements Command {
 
-    public static final String INDEX_DIR = "~/index";
     private final DropboxAPI dropboxAPI;
-
-    private final Map<String, String> libraries;
 
     private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getenv("SLACK_TOKEN"));
 
     public FileSearchCommand() {
         dropboxAPI = new DropboxAPI();
-        libraries = new HashMap<>();
-        libraries.put("costa rica", "/Shared/TrustWorks/Billeder/andet/costa_rica");
-        libraries.put("paris", "/Shared/TrustWorks/Billeder/Paris");
     }
 
     @Override
     public void execute(Result intentOutcome, SlackSlashCommand command) {
-        System.out.println("TemplateCommand.execute");
+        System.out.println("FileSearchCommand.execute");
         System.out.println("intentOutcome = [" + intentOutcome + "], command = [" + command + "]");
 
-        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
+        if(!command.channel_name.equals("directmessage"))
+            SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
 
         String searchLocation = (intentOutcome.getParameters().getAdditionalProperties().get("docstores")!=null)?intentOutcome.getParameters().getAdditionalProperties().get("docstores").toString():"dropbox";
         if(intentOutcome.getParameters().getAdditionalProperties().get("any")==null) {
@@ -52,23 +45,89 @@ public class FileSearchCommand implements Command {
         }
         String searchString = intentOutcome.getParameters().getAdditionalProperties().get("any").toString();
 
+        /*
         ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name, "Searching for: "+searchString);
         textMessage.setAs_user(true);
         webApiClient.postMessage(textMessage);
+        */
+        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("Searching for: "+searchString, "ephemeral"));
 
-        List<SearchMatch> searchMatches = dropboxAPI.searchFiles(searchString);
+        List<SearchMatch> searchMatches = dropboxAPI.searchFiles(searchString, 0);
 
         String searchResult = "Found:\n";
 
-        for (int i = 0; i < 5; i++) {
-            SearchMatch searchMatch = searchMatches.get(0);
+        Map<String, Integer> folderOccourrences = new HashMap<>();
+        for (SearchMatch searchMatch : searchMatches) {
+            for (String filePathName : searchMatch.getMetadata().getPathDisplay().split("/")) {
+                if(!folderOccourrences.containsKey(filePathName)) folderOccourrences.put(filePathName, 0);
+                folderOccourrences.put(filePathName, folderOccourrences.get(filePathName) + 1);
+            }
+        }
+
+        Map<SearchMatch, Integer> searchMatchScore = new HashMap<>();
+        for (SearchMatch searchMatch : searchMatches) {
+            int score = 0;
+            for (String filePathName : searchMatch.getMetadata().getPathDisplay().split("/")) {
+                score += folderOccourrences.get(filePathName);
+            }
+            searchMatchScore.put(searchMatch, score);
+        }
+
+        int resultSize = 5;
+        List<SearchMatch> resultList = new ArrayList<>(resultSize);
+        int prevScore = 0;
+        SearchMatch prevMatch = null;
+        boolean directionUp = true;
+        for (SearchMatch searchMatch : searchMatchScore.keySet()) {
+            Integer currentScore = searchMatchScore.get(searchMatch);
+            if(directionUp) {
+                if (currentScore < prevScore) {
+                    resultList.add(prevMatch);
+                    directionUp = false;
+                }
+            } else {
+                if (currentScore > prevScore) {
+                    resultList.add(prevMatch);
+                    directionUp = true;
+                }
+            }
+            prevScore = currentScore;
+            prevMatch = searchMatch;
+            if(resultList.size()>4) break;
+        }
+
+        for (SearchMatch searchMatch : resultList) {
             System.out.println("item.getPath() = " + searchMatch.getMetadata().getPathLower());
             String fileURL = dropboxAPI.getFileURL(searchMatch.getMetadata().getPathDisplay());
             searchResult += "<"+fileURL+"|"+searchMatch.getMetadata().getPathDisplay()+">\n";
+            if(resultSize-- == 0) break;
         }
 
         ChatPostMessageMethod searchMessage = new ChatPostMessageMethod("@"+command.user_name, searchResult);
         searchMessage.setAs_user(true);
         webApiClient.postMessage(searchMessage);
     }
+
+    /*
+    "match_type": {
+        ".tag": "both"
+      },
+      "metadata": {
+        ".tag": "file",
+        "name": "FL-#152312-v3A-Målarkitektur_-_kravspecifikation (1).DOC",
+        "path_lower": "/shared/projekt/miljøstyrelsen/pde/fl-#152312-v3a-målarkitektur_-_kravspecifikation (1).doc",
+        "path_display": "/Shared/projekt/miljøstyrelsen/PDE/FL-#152312-v3A-Målarkitektur_-_kravspecifikation (1).DOC",
+        "parent_shared_folder_id": "698381028",
+        "id": "id:jljljgzEAkwAAAAAAAC7EA",
+        "client_modified": "1979-12-31T23:00:00Z",
+        "server_modified": "2015-01-09T09:42:07Z",
+        "rev": "135c229a072e4",
+        "size": 1439744,
+        "sharing_info": {
+          "read_only": false,
+          "parent_shared_folder_id": "698381028",
+          "modified_by": "dbid:AACHqWWYQLAJRImS4BFAcHmrGkbS1wVWeYU"
+        }
+      }
+     */
 }

@@ -20,7 +20,8 @@ public class WhatAreYouCommand implements Command {
         System.out.println("WhatAreYouCommand.execute");
         System.out.println("intentOutcome = [" + intentOutcome + "], command = [" + command + "]");
 
-        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
+        if(!command.channel_name.equals("directmessage"))
+            SlackResponseClient.sendResponse(command.response_url, new SlackMessage("See my response in a direct message from me", "ephemeral"));
 
         ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name,
                 "I am a MU-TH-UR 6000, 182 model 2.1 terabyte AI Mainframe that " +
