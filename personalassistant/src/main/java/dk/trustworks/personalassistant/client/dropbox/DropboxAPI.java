@@ -1,4 +1,4 @@
-package dk.trustworks.personalassistant.dropbox;
+package dk.trustworks.personalassistant.client.dropbox;
 
 import com.dropbox.core.DbxDownloader;
 import com.dropbox.core.DbxException;

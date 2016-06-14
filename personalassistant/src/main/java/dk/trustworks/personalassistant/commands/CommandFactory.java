@@ -48,9 +48,10 @@ public class CommandFactory {
     /* Factory pattern */
     public static CommandFactory init() {
         if(instance==null) instance = new CommandFactory();
-        instance.addCommand(ActionType.WhoAreYou, new WhoAreYouCommand());
-        instance.addCommand(ActionType.WhatAreYou, new WhatAreYouCommand());
-        instance.addCommand(ActionType.WhatIsYourDirective, new WhatIsYourDirectiveCommand());
+        //instance.addCommand(ActionType.WhoAreYou, new WhoAreYouCommand());
+        //instance.addCommand(ActionType.WhatAreYou, new WhatAreYouCommand());
+        //instance.addCommand(ActionType.WhatIsYourDirective, new WhatIsYourDirectiveCommand());
+        instance.addCommand(ActionType.Speech, new SpeechCommand());
         instance.addCommand(ActionType.ShowPhotos, new PhotosCommand());
         instance.addCommand(ActionType.SendTemplate, new TemplateCommand());
         instance.addCommand(ActionType.FileSearch, new FileSearchCommand());

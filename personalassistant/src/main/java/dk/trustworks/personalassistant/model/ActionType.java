@@ -9,5 +9,6 @@ public enum ActionType {
     WhatIsYourDirective,
     SendTemplate,
     FileSearch,
-    ShowPhotos
+    ShowPhotos,
+    Speech
 }

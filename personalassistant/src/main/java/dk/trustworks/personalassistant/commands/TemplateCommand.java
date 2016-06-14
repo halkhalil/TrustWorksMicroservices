@@ -4,7 +4,7 @@ import allbegray.slack.SlackClientFactory;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
 import dk.trustworks.personalassistant.client.SlackResponseClient;
-import dk.trustworks.personalassistant.dropbox.DropboxAPI;
+import dk.trustworks.personalassistant.client.dropbox.DropboxAPI;
 import dk.trustworks.personalassistant.dto.nlp.Result;
 import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
