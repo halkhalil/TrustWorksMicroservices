@@ -1,6 +1,9 @@
 package dk.trustworks.personalassistant.commands;
 
 import allbegray.slack.SlackClientFactory;
+import allbegray.slack.type.Attachment;
+import allbegray.slack.type.Color;
+import allbegray.slack.type.Field;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
 import com.dropbox.core.v2.files.SearchMatch;
@@ -54,8 +57,6 @@ public class FileSearchCommand implements Command {
 
         List<SearchMatch> searchMatches = dropboxAPI.searchFiles(searchString, 0);
 
-        String searchResult = "Found:\n";
-
         Map<String, Integer> folderOccourrences = new HashMap<>();
         for (SearchMatch searchMatch : searchMatches) {
             for (String filePathName : searchMatch.getMetadata().getPathDisplay().split("/")) {
@@ -96,15 +97,29 @@ public class FileSearchCommand implements Command {
             if(resultList.size()>4) break;
         }
 
+        String[] colors = {"#fcf585", "#fbb14d", "8fa78a", "#007163", "#2c586d"};
+
+        ArrayList<Attachment> attachments = new ArrayList<>();
         for (SearchMatch searchMatch : resultList) {
             System.out.println("item.getPath() = " + searchMatch.getMetadata().getPathLower());
             String fileURL = dropboxAPI.getFileURL(searchMatch.getMetadata().getPathDisplay());
-            searchResult += "<"+fileURL+"|"+searchMatch.getMetadata().getPathDisplay()+">\n";
+            //searchResult += "<"+fileURL+"|"+searchMatch.getMetadata().getPathDisplay()+">\n";
+            Attachment attachment = new Attachment();
+            attachment.setTitle(searchMatch.getMetadata().getName());
+            attachment.setTitle_link(fileURL);
+            attachment.setText(searchMatch.getMetadata().getPathDisplay());
+            attachment.setColor(colors[resultSize -1]);
+            ArrayList<Field> fields = new ArrayList<>();
+            Field field = new Field("Name or Content", searchMatch.getMatchType().name(), true);
+            fields.add(field);
+            attachment.setFields(fields);
+            attachments.add(attachment);
             if(resultSize-- == 0) break;
         }
 
-        ChatPostMessageMethod searchMessage = new ChatPostMessageMethod("@"+command.user_name, searchResult);
+        ChatPostMessageMethod searchMessage = new ChatPostMessageMethod("@"+command.user_name, "Found:");
         searchMessage.setAs_user(true);
+        searchMessage.setAttachments(attachments);
         webApiClient.postMessage(searchMessage);
     }
 
