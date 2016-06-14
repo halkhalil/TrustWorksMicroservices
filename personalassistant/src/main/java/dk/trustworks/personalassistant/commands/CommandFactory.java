@@ -1,6 +1,8 @@
 package dk.trustworks.personalassistant.commands;
 
+import dk.trustworks.personalassistant.client.SlackResponseClient;
 import dk.trustworks.personalassistant.dto.nlp.Result;
+import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
 import dk.trustworks.personalassistant.model.ActionType;
 
@@ -26,9 +28,15 @@ public class CommandFactory {
         System.out.println("CommandFactory.executeCommand");
         System.out.println("intentOutcome = [" + intentOutcome + "], slackSlashCommand = [" + slackSlashCommand + "]");
 
+        if(intentOutcome.getSource().trim().equals("domains")) {
+            SlackResponseClient.sendResponse(slackSlashCommand.response_url, new SlackMessage(intentOutcome.getFulfillment().getSpeech(), "in_channel"));
+            return;
+        }
+
         if (commands.containsKey(ActionType.valueOf(intentOutcome.getAction()))) {
             commands.get(ActionType.valueOf(intentOutcome.getAction())).execute(intentOutcome, slackSlashCommand);
         }
+
     }
 
     public void listCommands() {

@@ -97,7 +97,7 @@ public class FileSearchCommand implements Command {
             if(resultList.size()>4) break;
         }
 
-        String[] colors = {"#fcf585", "#fbb14d", "8fa78a", "#007163", "#2c586d"};
+        String[] colors = {"#fcf585", "#fbb14d", "#8fa78a", "#007163", "#2c586d"};
 
         ArrayList<Attachment> attachments = new ArrayList<>();
         for (SearchMatch searchMatch : resultList) {

@@ -29,6 +29,7 @@ public class PhotosCommand implements Command {
         libraries = new HashMap<>();
         libraries.put("costa rica", "/Shared/TrustWorks/Billeder/andet/costa_rica");
         libraries.put("paris", "/Shared/TrustWorks/Billeder/Paris");
+        libraries.put("new york", "/Shared/TrustWorks/Billeder/New York");
     }
 
     @Override

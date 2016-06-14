@@ -93,6 +93,8 @@ public class DropboxAPI {
     }
 
     public byte[] getSpecificFile(String filePath) {
+        System.out.println("DropboxAPI.getSpecificFile");
+        System.out.println("filePath = [" + filePath + "]");
         try {
             DbxUserFilesRequests files = client.asMember("dbmid:AADXwqazXGNcBlqO-nhTZEHxyJNYga2FtLM").files();
             DbxDownloader<FileMetadata> file = files.download(filePath);

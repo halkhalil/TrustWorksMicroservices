@@ -47,7 +47,8 @@ public class TemplateCommand implements Command {
             return;
         }
         String templateType = intentOutcome.getParameters().getAdditionalProperties().get("template-type").toString();
-        String templateSize = (intentOutcome.getParameters().getAdditionalProperties().get("template-size")!=null)?intentOutcome.getParameters().getAdditionalProperties().get("template-size").toString():"Widescreen";
+        Object templateSizeParam = intentOutcome.getParameters().getAdditionalProperties().get("template-size");
+        String templateSize = (templateSizeParam == null||templateSizeParam.toString().equals(""))?"Widescreen":templateSizeParam.toString();
 
         if(templateType.equals("word")) {
             ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+command.user_name, "I am sorry. I don't know where our word templates are located!");
@@ -68,9 +69,9 @@ public class TemplateCommand implements Command {
         textMessage.setAs_user(true);
         webApiClient.postMessage(textMessage);
         */
-        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("Attention. Uploading \"+templateType+\" template - ETA 5 seconds", "ephemeral"));
+        SlackResponseClient.sendResponse(command.response_url, new SlackMessage("Attention. Uploading "+templateType+" template - ETA 5 seconds", "ephemeral"));
 
-        byte[] randomFile = dropboxAPI.getSpecificFile("/Shared/Templates/TW Præsentation/TW_TEMPLATES/"+templateSize+"/TW-"+color+".pptx");
+        byte[] randomFile = dropboxAPI.getSpecificFile("/Shared/Templates/TW Præsentation/TW_TEMPLATES/"+templateSize+"/TW-"+color.toUpperCase()+".pptx");
 
         webApiClient.uploadFile(new ByteArrayInputStream(randomFile), "pptx", "TrustWorks_template_"+color.toLowerCase()+".pptx", "TrustWorks_template_"+color.toLowerCase()+".pptx", "", "@"+command.user_name);
     }
