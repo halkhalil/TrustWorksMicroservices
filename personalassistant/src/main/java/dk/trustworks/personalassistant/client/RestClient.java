@@ -30,8 +30,7 @@ public class RestClient {
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {
-            });
+            List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {});
             return result;
         } catch (UnirestException | IOException e) {
             e.printStackTrace();
@@ -40,6 +39,7 @@ public class RestClient {
     }
 
     public List<User> getUsers() {
+        System.out.println("RestClient.getUsers");
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")

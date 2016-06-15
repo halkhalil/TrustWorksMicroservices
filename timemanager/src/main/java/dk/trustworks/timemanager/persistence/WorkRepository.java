@@ -125,15 +125,15 @@ public class WorkRepository extends GenericRepository {
         log.debug("WorkRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID");
         log.debug("year = [" + year + "], month = [" + month + "], day = [" + day + "]");
         try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+            return getEntitiesFromMapSet(con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
-                    "FROM work WHERE year = :year AND month = :month AND day = :day " +
-                    "GROUP BY day, month, year) ss " +
-                    "ON yt.month = ss.month AND yt.year = ss.year AND yt.day = ss.day AND yt.created = ss.created AND yt.taskuuid = ss.taskuuid AND yt.useruuid = ss.useruuid;")
+                    "FROM work WHERE day = :day AND month = :month AND year = :year " +
+                    "group by day, month, year, taskuuid, useruuid " +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
+                    .addParameter("day", day)
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .addParameter("day", day)
                     .executeAndFetchTable().asList());
         } catch (Exception e) {
             log.error("LOG00660:", e);

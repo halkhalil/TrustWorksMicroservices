@@ -35,6 +35,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("dateTime = " + dateTime);
 
         List<Work> workByYearMonthDay = restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth());
+        System.out.println("workByYearMonthDay.size() = " + workByYearMonthDay.size());
 
         for (User user : restClient.getUsers()) {
             if(!user.getUsername().equals("hans.lassen")) return;
