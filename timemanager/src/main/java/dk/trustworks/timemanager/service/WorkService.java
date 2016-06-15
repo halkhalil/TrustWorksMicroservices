@@ -65,6 +65,13 @@ public class WorkService extends DefaultLocalService {
         return workRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(year, month, day, taskUUID, userUUID);
     }
 
+    public List<Map<String, Object>> findByYearAndMonthAndDay(Map<String, Deque<String>> queryParameters) {
+        int year = Integer.parseInt(queryParameters.get("year").getFirst());
+        int month = Integer.parseInt(queryParameters.get("month").getFirst());
+        int day = Integer.parseInt(queryParameters.get("day").getFirst());
+        return workRepository.findByYearAndMonthAndDay(year, month, day);
+    }
+
     public List<Map<String, Object>> findByYearAndMonthAndTaskUUID(Map<String, Deque<String>> queryParameters) {
         int year = Integer.parseInt(queryParameters.get("year").getFirst());
         int month = Integer.parseInt(queryParameters.get("month").getFirst());

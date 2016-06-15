@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
+import dk.trustworks.personalassistant.jobs.CheckTimeRegistrationJob;
 import dk.trustworks.personalassistant.service.CommandService;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -19,6 +20,7 @@ import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.exec.Exec;
 import org.jooby.json.Jackson;
+import org.jooby.quartz.Quartz;
 import org.jooby.raml.Raml;
 import org.jooby.swagger.SwaggerUI;
 
@@ -52,6 +54,7 @@ public class MotherApplication extends Jooby {
         //use(new Jdbc());
         use(new Jackson());
         use(new Exec());
+        use(new Quartz().with(CheckTimeRegistrationJob.class));
 
         use("/api/commands")
                 .get("/", (req, resp) -> {
@@ -73,13 +76,6 @@ public class MotherApplication extends Jooby {
 
                         executor.execute(() -> new CommandService().create(command));
                         resp.status(200).send(new SlackMessage("in_channel"));
-
-                        /*
-                        if(!command.channel_name.equals("directmessage")) {
-                            resp.status(200).send(new SlackMessage("Some responses ", "ephemeral"));
-                        }
-                        resp.status(200).send(new SlackMessage("in_channel"));
-                        */
                     } finally {
                         context.stop();
                     }

@@ -13,19 +13,11 @@ Hent CV på person
     Hent cv'et i Dropbox.
     Send til Slack
 
-Søg efter et emne i Dropbox
-    Command: Find dokumenter der handler om "målarkitektur"
-    Hent alle filer i dropbox på serveren.
-    Lav en lucene search på filen.
-    Send en liste af dokumenter (med uddrag) i Slack med links til Dropbox.
-
 Send mig en reminder
     Command: Mind mig om at jeg skal ringe til Poul i morgen kl. 10
 
 Oprettelse af nye brugere
 
 Advisering om manglende timeregistrering
-
-Guide til, hvordan man tidsregistrere, hvad gør man under sygdom, etc.
 
 

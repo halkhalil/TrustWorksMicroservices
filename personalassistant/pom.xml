@@ -10,36 +10,49 @@
     <packaging>jar</packaging>
     
     <dependencies>
+        <!-- JOOBY -->
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR4</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-undertow</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR4</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-metrics</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR4</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-swagger</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR4</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-raml</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR4</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-executor</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR4</version>
         </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-quartz</artifactId>
+            <version>1.0.0.CR4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jackson</artifactId>
+            <version>1.0.0.CR4</version>
+        </dependency>
+
+        <!-- METRICS -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
@@ -49,11 +62,6 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-servlets</artifactId>
             <version>3.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-jackson</artifactId>
-            <version>1.0.0.CR3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
