@@ -21,6 +21,7 @@ import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.exec.Exec;
 import org.jooby.json.Jackson;
+import org.jooby.metrics.InstrumentedHandler;
 import org.jooby.metrics.Metrics;
 import org.jooby.quartz.Quartz;
 import org.jooby.raml.Raml;
@@ -57,7 +58,7 @@ public class MotherApplication extends Jooby {
         use(new Jackson());
         use(new Exec());
         use(new Quartz().with(CheckTimeRegistrationJob.class));
-        use(new Metrics().request());
+        use(new Metrics(metricRegistry).request());
 
         use("/api/commands")
                 .get("/", (req, resp) -> {
