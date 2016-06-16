@@ -545,6 +545,19 @@ public class DataAccess implements Serializable {
         return null;
     }
 
+    public JSONObject getMotherServiceMetrics() {
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("motherservice") + "/sys/metrics")
+                    .header("accept", "application/json")
+                    .asJson();
+            return jsonResponse.getBody().getObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public JSONObject getTimeServiceMetrics() {
         try {
             HttpResponse<JsonNode> jsonResponse;

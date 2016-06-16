@@ -32,8 +32,8 @@ public class MicroServicesDesign extends CssLayout {
 	protected CssLayout dashboard_item26;
 	protected CssLayout dashboard_item27;
     protected CssLayout dashboard_item28;
-    /*protected CssLayout dashboard_item29;
-    protected CssLayout dashboard_item30;
+    protected CssLayout dashboard_item29;
+    /*protected CssLayout dashboard_item30;
     protected CssLayout dashboard_item31;
     protected CssLayout dashboard_item32;*/
     protected HorizontalLayout sparkline_horizontal;
@@ -51,7 +51,7 @@ public class MicroServicesDesign extends CssLayout {
     }
 
     private void createGraphs(int year) {
-        WorkRegistrationDelayChart workRegistrationDelayChart = new WorkRegistrationDelayChart(year);
+        //WorkRegistrationDelayChart workRegistrationDelayChart = new WorkRegistrationDelayChart(year);
         //dashboard_item30.removeAllComponents();
         //dashboard_item30.addComponent(workRegistrationDelayChart);
 
@@ -71,15 +71,15 @@ public class MicroServicesDesign extends CssLayout {
         dashboard_item28.removeAllComponents();
         dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
 
-        BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year);
-        //dashboard_item29.removeAllComponents();
-        //dashboard_item29.addComponent(billableHoursPerEmployeesChart);
+        MotherManagerTimersChart motherManagerTimersChart = new MotherManagerTimersChart();
+        dashboard_item29.removeAllComponents();
+        dashboard_item29.addComponent(motherManagerTimersChart);
 
-        RevenueRateChart revenueRateChart = new RevenueRateChart(year);
+        //RevenueRateChart revenueRateChart = new RevenueRateChart(year);
         //dashboard_item31.removeAllComponents();
         //dashboard_item31.addComponent(revenueRateChart);
 
-        ProjectDetailChart projectDetailChart = new ProjectDetailChart();
+        //ProjectDetailChart projectDetailChart = new ProjectDetailChart();
         //dashboard_item32.removeAllComponents();
         //dashboard_item32.addComponent(projectDetailChart);
     }
@@ -275,6 +275,64 @@ public class MicroServicesDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled(false);
 
             JSONObject statisticMetrics = dataAccess.getClientServiceMetrics();
+            DataSeries listSeries = new DataSeries("Response Times");
+
+            DataSeries temperatureErrors = new DataSeries("Timer deviation");
+            //getConfiguration().addSeries(temperatureErrors);
+            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            SolidColor green = new SolidColor("green");
+            tempErrorOptions.setStemColor(green);
+            tempErrorOptions.setWhiskerColor(green);
+            temperatureErrors.setPlotOptions(tempErrorOptions);
+
+            DataSeries hitsSeries = new DataSeries("Hits");
+
+            YAxis yaxis = new YAxis();
+            yaxis.setTitle("Hits");
+            yaxis.setOpposite(true);
+            yaxis.setMin(0);
+            getConfiguration().addyAxis(yaxis);
+
+            PlotOptionsLine options3 = new PlotOptionsLine();
+            options3.setColor(SolidColor.RED);
+            hitsSeries.setPlotOptions(options3);
+
+            for (Object timer : statisticMetrics.getJSONObject("timers").keySet()) {
+                DataSeriesItem item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("mean").toString()));
+                listSeries.add(item);
+                item = new DataSeriesItem();
+                item.setLow(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("min").toString()));
+                item.setHigh(Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("max").toString()));
+                temperatureErrors.add(item);
+                item = new DataSeriesItem(timer.toString(), Double.parseDouble(statisticMetrics.getJSONObject("timers").getJSONObject(timer.toString()).get("count").toString()));
+                hitsSeries.add(item);
+            }
+            getConfiguration().addSeries(listSeries);
+            getConfiguration().addSeries(hitsSeries);
+            hitsSeries.setyAxis(yaxis);
+            //getConfiguration().addSeries(temperatureErrors);
+            Credits c = new Credits("");
+            getConfiguration().setCredits(c);
+        }
+    }
+
+    public class MotherManagerTimersChart extends Chart {
+
+        public MotherManagerTimersChart() {
+            setWidth("100%");  // 100% by default
+            setHeight("430px"); // 400px by default
+            //setSizeFull();
+
+            setCaption("MotherService Response Times");
+            getConfiguration().setTitle("");
+            getConfiguration().getChart().setType(ChartType.COLUMN);
+            getConfiguration().getChart().setAnimation(true);
+            getConfiguration().getxAxis().getLabels().setEnabled(false);
+            getConfiguration().getxAxis().setTickWidth(0);
+            getConfiguration().getyAxis().setTitle("");
+            getConfiguration().getLegend().setEnabled(false);
+
+            JSONObject statisticMetrics = dataAccess.getMotherServiceMetrics();
             DataSeries listSeries = new DataSeries("Response Times");
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");

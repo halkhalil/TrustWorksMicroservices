@@ -57,6 +57,7 @@ public class UserApplication extends Jooby {
 
         use(new Jdbc());
         use(new Jackson());
+        //use(new Metrics().request());
         //SwaggerUI.install(this);
 
 

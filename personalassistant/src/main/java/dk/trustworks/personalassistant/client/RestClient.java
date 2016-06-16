@@ -46,8 +46,7 @@ public class RestClient {
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
-            });
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {});
         } catch (IOException e) {
             e.printStackTrace();
         } catch (UnirestException e) {
