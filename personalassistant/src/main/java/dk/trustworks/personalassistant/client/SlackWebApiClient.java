@@ -11,7 +11,7 @@ import java.io.ByteArrayInputStream;
  */
 public class SlackWebApiClient {
 
-    private final static String token = "xoxb-37490350945-6qMz8NFyXcHTMtPMl8hDpsTE";
+    //private final static String token = "xoxb-37490350945-6qMz8NFyXcHTMtPMl8hDpsTE";
     private final static allbegray.slack.webapi.SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient("xoxb-37490350945-6qMz8NFyXcHTMtPMl8hDpsTE");
 
     public static void sendTextMessage(String from, String message) {

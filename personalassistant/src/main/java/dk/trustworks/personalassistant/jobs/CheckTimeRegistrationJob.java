@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.jooby.quartz.Scheduled;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
 public class CheckTimeRegistrationJob {
 
     private final RestClient restClient = new RestClient();
-    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getenv("SLACK_TOKEN"));
+    private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getenv("HAL_SLACK_TOKEN"));
 
     @Scheduled("0 0 12 * * ?")
     public void checkTimeRegistration() {
@@ -27,24 +28,28 @@ public class CheckTimeRegistrationJob {
         if(dateTime.getDayOfWeek() > 5) return; // do not check in weekends
         System.out.println("This is not in the weekend");
 
-        dateTime = (dateTime.getDayOfWeek() == 2) ? dateTime.minusDays(3) : dateTime.minusDays(1);
+        dateTime = (dateTime.getDayOfWeek() == 1) ? dateTime.minusDays(3) : dateTime.minusDays(2);
         System.out.println("dateTime = " + dateTime);
 
-        List<Work> workByYearMonthDay = restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth());
-        System.out.println("workByYearMonthDay.size() = " + workByYearMonthDay.size());
+        List<Work> allWork = new ArrayList<>();
+        allWork.addAll(restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth()));
+        dateTime = dateTime.plusDays(1);
+        allWork.addAll(restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth()));
+
+        System.out.println("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
             if(user.getAllocation() == 0) continue;
             System.out.println("checking user = " + user);
             boolean hasWork = false;
-            for (Work work : workByYearMonthDay) {
+            for (Work work : allWork) {
                 if(work.getUserUUID().equals(user.getUUID())) hasWork = true;
             }
             System.out.println("hasWork = " + hasWork);
             if(!hasWork) {
                 int levenshsteinScore = 100;
                 allbegray.slack.type.User slackUser = null;
-                for (allbegray.slack.type.User slackUserIteration : webApiClient.getUserList()) {
+                for (allbegray.slack.type.User slackUserIteration : halWebApiClient.getUserList()) {
                     int levenshteinDistance = StringUtils.getLevenshteinDistance(user.getFirstname() + " " + user.getLastname(), slackUserIteration.getProfile().getReal_name());
                     System.out.println("slackUserIteration.getProfile().getReal_name() = " + slackUserIteration.getProfile().getReal_name());
                     System.out.println("levenshteinDistance = " + levenshteinDistance);
@@ -54,15 +59,15 @@ public class CheckTimeRegistrationJob {
                     }
                 }
                 System.out.println("Identified slackUser.getName() = " + slackUser.getName());
-                ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), "Please remember to update your time sheet!");
+                ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), user.getFirstname()+", you haven´t registered your hours, "+user.getFirstname()+"...");
                 textMessage.setAs_user(true);
                 System.out.println("Sending message");
-                webApiClient.postMessage(textMessage);
+                halWebApiClient.postMessage(textMessage);
 
                 ChatPostMessageMethod textMessage2 = new ChatPostMessageMethod("@hans", "Notification sent to: "+user.getUsername()+" at "+slackUser.getName());
                 textMessage2.setAs_user(true);
                 System.out.println("Sending message");
-                webApiClient.postMessage(textMessage2);
+                halWebApiClient.postMessage(textMessage2);
             }
         }
     }
