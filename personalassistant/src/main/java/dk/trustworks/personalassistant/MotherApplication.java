@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import dk.trustworks.personalassistant.dto.slack.SlackMessage;
 import dk.trustworks.personalassistant.dto.slack.SlackSlashCommand;
+import dk.trustworks.personalassistant.jobs.CheckBudgetJob;
 import dk.trustworks.personalassistant.jobs.CheckTimeRegistrationJob;
 import dk.trustworks.personalassistant.service.CommandService;
 import org.apache.curator.framework.CuratorFramework;
