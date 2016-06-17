@@ -107,7 +107,6 @@ public class CheckTimeRegistrationJob {
             double totalBudget = 0.0;
             List<Attachment> attachments = new ArrayList<>();
             for (TaskWorkerConstraintBudget budget : budgets) {
-                //String projectMessage = "";
                 TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(budget.getTaskWorkerConstraintUUID());
                 if(!taskWorkerConstraint.getUserUUID().equals(user.getUUID())) continue;
                 System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
@@ -116,7 +115,6 @@ public class CheckTimeRegistrationJob {
                 Project project = task.getProject();
                 System.out.println("project = " + project);
                 double budgetHours = (budget.getBudget() / taskWorkerConstraint.getPrice());
-                //projectMessage += project.getName()+" / "+task.getName()+" / "+budgetHours+"\n\n";
                 totalBudget += budgetHours;
 
                 Attachment attachment = new Attachment();

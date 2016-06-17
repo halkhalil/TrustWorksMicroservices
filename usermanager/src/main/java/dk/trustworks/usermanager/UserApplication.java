@@ -199,7 +199,7 @@ public class UserApplication extends Jooby {
 
 
         new Raml().install(this);
-        new SwaggerUI().install(this);
+        //new SwaggerUI().install(this);
         /*
         use(new Metrics()
                 .request()
