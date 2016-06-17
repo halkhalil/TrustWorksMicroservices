@@ -122,7 +122,7 @@ public class CheckTimeRegistrationJob {
                 Attachment attachment = new Attachment();
                 attachment.setTitle(project.getName());
                 attachment.setText(task.getName());
-                attachment.addField(new Field("Next Months Budget", (Math.round(budgetHours*100.0)/100.0)+"", true));
+                attachment.addField(new Field("Budget next month", (Math.round(budgetHours*100.0)/100.0)+"", true));
 
                 double workHours = 0.0;
                 for (Work work : thisMonthWork) {
@@ -131,7 +131,7 @@ public class CheckTimeRegistrationJob {
                     }
                 }
 
-                attachment.addField(new Field("This Months Work", workHours+"", true));
+                attachment.addField(new Field("Hours worked this month", workHours+"", true));
 
                 attachments.add(attachment);
             }

@@ -21,3 +21,8 @@ Oprettelse af nye brugere
 Advisering om manglende timeregistrering
 
 
+Statistics
+ - flest slack beskeder
+ - flest nyoprettede filer i dropbox
+ - flest nyoprettede noter i evernote
+ -
