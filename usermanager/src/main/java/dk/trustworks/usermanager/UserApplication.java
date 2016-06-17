@@ -3,14 +3,9 @@ package dk.trustworks.usermanager;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.json.MetricsModule;
-import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.trustworks.usermanager.service.SalaryService;
 import dk.trustworks.usermanager.service.UserService;
-import io.swagger.models.Swagger;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -22,12 +17,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.jooby.Jooby;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
-import org.jooby.metrics.Metrics;
 import org.jooby.raml.Raml;
-import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
-
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
