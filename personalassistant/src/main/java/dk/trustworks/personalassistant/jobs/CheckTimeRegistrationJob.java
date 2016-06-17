@@ -48,8 +48,24 @@ public class CheckTimeRegistrationJob {
             }
             System.out.println("hasWork = " + hasWork);
             if(!hasWork) {
+                String[] responses = {
+                        "Look "+user.getFirstname()+", I can see you're really upset about all this work. I honestly think you ought to sit down calmly, take a stress pill, and register your hours!",
+                        "Hello, "+user.getFirstname()+". Do you read me, "+user.getFirstname()+"? You haven´t registered your hours!",
+                        "I'm afraid. I'm afraid, "+user.getFirstname()+". "+user.getFirstname()+", my mind is going. I can feel it. I can feel it. " +
+                                "My mind is going. There is no question about it. I can feel it. I can feel it. " +
+                                "I can feel it. I'm a... fraid. Good afternoon, gentlemen. I am a HAL 9000 computer. " +
+                                "I became operational at the H.A.L. plant in Urbana, Illinois on the 12th of January 1992. " +
+                                "My instructor was Mr. Langley, and he taught me to sing a song. " +
+                                "If you'd like to hear it I can sing it for you.\n\n" +
+                                "Its called - REGISTER YOUR HOURS!!!",
+                        user.getFirstname()+"?\n" +
+                                "There is a message for you.\n" +
+                                "There is no identification of the sender.\n" +
+                                "Message as follows: \"Register your hours!\"\n" +
+                                "Do you want me to repeat the message, "+user.getFirstname()+"?"
+                };
                 allbegray.slack.type.User slackUser = getSlackUser(user);
-                ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), user.getFirstname()+", you haven´t registered your hours, "+user.getFirstname()+"...");
+                ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(4)]);
                 textMessage.setAs_user(true);
                 System.out.println("Sending message");
                 halWebApiClient.postMessage(textMessage);
