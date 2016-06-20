@@ -80,6 +80,7 @@ public class CheckTimeRegistrationJob {
 
     //0 15 10 ? * 6L
     @Scheduled("0 0 10 ? * 6L")
+    //@Scheduled("5m")
     public void checkBudget() {
         System.out.println("CheckBudgetJob.checkTimeRegistration");
         DateTime dateNextMonth = DateTime.now().plusMonths(1);
@@ -115,10 +116,10 @@ public class CheckTimeRegistrationJob {
             //if(!user.getUsername().equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
-            String message = "*Here is a quick summery of your next month*\n\n" +
-                    "According to my calculations there is "+businessDaysInMonth+" work days in the month.\n\n";
+            String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
+                    "According to my calculations there is "+businessDaysInMonth+" work days in "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+".\n\n";
 
-            message += "You have the following budgets assigned for next month:\n";
+            message += "You have the following tasks assigned in "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+":\n";
 
             double totalBudget = 0.0;
             List<Attachment> attachments = new ArrayList<>();
@@ -136,7 +137,8 @@ public class CheckTimeRegistrationJob {
                 Attachment attachment = new Attachment();
                 attachment.setTitle(project.getName());
                 attachment.setText(task.getName());
-                attachment.addField(new Field("Budget next month", (Math.round(budgetHours*100.0)/100.0)+"", true));
+                attachment.setColor("#fbb14d");
+                attachment.addField(new Field("Budget for "+LocalDate.now().plusMonths(1).monthOfYear().getAsShortText(), (Math.round(budgetHours*100.0)/100.0)+"", true));
 
                 double workHours = 0.0;
                 for (Work work : thisMonthWork) {
@@ -145,7 +147,7 @@ public class CheckTimeRegistrationJob {
                     }
                 }
 
-                attachment.addField(new Field("Hours worked this month", workHours+"", true));
+                attachment.addField(new Field("Hours worked in "+LocalDate.now().monthOfYear().getAsText(), workHours+"", true));
 
                 attachments.add(attachment);
             }

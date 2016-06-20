@@ -71,9 +71,9 @@ public class MicroServicesDesign extends CssLayout {
         dashboard_item28.removeAllComponents();
         dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
 
-        MotherManagerTimersChart motherManagerTimersChart = new MotherManagerTimersChart();
+//        MotherManagerTimersChart motherManagerTimersChart = new MotherManagerTimersChart();
         dashboard_item29.removeAllComponents();
-        dashboard_item29.addComponent(motherManagerTimersChart);
+        //      dashboard_item29.addComponent(motherManagerTimersChart);
 
         //RevenueRateChart revenueRateChart = new RevenueRateChart(year);
         //dashboard_item31.removeAllComponents();
