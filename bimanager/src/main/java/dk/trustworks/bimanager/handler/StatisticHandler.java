@@ -617,7 +617,7 @@ public class StatisticHandler extends DefaultHandler {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
         List<Work> allWork = new ArrayList<>();
-        allWork.addAll(restDelegate.getAllWork(year);
+        allWork.addAll(restDelegate.getAllWork(year));
         if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
