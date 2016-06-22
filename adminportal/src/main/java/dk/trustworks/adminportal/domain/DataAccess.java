@@ -359,11 +359,12 @@ public class DataAccess implements Serializable {
         return null;
     }
 
-    public List<AmountPerItem> getProjectRevenue(int year) {
+    public List<AmountPerItem> getProjectRevenue(int year, boolean fiscal) {
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenueperproject")
                     .queryString("year", year)
+                    .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -374,11 +375,12 @@ public class DataAccess implements Serializable {
         }
     }
 
-    public List<AmountPerItem> getUserRevenue(int year) {
+    public List<AmountPerItem> getUserRevenue(int year, boolean fiscal) {
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenueperuser")
                     .queryString("year", year)
+                    .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();

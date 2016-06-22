@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact name="usermanager:GWT">
-    <output-path>$PROJECT_DIR$/usermanager/target/classes/VAADIN/widgetsets</output-path>
-    <root id="root">
-      <element id="gwt-compiler-output" facet="usermanager/gwt/GWT" />
-    </root>
-  </artifact>
-</component>

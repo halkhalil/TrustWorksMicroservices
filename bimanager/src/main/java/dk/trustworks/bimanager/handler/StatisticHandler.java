@@ -532,7 +532,10 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
         List<Work> allWork = restDelegate.getAllWork(year);
+        if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
+
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
         Map<String, User> userMap = restDelegate.getAllUsersMap();
 
@@ -540,6 +543,12 @@ public class StatisticHandler extends DefaultHandler {
         List<AmountPerItem> listOfUsers = new ArrayList<>();
 
         for (Work work : allWork) {
+            if(fiscal) {
+                if(
+                        (work.getYear() == year && work.getMonth() > 5) ||
+                        (work.getYear() == year-1 && work.getMonth() < 6))
+                    continue;
+            }
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
@@ -605,13 +614,21 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperproject(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
         List<Work> allWork = restDelegate.getAllWork(year);
+        if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
 
         Map<String, Double> revenuePerProject = new HashMap<>();
         List<AmountPerItem> listOfProjects = new ArrayList<>();
 
         for (Work work : allWork) {
+            if(fiscal) {
+                if(
+                        (work.getYear() == year && work.getMonth() > 5) ||
+                                (work.getYear() == year-1 && work.getMonth() < 6))
+                    continue;
+            }
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             Project project = restDelegate.findProjectByTask(restDelegate.getAllProjects(), work.getTaskUUID());

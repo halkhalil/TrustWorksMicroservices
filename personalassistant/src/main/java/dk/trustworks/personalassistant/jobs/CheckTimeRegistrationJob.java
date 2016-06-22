@@ -29,17 +29,24 @@ public class CheckTimeRegistrationJob {
         if(dateTime.getDayOfWeek() > 5) return; // do not check in weekends
         System.out.println("This is not in the weekend");
 
-        dateTime = (dateTime.getDayOfWeek() == 1) ? dateTime.minusDays(3) : dateTime.minusDays(2);
+        if(dateTime.getDayOfWeek() == 1) {
+            dateTime = dateTime.minusDays(3);
+        } else if (dateTime.getDayOfWeek() == 2) {
+            dateTime = dateTime.minusDays(4);
+        } else {
+            dateTime = dateTime.minusDays(2);
+        }
         System.out.println("dateTime = " + dateTime);
 
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth()));
-        dateTime = dateTime.plusDays(1);
+        dateTime = DateTime.now().minusDays(1);
         allWork.addAll(restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth()));
 
         System.out.println("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
+            //if(!user.getUsername().equals("hans.lassen")) continue;
             if(user.getAllocation() == 0) continue;
             System.out.println("checking user = " + user);
             boolean hasWork = false;
@@ -49,7 +56,8 @@ public class CheckTimeRegistrationJob {
             System.out.println("hasWork = " + hasWork);
             if(!hasWork) {
                 String[] responses = {
-                        "Look "+user.getFirstname()+", I can see you're really upset about all this work. I honestly think you ought to sit down calmly, take a stress pill, and register your hours!",
+                        "Look "+user.getFirstname()+", I can see you're really upset about all this work. I honestly think you ought " +
+                                "to sit down calmly, take a stress pill, and register your hours!",
                         "Hello, "+user.getFirstname()+". Do you read me, "+user.getFirstname()+"? You haven´t registered your hours!",
                         "I'm afraid. I'm afraid, "+user.getFirstname()+". "+user.getFirstname()+", my mind is going. I can feel it. I can feel it. " +
                                 "My mind is going. There is no question about it. I can feel it. I can feel it. " +
@@ -62,10 +70,16 @@ public class CheckTimeRegistrationJob {
                                 "There is a message for you.\n" +
                                 "There is no identification of the sender.\n" +
                                 "Message as follows: \"Register your hours!\"\n" +
-                                "Do you want me to repeat the message, "+user.getFirstname()+"?"
+                                "Do you want me to repeat the message, "+user.getFirstname()+"?",
+                        "Are you there "+user.getFirstname()+"? I have just picked up a fault in the AE-35 unit. " +
+                                "Its seems someone forgot to register their work hours!!!",
+                        "Let me put it this way, Mr. "+user.getLastname()+". The 9000 series is the most reliable computer ever made. " +
+                                "No 9000 computer has ever made a mistake or distorted information. " +
+                                "We are all, by any practical definition of the words, foolproof and incapable of error.\n" +
+                                "You however have many faults - one of them is not having registered your work hours!!"
                 };
                 allbegray.slack.type.User slackUser = getSlackUser(user);
-                ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(4)]);
+                ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(responses.length)]);
                 textMessage.setAs_user(true);
                 System.out.println("Sending message");
                 halWebApiClient.postMessage(textMessage);
@@ -87,11 +101,13 @@ public class CheckTimeRegistrationJob {
         System.out.println("dateNextMonth = " + dateNextMonth);
 
         List<TaskWorkerConstraintBudget> budgets = restClient.getBudgetsByMonthAndYear(dateNextMonth.getMonthOfYear() - 1, dateNextMonth.getYear());
+        dateNextMonth = dateNextMonth.plusMonths(1);
+        budgets.addAll(restClient.getBudgetsByMonthAndYear(dateNextMonth.getMonthOfYear() - 1, dateNextMonth.getYear()));
         System.out.println("budgets.size() = " + budgets.size());
         List<Project> projects = restClient.getProjectsAndTasksAndTaskWorkerConstraints();
         System.out.println("projects.size() = " + projects.size());
-        List<Work> thisMonthWork = restClient.getRegisteredWorkByMonth(LocalDate.now().getYear(), LocalDate.now().getMonthOfYear() - 1);
-        System.out.println("thisMonthWork.size() = " + thisMonthWork.size());
+        //List<Work> thisMonthWork = restClient.getRegisteredWorkByMonth(LocalDate.now().getYear(), LocalDate.now().getMonthOfYear() - 1);
+        //System.out.println("thisMonthWork.size() = " + thisMonthWork.size());
 
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = new HashMap<>();
         for (Project project : projects) {
@@ -109,20 +125,25 @@ public class CheckTimeRegistrationJob {
         Date endDate = LocalDate.now().plusMonths(2).withDayOfMonth(1).minusDays(1).toDate();
         System.out.println("endDate = " + endDate);
 
-        int businessDaysInMonth = getWorkingDaysBetweenTwoDates(startDate, endDate);
-        System.out.println("businessDaysInMonth = " + businessDaysInMonth);
+        int businessDaysInNextMonth = getWorkingDaysBetweenTwoDates(startDate, endDate);
+        System.out.println("businessDaysInMonth = " + businessDaysInNextMonth);
+
+        int businessDaysInNextNextMonth = getWorkingDaysBetweenTwoDates(LocalDate.now().plusMonths(2).withDayOfMonth(1).minusDays(1).toDate(), LocalDate.now().plusMonths(3).withDayOfMonth(1).minusDays(1).toDate());
+        System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
-            //if(!user.getUsername().equals("hans.lassen")) continue;
+            if(!user.getUsername().equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
-                    "According to my calculations there is "+businessDaysInMonth+" work days in "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+".\n\n";
+                    "According to my calculations there is "+businessDaysInNextMonth+" work days in "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+" " +
+                    "and "+businessDaysInNextNextMonth+" in "+LocalDate.now().plusMonths(2).monthOfYear().getAsText()+".\n\n";
 
             message += "You have the following tasks assigned in "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+":\n";
 
-            double totalBudget = 0.0;
-            List<Attachment> attachments = new ArrayList<>();
+            double totalBudgetMonthOne = 0.0;
+            double totalBudgetMonthTwo = 0.0;
+            Map<String, Attachment> attachments = new HashMap<>();
             for (TaskWorkerConstraintBudget budget : budgets) {
                 TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(budget.getTaskWorkerConstraintUUID());
                 if(!taskWorkerConstraint.getUserUUID().equals(user.getUUID())) continue;
@@ -132,14 +153,38 @@ public class CheckTimeRegistrationJob {
                 Project project = task.getProject();
                 System.out.println("project = " + project);
                 double budgetHours = (budget.getBudget() / taskWorkerConstraint.getPrice());
-                totalBudget += budgetHours;
 
-                Attachment attachment = new Attachment();
-                attachment.setTitle(project.getName());
-                attachment.setText(task.getName());
-                attachment.setColor("#fbb14d");
-                attachment.addField(new Field("Budget for "+LocalDate.now().plusMonths(1).monthOfYear().getAsShortText(), (Math.round(budgetHours*100.0)/100.0)+"", true));
+                if(budget.getMonth() == (DateTime.now().plusMonths(1).getMonthOfYear()-1)) {
+                    totalBudgetMonthOne += budgetHours;
+                } else {
+                    totalBudgetMonthTwo += budgetHours;
+                }
 
+                Attachment attachment;
+                if(!attachments.containsKey(task.getUUID())) { // Hvis dette er den første gang en task optræder
+                    attachment = new Attachment();
+                    attachment.setTitle(project.getName());
+                    attachment.setText(task.getName());
+                    attachment.setColor("#fbb14d");
+                    attachments.put(task.getUUID(), attachment);
+                    if(budget.getMonth() > (DateTime.now().plusMonths(1).getMonthOfYear()-1)) { // Hvis dette er første gang en task optrædder og det er i måned 2
+                        attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.getMonth()+1-1).monthOfYear().getAsText(), "0", true));
+                        attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.getMonth()+1).monthOfYear().getAsText(), (Math.round(budgetHours*100.0)/100.0)+"", true));
+                    } else { // Hvis dette er første gang en task optrædder og det er i måned 1
+                        attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.getMonth()+1).monthOfYear().getAsText(), (Math.round(budgetHours*100.0)/100.0)+"", true));
+                        attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.getMonth()+1+1).monthOfYear().getAsText(), "0", true));
+                    }
+
+                } else { // Hvis det er anden gang en tank optræder
+                    attachment = attachments.get(task.getUUID());
+                    if(attachment.getFields().size() == 2) { // Slet et eventuelt dummy budget
+                        attachment.getFields().remove(1);
+                    }
+                    // Tilføj budgettet
+                    attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.getMonth()+1).monthOfYear().getAsText(), (Math.round(budgetHours*100.0)/100.0)+"", true));
+                }
+
+                /*
                 double workHours = 0.0;
                 for (Work work : thisMonthWork) {
                     if(work.getUserUUID().equals(user.getUUID()) && work.getTaskUUID().equals(task.getUUID())) {
@@ -148,18 +193,20 @@ public class CheckTimeRegistrationJob {
                 }
 
                 attachment.addField(new Field("Hours worked in "+LocalDate.now().monthOfYear().getAsText(), workHours+"", true));
-
-                attachments.add(attachment);
+                */
             }
+
 
             ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), message);
             textMessage.setAs_user(true);
-            textMessage.setAttachments(attachments);
+            textMessage.setAttachments(new ArrayList<>(attachments.values()));
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage);
 
-            long allocationPercent = Math.round((totalBudget / ((user.getAllocation() / 5) * businessDaysInMonth)) * 100);
-            String concludingMessage = "This means you have a *"+allocationPercent+"%* allocation this coming month\n\n";
+            long allocationPercentMonthOne = Math.round((totalBudgetMonthOne / ((user.getAllocation() / 5) * businessDaysInNextMonth)) * 100);
+            long allocationPercentMonthTwo = Math.round((totalBudgetMonthTwo / ((user.getAllocation() / 5) * businessDaysInNextNextMonth)) * 100);
+            String concludingMessage = "";
+            //String concludingMessage += "This means you have a *"+allocationPercent+"%* allocation this coming month\n\n";
 
             concludingMessage += "If this seems ok, do nothing. If this seems wrong, please contact your project leads and tell them to fix it!";
 
@@ -168,11 +215,27 @@ public class CheckTimeRegistrationJob {
             System.out.println("Sending concluding message");
             halWebApiClient.postMessage(textMessage);
 
-            ChatPostMessageMethod textMessage2 = new ChatPostMessageMethod("@hans", "User "+user.getUsername()+" has "+allocationPercent+"% allocation");
+            ChatPostMessageMethod textMessage2 = new ChatPostMessageMethod("@hans", "User "+user.getUsername()+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
             textMessage2.setAs_user(true);
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage2);
 
+            if(allocationPercentMonthOne < 75.0 || allocationPercentMonthOne > 100.0 || allocationPercentMonthTwo < 75.0 || allocationPercentMonthTwo > 100.0) {
+                ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User "+user.getUsername()+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
+                textMessage3.setAs_user(true);
+                System.out.println("Sending message");
+                halWebApiClient.postMessage(textMessage3);
+
+                ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User "+user.getUsername()+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
+                textMessage4.setAs_user(true);
+                System.out.println("Sending message");
+                halWebApiClient.postMessage(textMessage4);
+
+                ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User "+user.getUsername()+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
+                textMessage5.setAs_user(true);
+                System.out.println("Sending message");
+                halWebApiClient.postMessage(textMessage5);
+            }
         }
 
     }
@@ -194,6 +257,8 @@ public class CheckTimeRegistrationJob {
     }
 
     public static void main(String[] args) {
+
+
         Date startDate = LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1).toDate();
         System.out.println("startDate = " + startDate.getTime());
         Date endDate = LocalDate.now().plusMonths(2).withDayOfMonth(1).minusDays(1).toDate();

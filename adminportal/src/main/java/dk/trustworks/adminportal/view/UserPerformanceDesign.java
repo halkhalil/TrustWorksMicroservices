@@ -25,8 +25,7 @@ import java.util.Calendar;
 @SuppressWarnings("serial")
 public class UserPerformanceDesign extends CssLayout {
     private final DataAccess dataAccess = new DataAccess();
-    protected Label billing_header_label;
-	protected CssLayout dashboard_item5;
+    protected CssLayout dashboard_item5;
 	protected CssLayout dashboard_item26;
 	protected CssLayout dashboard_item27;
     protected CssLayout dashboard_item28;
@@ -188,7 +187,7 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> amountPerItemList = dataAccess.getProjectRevenue(year);
+            List<AmountPerItem> amountPerItemList = dataAccess.getProjectRevenue(year, false);
             Collections.sort(amountPerItemList);
             String[] categories = new String[amountPerItemList.size()];
             DataSeries listSeries = new DataSeries("Revenue");

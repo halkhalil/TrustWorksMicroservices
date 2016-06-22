@@ -105,7 +105,7 @@ public class MicroServicesDesign extends CssLayout {
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
             //getConfiguration().addSeries(temperatureErrors);
-            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            PlotOptionsErrorbar tempErrorOptions = new PlotOptionsErrorbar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
             tempErrorOptions.setWhiskerColor(green);
@@ -163,7 +163,7 @@ public class MicroServicesDesign extends CssLayout {
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
             //getConfiguration().addSeries(temperatureErrors);
-            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            PlotOptionsErrorbar tempErrorOptions = new PlotOptionsErrorbar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
             tempErrorOptions.setWhiskerColor(green);
@@ -221,7 +221,7 @@ public class MicroServicesDesign extends CssLayout {
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
             //getConfiguration().addSeries(temperatureErrors);
-            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            PlotOptionsErrorbar tempErrorOptions = new PlotOptionsErrorbar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
             tempErrorOptions.setWhiskerColor(green);
@@ -279,7 +279,7 @@ public class MicroServicesDesign extends CssLayout {
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
             //getConfiguration().addSeries(temperatureErrors);
-            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            PlotOptionsErrorbar tempErrorOptions = new PlotOptionsErrorbar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
             tempErrorOptions.setWhiskerColor(green);
@@ -337,7 +337,7 @@ public class MicroServicesDesign extends CssLayout {
 
             DataSeries temperatureErrors = new DataSeries("Timer deviation");
             //getConfiguration().addSeries(temperatureErrors);
-            PlotOptionsErrorBar tempErrorOptions = new PlotOptionsErrorBar();
+            PlotOptionsErrorbar tempErrorOptions = new PlotOptionsErrorbar();
             SolidColor green = new SolidColor("green");
             tempErrorOptions.setStemColor(green);
             tempErrorOptions.setWhiskerColor(green);

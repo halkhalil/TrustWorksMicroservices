@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="invoiceportal:war">
-    <output-path>$PROJECT_DIR$/invoiceportal/target</output-path>
-    <root id="archive" name="invoiceportal-1.0-SNAPSHOT.war">
-      <element id="artifact" artifact-name="invoiceportal:war exploded" />
-    </root>
-  </artifact>
-</component>
