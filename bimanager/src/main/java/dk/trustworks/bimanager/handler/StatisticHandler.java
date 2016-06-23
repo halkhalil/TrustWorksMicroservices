@@ -198,7 +198,12 @@ public class StatisticHandler extends DefaultHandler {
 
     public void billablehourspercentageperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = restDelegate.getAllWork(year);
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+
+        List<Work> allWork = new ArrayList<>();
+        allWork.addAll(restDelegate.getAllWork(year));
+        if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
+
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
         Map<String, User> users = restDelegate.getAllUsersMap();
 
@@ -206,6 +211,13 @@ public class StatisticHandler extends DefaultHandler {
         Map<String, Double> userWorkHours = new HashMap<>();
 
         for (Work work : allWork) {
+            if(fiscal) {
+                if(
+                        (work.getYear() == year && work.getMonth() > 5) ||
+                                (work.getYear() == year-1 && work.getMonth() < 6))
+                    continue;
+            }
+
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
             if(taskWorkerConstraint==null || taskWorkerConstraint.getPrice() <= 0.0) continue;
             if(!userWorkHours.containsKey(work.getUserUUID())) userWorkHours.put(work.getUserUUID(), 0.0);
@@ -533,6 +545,7 @@ public class StatisticHandler extends DefaultHandler {
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restDelegate.getAllWork(year));
         if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
@@ -550,6 +563,7 @@ public class StatisticHandler extends DefaultHandler {
                         (work.getYear() == year-1 && work.getMonth() < 6))
                     continue;
             }
+
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             if (!revenuePerUser.containsKey(work.getUserUUID())) revenuePerUser.put(work.getUserUUID(), 0.0);
@@ -570,7 +584,12 @@ public class StatisticHandler extends DefaultHandler {
 
     public void billablehoursperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        List<Work> allWork = restDelegate.getAllWork(year);
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+
+        List<Work> allWork = new ArrayList<>();
+        allWork.addAll(restDelegate.getAllWork(year));
+        if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
+
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
         Map<String, User> userMap = restDelegate.getAllUsersMap();
 
@@ -579,6 +598,13 @@ public class StatisticHandler extends DefaultHandler {
         System.out.println("55567dc6-f7d4-4fd5-8240-96787e492818");
         Map<String, Double> bill = new HashMap<>();
         for (Work work : allWork) {
+            if(fiscal) {
+                if(
+                        (work.getYear() == year && work.getMonth() > 5) ||
+                        (work.getYear() == year-1 && work.getMonth() < 6))
+                    continue;
+            }
+
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID() + work.getTaskUUID());
             if (taskWorkerConstraint == null) continue;
             if (taskWorkerConstraint.getPrice() <= 0) continue;

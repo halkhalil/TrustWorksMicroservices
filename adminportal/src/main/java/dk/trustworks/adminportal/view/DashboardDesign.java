@@ -13,6 +13,7 @@ import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.User;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.text.DateFormatSymbols;
 import java.time.Month;
@@ -415,11 +416,29 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled(false);
 
             Long[] revenuePerMonth = dataAccess.getRevenuePerMonthByCapacity(year);
+            Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonthByCapacity(year-1);
+
+            for (int i = 0; i < 6; i++) {
+                revenuePerMonth[i+6] = revenuePerMonth[i];
+            }
+            for (int i = 0; i < 6; i++) {
+                revenuePerMonth[i] = revenuePerMonthPrevYear[i+6];
+            }
+
             double sumRevenue = 0.0;
             for (Long amountPerItem : revenuePerMonth) {
                 sumRevenue += amountPerItem;
             }
-            double avgRevenue = sumRevenue / new DateTime().getMonthOfYear();
+            double avgRevenue;
+            if(year == LocalDate.now().getYear() && LocalDate.now().getMonthOfYear() >= 7) {
+                avgRevenue = sumRevenue / LocalDate.now().getMonthOfYear() - 6;
+                System.out.println("LocalDate.now().getMonthOfYear() - 6  " + (LocalDate.now().getMonthOfYear() - 6));
+            } else if (year == LocalDate.now().getYear() && LocalDate.now().getMonthOfYear() < 7) {
+                avgRevenue = sumRevenue / LocalDate.now().getMonthOfYear() + 6;
+                System.out.println("LocalDate.now().getMonthOfYear() + 6 = " + (LocalDate.now().getMonthOfYear() + 6));
+            } else {
+                avgRevenue = sumRevenue / 12;
+            }
 
             DataSeries avgRevenueList = new DataSeries("Average Revenue");
             PlotOptionsLine options2 = new PlotOptionsLine();
@@ -428,6 +447,14 @@ public class DashboardDesign extends CssLayout {
             avgRevenueList.setPlotOptions(options2);
 
             Long[] allExpenses = dataAccess.getExpensesByCapacityByYear(year);
+            Long[] allExpensesPrevYear = dataAccess.getExpensesByCapacityByYear(year-1);
+
+            for (int i = 0; i < 6; i++) {
+                allExpenses[i+6] = allExpenses[i];
+            }
+            for (int i = 0; i < 6; i++) {
+                allExpenses[i] = allExpensesPrevYear[i+6];
+            }
 
             DataSeries expensesList = new DataSeries("Expenses");
             PlotOptionsAreaspline options3 = new PlotOptionsAreaspline();
@@ -435,14 +462,29 @@ public class DashboardDesign extends CssLayout {
             options3.setMarker(new Marker(false));
             expensesList.setPlotOptions(options3);
 
+            String[] categories = new String[12];
+            int month = 7;
             DataSeries revenueSeries = new DataSeries("Revenue");
             for (int i = 0; i < 12; i++) {
-                revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
+                revenueSeries.add(new DataSeriesItem(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
                 avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));// for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), avgRevenue));
-                expensesList.add(new DataSeriesItem("Expense for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i]));
+                expensesList.add(new DataSeriesItem("Expense for "+Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i]));
+
+                categories[i] = Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+                month++;
+                if(month>12) month = 1;
             }
 
             int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
+            int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+
+            for (int i = 0; i < 6; i++) {
+                capacityPerMonthByYear[i+6] = capacityPerMonthByYear[i];
+            }
+            for (int i = 0; i < 6; i++) {
+                capacityPerMonthByYear[i] = capacityPerMonthByYearPrevYear[i+6];
+            }
+
             ListSeries capacityList = new ListSeries("Capacity");
 
             YAxis yaxis = new YAxis();
@@ -460,10 +502,11 @@ public class DashboardDesign extends CssLayout {
                 capacityList.addData(capacityPerMonthByYear[i]/37.0f);
             }
 
+            getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueSeries);
             getConfiguration().addSeries(expensesList);
             getConfiguration().addSeries(capacityList);
-            getConfiguration().addSeries(avgRevenueList);
+            //getConfiguration().addSeries(avgRevenueList);
             capacityList.setyAxis(yaxis);
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
@@ -487,8 +530,8 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> billableHoursPerUserList = dataAccess.getBillableHoursPerUser(year);
-            List<AmountPerItem> billableHoursPercentagePerUserList = dataAccess.getBillableHoursPercentagePerUser(year);
+            List<AmountPerItem> billableHoursPerUserList = dataAccess.getBillableHoursPerUser(year, true);
+            List<AmountPerItem> billableHoursPercentagePerUserList = dataAccess.getBillableHoursPercentagePerUser(year, true);
 /*
             Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year);
 
