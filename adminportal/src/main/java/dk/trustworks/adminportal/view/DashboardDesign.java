@@ -643,8 +643,20 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled(false);
 
             Map<String, double[]> userSalaryPerMonthByYear = dataAccess.getUserSalaryPerMonthByYear(year);
+            Map<String, double[]> userSalaryPerMonthByYearPrevYear = dataAccess.getUserSalaryPerMonthByYear(year-1);
+
             Long[] expensesByYear = dataAccess.getExpensesByCapacityByYearExceptSalary(year);
+            Long[] expensesByYearPrevYear = dataAccess.getExpensesByCapacityByYearExceptSalary(year-1);
+            for (int i = 0; i < 6; i++) {
+                expensesByYear[i+6] = expensesByYear[i];
+            }
+            for (int i = 0; i < 6; i++) {
+                expensesByYear[i] = expensesByYearPrevYear[i+6];
+            }
+
             Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year);
+            Map<String, int[]> userAvailabilityPerMonthByYearPrevYear = dataAccess.getUserAvailabilityPerMonthByYear(year-1);
+
             int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
 
             Map<String, User> userMap = new HashMap<>();
@@ -657,6 +669,19 @@ public class DashboardDesign extends CssLayout {
             List<String> cats = new ArrayList<>();
 
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
+                for (int i = 0; i < 6; i++) {
+                    userSalaryPerMonthByYear.get(userUUID)[i+6] = userSalaryPerMonthByYear.get(userUUID)[i];
+                }
+                for (int i = 0; i < 6; i++) {
+                    userSalaryPerMonthByYear.get(userUUID)[i] = userSalaryPerMonthByYearPrevYear.get(userUUID)[i+6];
+                }
+                for (int i = 0; i < 6; i++) {
+                    userAvailabilityPerMonthByYear.get(userUUID)[i+6] = userAvailabilityPerMonthByYear.get(userUUID)[i];
+                }
+                for (int i = 0; i < 6; i++) {
+                    userAvailabilityPerMonthByYear.get(userUUID)[i] = userAvailabilityPerMonthByYearPrevYear.get(userUUID)[i+6];
+                }
+
                 boolean debug = false;
                 if(userUUID.equals("7948c5e8-162c-4053-b905-0f59a21d7746")) debug = true;
                 if(debug) System.out.println("Hans...");

@@ -238,10 +238,31 @@ public class StatisticHandler extends DefaultHandler {
             }
             System.out.println();
 
-            if(year==dt.getYear())
-                avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), dt.monthOfYear().get());
-            else
-                avgCapacityPerUser = average(restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), 12);
+            if(year==dt.getYear()) {
+                int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
+                if(fiscal) {
+                    int[] capacityPerMonthByYearByUserPrevYear = restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID);
+                    for (int i = 0; i < 6; i++) {
+                        capacityPerMonthByYearByUser[i + 6] = capacityPerMonthByYearByUser[i];
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        capacityPerMonthByYearByUser[i] = capacityPerMonthByYearByUserPrevYear[i + 6];
+                    }
+                }
+                avgCapacityPerUser = average(capacityPerMonthByYearByUser, (dt.monthOfYear().get()>6)?dt.monthOfYear().get()-6:dt.monthOfYear().get()+6);
+            } else {
+                int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
+                if(fiscal) {
+                    int[] capacityPerMonthByYearByUserPrevYear = restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID);
+                    for (int i = 0; i < 6; i++) {
+                        capacityPerMonthByYearByUser[i + 6] = capacityPerMonthByYearByUser[i];
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        capacityPerMonthByYearByUser[i] = capacityPerMonthByYearByUserPrevYear[i + 6];
+                    }
+                }
+                avgCapacityPerUser = average(capacityPerMonthByYearByUser, 12);
+            }
             double avgCapacityPerUserPerDay = avgCapacityPerUser / 5.0;
             double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
 
@@ -249,13 +270,9 @@ public class StatisticHandler extends DefaultHandler {
             System.out.println("userWorkHours = " + userWorkHours.get(userUUID));
             double billableHoursPercentage = (userWorkHours.get(userUUID) / workableHoursInYearToDate) * 100.0;
             listOfUsers.add(new AmountPerItem(userUUID, users.get(userUUID).getFirstname() + " " + users.get(userUUID).getLastname(), billableHoursPercentage));
-            //userWorkHours.put(userUUID, billableHoursPercentage);
         }
         System.out.println("\n --- \n");
-        //Map<String, Object> result = new HashMap<>();
-        //result.put("revenuepermonth", revenuepermonth);
         try {
-            //exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfUsers));
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfUsers));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
