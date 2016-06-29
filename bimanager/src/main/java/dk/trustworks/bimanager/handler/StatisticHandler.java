@@ -250,6 +250,7 @@ public class StatisticHandler extends DefaultHandler {
                     }
                 }
                 avgCapacityPerUser = average(capacityPerMonthByYearByUser, (dt.monthOfYear().get()>6)?dt.monthOfYear().get()-6:dt.monthOfYear().get()+6);
+                System.out.println("dt.monthOfYear().get()+6 = " + ((dt.monthOfYear().get()>6)?dt.monthOfYear().get()-6:dt.monthOfYear().get()+6));
             } else {
                 int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
                 if(fiscal) {

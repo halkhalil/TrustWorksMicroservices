@@ -76,7 +76,20 @@
     <orderEntry type="library" name="Maven: net.objectlab.kit:datecalc-joda:1.4.0" level="project" />
     <orderEntry type="library" name="Maven: com.dropbox.core:dropbox-core-sdk:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.evernote:evernote-api:1.25.1" level="project" />
-    <orderEntry type="library" name="Maven: com.github.allbegray:slack-api:v1.2.1.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.github.allbegray:slack-api:v1.3.0.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:async-http-client:2.0.5" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.0.36.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.36.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.36.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.36.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver-dns:2.0.5" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver:2.0.5" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.36.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:netty-codec-dns:2.0.5" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.0.36.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.netty:netty-reactive-streams:1.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.20.0-GA" level="project" />
     <orderEntry type="library" name="Maven: com.mashape.unirest:unirest-java:1.4.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpasyncclient:4.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore-nio:4.4.4" level="project" />

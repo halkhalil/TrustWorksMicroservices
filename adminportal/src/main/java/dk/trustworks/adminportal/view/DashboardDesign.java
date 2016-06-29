@@ -669,6 +669,7 @@ public class DashboardDesign extends CssLayout {
             List<String> cats = new ArrayList<>();
 
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
+                /*
                 for (int i = 0; i < 6; i++) {
                     userSalaryPerMonthByYear.get(userUUID)[i+6] = userSalaryPerMonthByYear.get(userUUID)[i];
                 }
@@ -680,7 +681,7 @@ public class DashboardDesign extends CssLayout {
                 }
                 for (int i = 0; i < 6; i++) {
                     userAvailabilityPerMonthByYear.get(userUUID)[i] = userAvailabilityPerMonthByYearPrevYear.get(userUUID)[i+6];
-                }
+                }*/
 
                 boolean debug = false;
                 if(userUUID.equals("7948c5e8-162c-4053-b905-0f59a21d7746")) debug = true;

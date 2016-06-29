@@ -93,7 +93,7 @@ public class CheckTimeRegistrationJob {
     }
 
     //0 15 10 ? * 6L
-    @Scheduled("0 0 10 ? * 6L")
+    @Scheduled("0 0 9 ? * 6L")
     //@Scheduled("5m")
     public void checkBudget() {
         System.out.println("CheckBudgetJob.checkTimeRegistration");
@@ -132,7 +132,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
-            if(!user.getUsername().equals("hans.lassen")) continue;
+            //if(!user.getUsername().equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
