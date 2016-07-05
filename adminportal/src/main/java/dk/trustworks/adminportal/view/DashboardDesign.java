@@ -61,20 +61,25 @@ public class DashboardDesign extends CssLayout {
         for (int i=0; i<intArray.length; ++i)
             intArray[i] = revenuePerDay[i].intValue();
 
-        createGraphs(Calendar.getInstance().get(Calendar.YEAR));
-
         if(intArray.length>0) sparkline_horizontal.addComponent(new SparklineChart("income per day", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
         //sparkline_horizontal.addComponent(new SparklineChart("income per day 2", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
 
         NativeSelect year_select;
         year_select = new NativeSelect("");
-        for (int i = 2014; i < Calendar.getInstance().get(Calendar.YEAR); i++) {
+        LocalDate localDate = LocalDate.now();
+        for (int i = 2014; i < localDate.getYear(); i++) {
             year_select.addItem(""+i);
         }
 
-        String currentYear = ""+Calendar.getInstance().get(Calendar.YEAR);
+        String currentYear = ""+localDate.getYear();
         year_select.addItem(currentYear);
         year_select.setValue(currentYear);
+        if(localDate.getMonthOfYear()>6) {
+            year_select.addItem(""+(localDate.getYear()+1));
+            year_select.setValue(""+(localDate.getYear()+1));
+        }
+
+        createGraphs(Integer.parseInt((String)year_select.getValue()));
 
         year_select.addValueChangeListener((Property.ValueChangeListener) e -> {
             Notification.show("Selected: ",
