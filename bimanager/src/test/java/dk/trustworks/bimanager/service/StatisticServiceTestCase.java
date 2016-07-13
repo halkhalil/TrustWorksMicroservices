@@ -40,7 +40,7 @@ public class StatisticServiceTestCase {
     @Test
     public void testIt() {
 
-        int year = 2016;
+        int year = 2017;
         boolean fiscal = true;
 
         String user1UUID = UUID.randomUUID().toString();
@@ -117,7 +117,7 @@ public class StatisticServiceTestCase {
         allWorkThisYear.add(work38);
 
 
-        Work work61 = new Work(UUID.randomUUID().toString(), 10, 6, 2016, 138, user1UUID, task1UUID, new Date());
+        Work work61 = new Work(UUID.randomUUID().toString(), 10, 6, 2016, 52, user1UUID, task1UUID, new Date());
         //Work work62 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 138, user3UUID, task1UUID, new Date());
         //Work work63 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
         //Work work64 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());

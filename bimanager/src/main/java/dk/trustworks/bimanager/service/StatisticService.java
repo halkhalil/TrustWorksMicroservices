@@ -79,8 +79,8 @@ public class StatisticService extends DefaultLocalService {
             System.out.println();
 
             //if(year==dt.getYear()) {
-            System.out.println("Months.monthsIn(fiscalPeriod).getMonths() = " + Months.monthsIn(fiscalPeriod).getMonths());
-                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod).getMonths());
+            System.out.println("Months.monthsIn(fiscalPeriod).getMonths() = " + Months.monthsIn(fiscalPeriod.withEnd(fiscalPeriod.getEnd().withDayOfMonth(fiscalPeriod.getEnd().dayOfMonth().getMaximumValue()))).getMonths());
+                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod.withEnd(fiscalPeriod.getEnd().withDayOfMonth(fiscalPeriod.getEnd().dayOfMonth().getMaximumValue()))).getMonths());
             /*} else {
                 avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod).getMonths());
             }*/
@@ -107,14 +107,14 @@ public class StatisticService extends DefaultLocalService {
             DateTime endDate = new DateTime(year, 6, 30, 0, 0);
             System.out.println("endDate = " + endDate);
             fiscalPeriod = new Interval(startDate.withTimeAtStartOfDay(), endDate.withTimeAtStartOfDay());
-            fiscalPeriod = (fiscalPeriod.containsNow())?fiscalPeriod.withEnd(DateTime.now().withDayOfMonth(DateTime.now().dayOfMonth().getMaximumValue()).withTimeAtStartOfDay()):fiscalPeriod;
+            fiscalPeriod = (fiscalPeriod.containsNow())?fiscalPeriod.withEnd(DateTime.now().withTimeAtStartOfDay()):fiscalPeriod;
         } else {
             DateTime startDate = new DateTime(year - 1, 12, 31, 0, 0);
             System.out.println("startDate = " + startDate);
             DateTime endDate = new DateTime(year, 12, 31, 0, 0);
             System.out.println("endDate = " + endDate);
             fiscalPeriod = new Interval(startDate.withTimeAtStartOfDay(), endDate.withTimeAtStartOfDay());
-            fiscalPeriod = (fiscalPeriod.containsNow())?fiscalPeriod.withEnd(DateTime.now().withDayOfMonth(DateTime.now().dayOfMonth().getMaximumValue()).withTimeAtStartOfDay()):fiscalPeriod;
+            fiscalPeriod = (fiscalPeriod.containsNow())?fiscalPeriod.withEnd(DateTime.now().withTimeAtStartOfDay()):fiscalPeriod;
         }
         System.out.println("fiscalPeriod = " + fiscalPeriod);
         return fiscalPeriod;
