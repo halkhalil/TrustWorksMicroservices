@@ -56,7 +56,15 @@ public class StatisticServiceTestCase {
         userMap.put(user1.getUUID(), user1);
         userMap.put(user2.getUUID(), user2);
         userMap.put(user3.getUUID(), user3);
+/*
+        int[] user1CapacityThisYear = {160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160};
+        int[] user2CapacityThisYear = {160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160};
+        int[] user3CapacityThisYear = {160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160};
 
+        int[] user1CapacityPrevYear = {160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160};
+        int[] user2CapacityPrevYear = {160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160};
+        int[] user3CapacityPrevYear = {160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160};
+*/
         int[] user1CapacityThisYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
         int[] user2CapacityThisYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
         int[] user3CapacityThisYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
@@ -64,6 +72,7 @@ public class StatisticServiceTestCase {
         int[] user1CapacityPrevYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
         int[] user2CapacityPrevYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
         int[] user3CapacityPrevYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
+
 /*
         int[] user1CapacityThisYear = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
         int[] user2CapacityThisYear = {37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37};
@@ -106,6 +115,13 @@ public class StatisticServiceTestCase {
         allWorkThisYear.add(work36);
         allWorkThisYear.add(work37);
         allWorkThisYear.add(work38);
+
+
+        Work work61 = new Work(UUID.randomUUID().toString(), 10, 6, 2016, 138, user1UUID, task1UUID, new Date());
+        //Work work62 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 138, user3UUID, task1UUID, new Date());
+        //Work work63 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
+        //Work work64 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
+        allWorkThisYear.add(work61);
 
         List<Work> allWorkLastYear = new ArrayList<>();
         Work work7 = new Work(UUID.randomUUID().toString(), 15, 6, 2015, 138, user1UUID, task1UUID, new Date());

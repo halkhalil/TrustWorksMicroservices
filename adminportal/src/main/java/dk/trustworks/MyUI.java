@@ -5,24 +5,17 @@ import com.ejt.vaadin.loginform.LoginForm;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.server.*;
+import com.vaadin.server.SessionInitListener;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import dk.trustworks.adminportal.server.VaadinBootstrapListener;
 import dk.trustworks.adminportal.view.MenuDesign;
-import dk.trustworks.framework.persistence.Helper;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryNTimes;
-import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.UriSpec;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 @Theme("usermanagement")
 @Widgetset("dk.trustworks.MyAppWidgetset")
@@ -36,8 +29,8 @@ public class MyUI extends UI {
         } else {
             DefaultVerticalLoginForm loginForm = new DefaultVerticalLoginForm();
             loginForm.addLoginListener((LoginForm.LoginListener) event -> {
-                if(event.getUserName().equals("admin") && event.getPassword().equals("volenti")) {
-                    setContent(new MenuDesign());
+                if (event.getUserName().equals("admin") && event.getPassword().equals("volenti")) {
+                    MyUI.this.setContent(new MenuDesign());
                 }
                 System.err.println(
                         "Logged in with user name " + event.getUserName() +

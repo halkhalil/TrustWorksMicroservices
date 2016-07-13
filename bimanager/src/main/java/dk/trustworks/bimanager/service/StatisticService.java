@@ -33,6 +33,8 @@ public class StatisticService extends DefaultLocalService {
     }
 
     public List<AmountPerItem> billablehourspercentageperuser(int year, boolean fiscal) {
+        Interval fiscalPeriod = getFiscalPeriod(year, fiscal);
+
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restDelegate.getAllWork(year));
         if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
@@ -44,73 +46,44 @@ public class StatisticService extends DefaultLocalService {
         Map<String, Double> userWorkHours = new HashMap<>();
 
         for (Work work : allWork) {
+            DateTime workDate = new DateTime(work.getYear(), work.getMonth() + 1, work.getDay(), 10, 10);
+            if(!fiscalPeriod.contains(workDate)) continue;
+            /*
             if(fiscal) {
                 if((work.getYear() == year && work.getMonth() > 5) || (work.getYear() == year-1 && work.getMonth() < 6)) {
                     continue;
                 }
             }
-
+            */
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
             if(taskWorkerConstraint==null || taskWorkerConstraint.getPrice() <= 0.0) continue;
             if(!userWorkHours.containsKey(work.getUserUUID())) userWorkHours.put(work.getUserUUID(), 0.0);
             userWorkHours.put(work.getUserUUID(), userWorkHours.get(work.getUserUUID())+work.getWorkDuration());
         }
 
-        DateTime dt = new DateTime();
-        /*
-        if(!fiscal && year != new DateTime().getYear()) dt = new DateTime(year, 12, 31, 23, 59);
-        if(fiscal && year != new DateTime().getYear()) dt = new DateTime(year, 6, 30, 23, 59);
-        double dayOfYear = dt.getDayOfYear();
-        LocalDate ld;
-        ld = (fiscal)?new LocalDate(year-1,6,1, GJChronology.getInstance()):new LocalDate(year,1,1, GJChronology.getInstance());
-        */
-        Interval fiscalPeriod = getFiscalPeriod(year, fiscal);
-        //double daysInYear = Days.daysBetween(ld,ld.plusYears(1)).getDays();
-        double daysInYear = Days.daysIn(fiscalPeriod).getDays();// fiscalPeriod.getDays();//Days.daysBetween(ld,ld.plusYears(1)).getDays();
+        double daysInYear = Days.daysIn(fiscalPeriod).getDays();
         System.out.println("daysInYear = " + daysInYear);
         double workDays = 224.0;
-        double workDaysInYearToDate = (workDays / daysInYear) * daysInYear;//dayOfYear;
+        double workDaysInYearToDate = (workDays / 365) * daysInYear;//dayOfYear;
         System.out.println("workDaysInYearToDate = " + workDaysInYearToDate);
         for (String userUUID : userWorkHours.keySet()) {
             System.out.println("user = " + users.get(userUUID).getUsername());
             double avgCapacityPerUser;
 
-            if(year==dt.getYear()) {
-                int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
-                if(fiscal) {
-                    int[] capacityPerMonthByYearByUserPrevYear = restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID);
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i + 6] = capacityPerMonthByYearByUser[i];
-                    }
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i] = capacityPerMonthByYearByUserPrevYear[i + 6];
-                    }
-                }
+            int[] capacityPerMonthByYearByUser = gatherFiscalPeriodData(restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID), restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), fiscal);
 
-                System.out.print("capacityPerMonthByYearByUser: ");
-                for (int i : capacityPerMonthByYearByUser) {
-                    System.out.print(i + ", ");
-                }
-                System.out.println();
-                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, (dt.monthOfYear().get()>6)?dt.monthOfYear().get()-6:dt.monthOfYear().get()+6);
-            } else {
-                int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
-                if(fiscal) {
-                    int[] capacityPerMonthByYearByUserPrevYear = restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID);
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i + 6] = capacityPerMonthByYearByUser[i];
-                    }
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i] = capacityPerMonthByYearByUserPrevYear[i + 6];
-                    }
-                }
-                System.out.print("capacityPerMonthByYearByUser: ");
-                for (int i : capacityPerMonthByYearByUser) {
-                    System.out.print(i + ", ");
-                }
-                System.out.println();
-                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, 12);
+            System.out.print("capacityPerMonthByYearByUser: ");
+            for (int i : capacityPerMonthByYearByUser) {
+                System.out.print(i + ", ");
             }
+            System.out.println();
+
+            //if(year==dt.getYear()) {
+            System.out.println("Months.monthsIn(fiscalPeriod).getMonths() = " + Months.monthsIn(fiscalPeriod).getMonths());
+                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod).getMonths());
+            /*} else {
+                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod).getMonths());
+            }*/
             System.out.println("avgCapacityPerUser = " + avgCapacityPerUser);
             double avgCapacityPerUserPerDay = avgCapacityPerUser / 5.0;
             System.out.println("avgCapacityPerUserPerDay = " + avgCapacityPerUserPerDay);
@@ -127,21 +100,37 @@ public class StatisticService extends DefaultLocalService {
     }
 
     private Interval getFiscalPeriod(int year, boolean fiscal) {
-        LocalDate today = LocalDate.now();
         Interval fiscalPeriod;
-        if(year == today.getYear()) {
-            DateTime startDate = new DateTime(year-1, 12, 31, 0, 0);
-            DateTime endDate = DateTime.now();
-            fiscalPeriod = (fiscal)?new Interval(startDate.minusMonths(6).withTimeAtStartOfDay(), endDate.minusMonths(6).withTimeAtStartOfDay()) :
-                    new Interval(startDate.minusMonths(6).withTimeAtStartOfDay(), endDate.minusMonths(6).withTimeAtStartOfDay());
+        if(fiscal) {
+            DateTime startDate = new DateTime(year - 1, 6, 30, 0, 0);
+            System.out.println("startDate = " + startDate);
+            DateTime endDate = new DateTime(year, 6, 30, 0, 0);
+            System.out.println("endDate = " + endDate);
+            fiscalPeriod = new Interval(startDate.withTimeAtStartOfDay(), endDate.withTimeAtStartOfDay());
+            fiscalPeriod = (fiscalPeriod.containsNow())?fiscalPeriod.withEnd(DateTime.now().withDayOfMonth(DateTime.now().dayOfMonth().getMaximumValue()).withTimeAtStartOfDay()):fiscalPeriod;
         } else {
-            DateTime startDate = new DateTime(year-1, 12, 31, 0, 0);
+            DateTime startDate = new DateTime(year - 1, 12, 31, 0, 0);
+            System.out.println("startDate = " + startDate);
             DateTime endDate = new DateTime(year, 12, 31, 0, 0);
-            fiscalPeriod = (fiscal)?new Interval(startDate.minusMonths(6).withTimeAtStartOfDay(), endDate.minusMonths(6).withTimeAtStartOfDay()) :
-                    new Interval(startDate.minusMonths(6).withTimeAtStartOfDay(), endDate.minusMonths(6).withTimeAtStartOfDay());
+            System.out.println("endDate = " + endDate);
+            fiscalPeriod = new Interval(startDate.withTimeAtStartOfDay(), endDate.withTimeAtStartOfDay());
+            fiscalPeriod = (fiscalPeriod.containsNow())?fiscalPeriod.withEnd(DateTime.now().withDayOfMonth(DateTime.now().dayOfMonth().getMaximumValue()).withTimeAtStartOfDay()):fiscalPeriod;
         }
         System.out.println("fiscalPeriod = " + fiscalPeriod);
         return fiscalPeriod;
+    }
+
+    private int[] gatherFiscalPeriodData(int[] startPeriod, int[] endPeriod, boolean fiscal) {
+        if(fiscal) {
+            for (int i = 0; i < 6; i++) {
+                endPeriod[i + 6] = endPeriod[i];
+            }
+            for (int i = 0; i < 6; i++) {
+                endPeriod[i] = startPeriod[i + 6];
+            }
+            return endPeriod;
+        }
+        return endPeriod;
     }
 
     @Override
