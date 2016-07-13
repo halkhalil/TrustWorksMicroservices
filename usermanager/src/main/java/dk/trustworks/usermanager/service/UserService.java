@@ -76,14 +76,26 @@ public class UserService {
         return result;
     }
 
-    public Map<String, int[]> useravailabilitypermonthbyyear(int year) {
+    public Map<String, int[]> useravailabilitypermonthbyyear(int year, boolean fiscal) {
         Map<String, int[]> result = new HashMap<>();
+
+        int month = 1;
+        if(fiscal) {
+            month = 7;
+            year--;
+        }
         for (int i = 0; i < 12; i++) {
-            DateTime dateTime = new DateTime(year, i+1, 1, 0, 0);
+            DateTime dateTime = new DateTime(year, month, 1, 0, 0);
             List<String> activeUsers = userRepository.getAvailabilityByMonth(dateTime);
             for (String activeUser : activeUsers) {
                 result.putIfAbsent(activeUser, new int[12]);
                 result.get(activeUser)[i] = 1;
+            }
+
+            month++;
+            if(month>12) {
+                month = 1;
+                year++;
             }
         }
         return result;

@@ -301,10 +301,11 @@ public class DataAccess implements Serializable {
         return null;
     }
 
-    public Map<String, int[]> getUserAvailabilityPerMonthByYear(int year) {
+    public Map<String, int[]> getUserAvailabilityPerMonthByYear(int year, boolean fiscal) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/useravailabilitypermonthbyyear")
                     .queryString("year", year)
+                    .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -321,10 +322,11 @@ public class DataAccess implements Serializable {
 
 
 
-    public Map<String, double[]> getUserSalaryPerMonthByYear(int year) {
+    public Map<String, double[]> getUserSalaryPerMonthByYear(int year, boolean fiscal) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/salaries/command/usersalarypermonthbyyear")
                     .queryString("year", year)
+                    .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();

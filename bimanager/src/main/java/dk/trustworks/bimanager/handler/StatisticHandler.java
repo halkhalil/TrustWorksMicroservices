@@ -2,12 +2,11 @@ package dk.trustworks.bimanager.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.cache.Cache;
-import dk.trustworks.bimanager.caches.CacheHandler;
 import dk.trustworks.bimanager.client.RestClient;
 import dk.trustworks.bimanager.client.RestDelegate;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.bimanager.service.StatisticService;
+import dk.trustworks.bimanager.utils.ArrayUtils;
 import dk.trustworks.framework.server.DefaultHandler;
 import dk.trustworks.framework.service.DefaultLocalService;
 import io.undertow.server.HttpServerExchange;
@@ -17,7 +16,6 @@ import org.joda.time.*;
 import org.joda.time.chrono.GJChronology;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by hans on 16/03/15.
@@ -200,81 +198,8 @@ public class StatisticHandler extends DefaultHandler {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
         boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
 
-        List<Work> allWork = new ArrayList<>();
-        allWork.addAll(restDelegate.getAllWork(year));
-        if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));
-
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
-        Map<String, User> users = restDelegate.getAllUsersMap();
-
-        List<AmountPerItem> listOfUsers = new ArrayList<>();
-        Map<String, Double> userWorkHours = new HashMap<>();
-
-        for (Work work : allWork) {
-            if(fiscal) {
-                if(
-                        (work.getYear() == year && work.getMonth() > 5) ||
-                                (work.getYear() == year-1 && work.getMonth() < 6))
-                    continue;
-            }
-
-            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
-            if(taskWorkerConstraint==null || taskWorkerConstraint.getPrice() <= 0.0) continue;
-            if(!userWorkHours.containsKey(work.getUserUUID())) userWorkHours.put(work.getUserUUID(), 0.0);
-            userWorkHours.put(work.getUserUUID(), userWorkHours.get(work.getUserUUID())+work.getWorkDuration());
-        }
-        DateTime dt = new DateTime();
-        if(year != new DateTime().getYear()) dt = new DateTime(year, 12, 31, 23, 59);
-        double dayOfYear = dt.getDayOfYear();
-        LocalDate ld = new LocalDate(year,1,1, GJChronology.getInstance());
-        double daysInYear = Days.daysBetween(ld,ld.plusYears(1)).getDays();
-        double workDays = 224.0;
-        double workDaysInYearToDate = (workDays / daysInYear) * dayOfYear;
-        for (String userUUID : userWorkHours.keySet()) {
-            System.out.println("user = " + users.get(userUUID).getUsername());
-            double avgCapacityPerUser = 0.0;
-            for (int i : restDelegate.getCapacityPerMonthByYearByUser(year, userUUID)) {
-                System.out.print(i + ", ");
-            }
-            System.out.println();
-
-            if(year==dt.getYear()) {
-                int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
-                if(fiscal) {
-                    int[] capacityPerMonthByYearByUserPrevYear = restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID);
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i + 6] = capacityPerMonthByYearByUser[i];
-                    }
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i] = capacityPerMonthByYearByUserPrevYear[i + 6];
-                    }
-                }
-                avgCapacityPerUser = average(capacityPerMonthByYearByUser, (dt.monthOfYear().get()>6)?dt.monthOfYear().get()-6:dt.monthOfYear().get()+6);
-                System.out.println("dt.monthOfYear().get()+6 = " + ((dt.monthOfYear().get()>6)?dt.monthOfYear().get()-6:dt.monthOfYear().get()+6));
-            } else {
-                int[] capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(year, userUUID);
-                if(fiscal) {
-                    int[] capacityPerMonthByYearByUserPrevYear = restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID);
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i + 6] = capacityPerMonthByYearByUser[i];
-                    }
-                    for (int i = 0; i < 6; i++) {
-                        capacityPerMonthByYearByUser[i] = capacityPerMonthByYearByUserPrevYear[i + 6];
-                    }
-                }
-                avgCapacityPerUser = average(capacityPerMonthByYearByUser, 12);
-            }
-            double avgCapacityPerUserPerDay = avgCapacityPerUser / 5.0;
-            double workableHoursInYearToDate = workDaysInYearToDate * avgCapacityPerUserPerDay;
-
-            System.out.println("workableHoursInYearToDate = " + workableHoursInYearToDate);
-            System.out.println("userWorkHours = " + userWorkHours.get(userUUID));
-            double billableHoursPercentage = (userWorkHours.get(userUUID) / workableHoursInYearToDate) * 100.0;
-            listOfUsers.add(new AmountPerItem(userUUID, users.get(userUUID).getFirstname() + " " + users.get(userUUID).getLastname(), billableHoursPercentage));
-        }
-        System.out.println("\n --- \n");
         try {
-            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(listOfUsers));
+            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(statisticService.billablehourspercentageperuser(year, fiscal)));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -298,7 +223,7 @@ public class StatisticHandler extends DefaultHandler {
         int[] cap = {0,0,0,0,0,0,0,37,37,37,37,37};
         //int[] cap = {37,37,37,37,37,37,37,37,37,37,37,37};
         System.out.println("dt.monthOfYear().get() = " + dt.monthOfYear().get());
-        double average = average(cap, 12);
+        double average = ArrayUtils.average(cap, 12);
         System.out.println("average = " + average);
         double avgCapacityPerUserPerDay = average / 5.0;
         System.out.println("avgCapacityPerUserPerDay = " + avgCapacityPerUserPerDay);
@@ -309,23 +234,6 @@ public class StatisticHandler extends DefaultHandler {
         System.out.println("billableHoursPercentage = " + billableHoursPercentage);
 
         //userWorkHours.put(userUUID, userWorkHours.get(userUUID) );
-    }
-
-    private static double average(int[] array, int length) {
-        // 'average' is undefined if there are no elements in the list.
-        System.out.println("array.length = " + array.length);
-        System.out.println("array == null = " + array == null);
-        if (array == null || array.length == 0)
-            return 0.0;
-        // Calculate the summation of the elements in the list
-        long sum = 0;
-        int n = length;
-        // Iterating manually is faster than using an enhanced for loop.
-        for (int i = 0; i < n; i++)
-            sum += array[i];
-        // We don't want to perform an integer division, so the cast is mandatory.
-        System.out.println("((double) sum) / n = " + ((double) sum) / n);
-        return ((double) sum) / n;
     }
 
     public void revenuepermonthbycapacity(HttpServerExchange exchange, String[] params) {
@@ -760,25 +668,6 @@ public class StatisticHandler extends DefaultHandler {
             e.printStackTrace();
         }
     }
-
-    class AmountPerItem {
-        public String uuid;
-        public String description;
-        public double amount;
-
-        public AmountPerItem() {
-        }
-
-        public AmountPerItem(String uuid, String description, double amount) {
-            this.uuid = uuid;
-            this.description = description;
-            this.amount = amount;
-        }
-    }
-
-
-
-
 
     @Override
     protected DefaultLocalService getService() {

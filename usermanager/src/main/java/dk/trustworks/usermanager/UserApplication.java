@@ -148,8 +148,10 @@ public class UserApplication extends Jooby {
                 final Timer.Context context = timer.time();
                 try {
                     int year = req.param("year").intValue();
+                    boolean fiscal = false;
+                    if(req.param("fiscal")!=null) fiscal = Boolean.parseBoolean(req.param("fiscal").value());
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new UserService(db).useravailabilitypermonthbyyear(year));
+                    resp.send(new UserService(db).useravailabilitypermonthbyyear(year, fiscal));
                 } finally {
                     context.stop();
                 }
@@ -175,8 +177,10 @@ public class UserApplication extends Jooby {
                 final Timer.Context context = timer.time();
                 try {
                     int year = req.param("year").intValue();
+                    boolean fiscal = false;
+                    if(req.param("fiscal")!=null) fiscal = Boolean.parseBoolean(req.param("fiscal").value());
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new SalaryService(db).usersalarypermonthbyyear(year));
+                    resp.send(new SalaryService(db).usersalarypermonthbyyear(year, fiscal));
                 } finally {
                     context.stop();
                 }

@@ -12,7 +12,6 @@
       <module fileurl="file://$PROJECT_DIR$/timemanager/timemanager.iml" filepath="$PROJECT_DIR$/timemanager/timemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/trustworks-framework/trustworks-framework.iml" filepath="$PROJECT_DIR$/trustworks-framework/trustworks-framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/usermanager/usermanager.iml" filepath="$PROJECT_DIR$/usermanager/usermanager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/userservice/userservice.iml" filepath="$PROJECT_DIR$/userservice/userservice.iml" />
     </modules>
   </component>
 </project>

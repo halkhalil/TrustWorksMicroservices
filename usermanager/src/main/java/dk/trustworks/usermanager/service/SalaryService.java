@@ -26,14 +26,25 @@ public class SalaryService {
         return salaryRepository.findActiveByDate(date);
     }
 
-    public Map<String, double[]> usersalarypermonthbyyear(int year) {
+    public Map<String, double[]> usersalarypermonthbyyear(int year, boolean fiscal) {
         Map<String, double[]> result = new HashMap<>();
+        int month = 1;
+        if(fiscal) {
+            month = 7;
+            year--;
+        }
         for (int i = 0; i < 12; i++) {
-            DateTime date = new DateTime(year, i+1, 1, 0, 0);
+            DateTime date = new DateTime(year, month, 1, 0, 0);
             List<Salary> activeUsers = salaryRepository.findActiveByDate(date);
             for (Salary activeUser : activeUsers) {
                 result.putIfAbsent(activeUser.getUseruuid(), new double[12]);
                 result.get(activeUser.getUseruuid())[i] = Double.parseDouble(activeUser.getSalary().toString());
+            }
+
+            month++;
+            if(month>12) {
+                month = 1;
+                year++;
             }
         }
 
