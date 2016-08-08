@@ -26,8 +26,8 @@ public class Locator {
     private Map<String, ServiceProvider> serviceProviders = new HashMap<>();
 
     private Locator() {
-        String zkHost = System.getenv("ZK_SERVER_HOST");
-        if(zkHost == null) zkHost = System.getProperty("ZK_SERVER_HOST");
+        String zkHost = System.getenv("zookeeper.host");
+        if(zkHost == null) zkHost = System.getProperty("zookeeper.host");
         System.out.println("zkHost = " + zkHost);
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zkHost+":2181", new RetryNTimes(5, 1000));
         curatorFramework.start();

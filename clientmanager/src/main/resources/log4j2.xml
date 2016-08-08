@@ -16,7 +16,7 @@
             <AppenderRef ref="MyFile"/>
         </Logger>
         <Logger name="dk.trustworks" level="debug" additivity="false">
-            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="Console"/>
         </Logger>
         <Root level="debug">
             <AppenderRef ref="MyFile"/>
