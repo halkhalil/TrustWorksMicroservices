@@ -8,7 +8,7 @@
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
         </File>
         <Async name="Async">
-            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="Console"/>
         </Async>
     </Appenders>
     <Loggers>
