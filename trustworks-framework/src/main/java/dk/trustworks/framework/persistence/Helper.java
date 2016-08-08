@@ -22,9 +22,9 @@ public final class Helper {
 
     private Helper() {
         DataSource mysql = Helper.newDataSource(
-                System.getenv("DATABASE_URI"),
-                System.getenv("DATABASE_USER"),
-                System.getenv("DATABASE_PASS"));
+                System.getProperty("db.url"),
+                System.getProperty("db.user"),
+                System.getenv("db.password"));
         sql2o = new Sql2o(mysql);
     }
 

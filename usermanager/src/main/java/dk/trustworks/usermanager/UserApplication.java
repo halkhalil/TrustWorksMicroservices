@@ -57,7 +57,7 @@ public class UserApplication extends Jooby {
          *
          * Everything about your users.
          */
-        use("/api/users")
+        use("*/api/users")
             .get("/", (req, resp) -> {
                 final Timer timer = metricRegistry.timer(name("user", "all", "response"));
                 final Timer.Context context = timer.time();
