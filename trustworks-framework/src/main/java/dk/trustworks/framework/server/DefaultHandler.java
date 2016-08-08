@@ -49,7 +49,9 @@ public abstract class DefaultHandler implements HttpHandler {
             return;
         }
         ThreadContext.push(UUID.randomUUID().toString());
-
+        System.out.println("exchange.getRequestURI() = " + exchange.getRequestURI());
+        System.out.println("exchange.getRequestURL() = " + exchange.getRequestURL());
+        System.out.println("entity = " + entity);
         logger.debug("handleRequest: " + entity);
 
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
