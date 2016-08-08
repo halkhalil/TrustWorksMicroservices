@@ -38,6 +38,9 @@ public class ServiceApplication {
     }
 
     public ServiceApplication() throws Exception {
+        System.out.println("System.getenv(\"APISERVICE_PORT\") = " + System.getenv("APISERVICE_PORT"));
+        System.out.println("System.getProperty(\"APISERVICE_PORT\") = " + System.getProperty("APISERVICE_PORT"));
+
         System.setProperty("application.port", System.getenv("APISERVICE_PORT"));
         System.setProperty("application.host", System.getenv("APPLICATION_URL"));
 
