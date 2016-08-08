@@ -38,6 +38,11 @@ public class ServiceApplication {
     }
 
     public ServiceApplication() throws Exception {
+        System.out.println("System.getProperty(\"application.port\") = " + System.getProperty("application.port"));
+        System.out.println("System.getProperty(\"application.host\") = " + System.getProperty("application.host"));
+        System.out.println("System.getProperty(\"zookeeper.host\") = " + System.getProperty("zookeeper.host"));
+
+
         ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
         ClientProxyZookeeper clientManagerProxy = new ClientProxyZookeeper("clientservice");
         ClientProxyZookeeper timeManagerProxy = new ClientProxyZookeeper("timeservice");
