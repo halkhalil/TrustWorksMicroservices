@@ -42,7 +42,7 @@ public class ClientProxyZookeeper implements ProxyClient {
     public ClientProxyZookeeper(String service) {
         client = UndertowClient.getInstance();
         try {
-            CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(System.getenv("ZK_SERVER_HOST")+":2181", new RetryNTimes(5, 1000)); //ip-172-31-20-150.eu-central-1.compute.internal
+            CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(System.getenv("zookeeper.host")+":2181", new RetryNTimes(5, 1000)); //ip-172-31-20-150.eu-central-1.compute.internal
             curatorFramework.start();
 
 

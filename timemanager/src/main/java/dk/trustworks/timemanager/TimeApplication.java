@@ -48,7 +48,7 @@ public class TimeApplication extends BaseApplication {
         serviceRegistry.registerService("clientuuid", new ClientService());
 
         Undertow.builder()
-                .addHttpListener(Integer.parseInt(System.getenv("TIMESERVICE_PORT")), System.getenv("APPLICATION_HOST"))
+                .addHttpListener(Integer.parseInt(System.getProperty("application.port")), System.getProperty("application.host"))
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setSocketOption(Options.BACKLOG, 10000)
@@ -64,6 +64,6 @@ public class TimeApplication extends BaseApplication {
                 .build()
                 .start();
 
-        registerInZookeeper("timeservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("TIMESERVICE_PORT")));
+        registerInZookeeper("timeservice", System.getProperty("zookeeper.host"), System.getProperty("application.host"), Integer.parseInt(System.getProperty("application.port")));
     }
 }

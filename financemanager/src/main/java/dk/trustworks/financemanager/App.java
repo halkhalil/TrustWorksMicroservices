@@ -30,17 +30,17 @@ import java.util.Properties;
 public class App extends Jooby {
     {
         try {
-            registerInZookeeper("financeservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("FINANCESERVICE_PORT")));
+            registerInZookeeper("financeservice", System.getProperty("zookeeper.host"), System.getProperty("application.host"), Integer.parseInt(System.getProperty("application.port")));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+/*
         System.setProperty("db.url", System.getenv("DATABASE_URI"));
         System.setProperty("db.user", System.getenv("DATABASE_USER"));
         System.setProperty("db.password", System.getenv("DATABASE_PASS"));
         System.setProperty("application.port", System.getenv("FINANCESERVICE_PORT"));
         System.setProperty("application.host", System.getenv("APPLICATION_URL"));
-
+*/
         use(new Jdbc());
         use(new Jackson());
         assets("/**");
