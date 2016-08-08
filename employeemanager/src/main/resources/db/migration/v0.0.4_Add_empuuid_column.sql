@@ -1,0 +1,1 @@
+ALTER TABLE employees.contracts ADD empuuid VARCHAR(40) NOT NULL;

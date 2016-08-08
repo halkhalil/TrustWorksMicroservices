@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/bimanager/bimanager.iml" filepath="$PROJECT_DIR$/bimanager/bimanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/clientmanager/clientmanager.iml" filepath="$PROJECT_DIR$/clientmanager/clientmanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/cronmanager/cronmanager.iml" filepath="$PROJECT_DIR$/cronmanager/cronmanager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/employeemanager/employeemanager.iml" filepath="$PROJECT_DIR$/employeemanager/employeemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/financemanager/financemanager.iml" filepath="$PROJECT_DIR$/financemanager/financemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/personalassistant/personalassistant.iml" filepath="$PROJECT_DIR$/personalassistant/personalassistant.iml" />
       <module fileurl="file://$PROJECT_DIR$/servicemanager/servicemanager.iml" filepath="$PROJECT_DIR$/servicemanager/servicemanager.iml" />

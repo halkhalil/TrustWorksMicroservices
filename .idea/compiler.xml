@@ -26,6 +26,7 @@
         <module name="bimanager" />
         <module name="clientmanager" />
         <module name="cronmanager" />
+        <module name="employeemanager" />
         <module name="financemanager" />
         <module name="personalassistant" />
         <module name="servicemanager" />
@@ -35,20 +36,17 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="adminportal" target="1.8" />
-      <module name="bimanager" target="1.8" />
-      <module name="clientmanager" target="1.8" />
-      <module name="cronmanager" target="1.8" />
-      <module name="financemanager" target="1.8" />
-      <module name="invoicemanager" target="1.8" />
-      <module name="invoiceportal" target="1.8" />
-      <module name="personalassistant" target="1.8" />
-      <module name="servicemanager" target="1.8" />
-      <module name="timemanager" target="1.8" />
-      <module name="trustworks-framework" target="1.8" />
-      <module name="usermanager" target="1.8" />
-      <module name="userservice" target="1.7" />
-      <module name="webadmin" target="1.8" />
+      <module name="adminportal" target="1.5" />
+      <module name="bimanager" target="1.5" />
+      <module name="clientmanager" target="1.5" />
+      <module name="cronmanager" target="1.5" />
+      <module name="employeemanager" target="1.8" />
+      <module name="financemanager" target="1.5" />
+      <module name="personalassistant" target="1.5" />
+      <module name="servicemanager" target="1.5" />
+      <module name="timemanager" target="1.5" />
+      <module name="trustworks-framework" target="1.5" />
+      <module name="usermanager" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
