@@ -24,7 +24,7 @@ public final class Helper {
         DataSource mysql = Helper.newDataSource(
                 System.getProperty("db.url"),
                 System.getProperty("db.user"),
-                System.getenv("db.password"));
+                System.getProperty("db.password"));
         sql2o = new Sql2o(mysql);
     }
 
