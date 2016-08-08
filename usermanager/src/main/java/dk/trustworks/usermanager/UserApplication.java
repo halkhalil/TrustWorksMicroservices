@@ -36,7 +36,7 @@ public class UserApplication extends Jooby {
         this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));
 
         try {
-            registerInZookeeper("userservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
+            registerInZookeeper("userservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("USERSERVICE_PORT")));
         } catch (Exception e) {
             e.printStackTrace();
         }

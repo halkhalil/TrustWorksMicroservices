@@ -45,12 +45,12 @@ public class MotherApplication extends Jooby {
         this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));
 
         try {
-            registerInZookeeper("motherservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
+            registerInZookeeper("motherservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("MOTHERSERVICE_PORT")));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        System.setProperty("application.port", System.getenv("PORT"));
+        System.setProperty("application.port", System.getenv("MOTHERSERVICE_PORT"));
         System.setProperty("application.host", System.getenv("APPLICATION_URL"));
         System.setProperty("slack.token", System.getenv("SLACK_TOKEN"));
 

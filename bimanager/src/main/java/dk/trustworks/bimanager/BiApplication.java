@@ -65,7 +65,7 @@ public class BiApplication extends BaseApplication {
         DeploymentManager manager = getMetricsDeploymentManager();
 
         Undertow.builder()
-                .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_HOST"))
+                .addHttpListener(Integer.parseInt(System.getenv("BISERVICE_PORT")), System.getenv("APPLICATION_HOST"))
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setSocketOption(Options.BACKLOG, 10000)
@@ -82,7 +82,7 @@ public class BiApplication extends BaseApplication {
                 .build()
                 .start();
 
-        registerInZookeeper("biservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("ZK_APPLICATION_PORT")));
+        registerInZookeeper("biservice", System.getenv("ZK_SERVER_HOST"), System.getenv("ZK_APPLICATION_HOST"), Integer.parseInt(System.getenv("BISERVICE_PORT")));
     }
 
     private void startSchedulers() throws SchedulerException {

@@ -38,7 +38,7 @@ public class ServiceApplication {
     }
 
     public ServiceApplication() throws Exception {
-        System.setProperty("application.port", System.getenv("PORT"));
+        System.setProperty("application.port", System.getenv("APISERVICE_PORT"));
         System.setProperty("application.host", System.getenv("APPLICATION_URL"));
 
         ClientProxyZookeeper userManagerProxy = new ClientProxyZookeeper("userservice");
@@ -57,7 +57,7 @@ public class ServiceApplication {
         final IdentityManager identityManager = new MapIdentityManager(users);
 */
         Undertow reverseProxy = Undertow.builder()
-                .addHttpListener(Integer.parseInt(System.getenv("PORT")), System.getenv("APPLICATION_URL"))
+                .addHttpListener(Integer.parseInt(System.getenv("APISERVICE_PORT")), System.getenv("APPLICATION_URL"))
                 .setIoThreads(4)
                 .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
                 .setServerOption(UndertowOptions.ENABLE_SPDY, true)
