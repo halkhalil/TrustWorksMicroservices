@@ -43,6 +43,12 @@ public class ClientApplication extends BaseApplication {
     }
 
     public ClientApplication() throws Exception {
+        System.out.println("System.getProperty(\"application.host\") = " + System.getProperty("application.host"));
+        System.out.println("System.getProperty(\"application.port\") = " + System.getProperty("application.port"));
+        System.out.println("System.getProperty(\"db.url\") = " + System.getProperty("db.url"));
+        System.out.println("System.getProperty(\"db.user\") = " + System.getProperty("db.user"));
+        System.out.println("System.getProperty(\"db.password\") = " + System.getProperty("db.password"));
+
         DeploymentManager manager = getMetricsDeploymentManager();
 
         ServiceRegistry serviceRegistry = ServiceRegistry.getInstance();
