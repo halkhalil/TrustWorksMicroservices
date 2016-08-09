@@ -21,6 +21,7 @@ import io.undertow.util.Headers;
 import org.apache.curator.x.discovery.ServiceProvider;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,11 +34,11 @@ public class ServiceApplication {
 
     static ServiceProvider serviceProvider;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws URISyntaxException {
         new ServiceApplication();
     }
 
-    public ServiceApplication() throws Exception {
+    public ServiceApplication() throws URISyntaxException {
         System.out.println("System.getProperty(\"application.port\") = " + System.getProperty("application.port"));
         System.out.println("System.getProperty(\"application.host\") = " + System.getProperty("application.host"));
         System.out.println("System.getProperty(\"zookeeper.host\") = " + System.getProperty("zookeeper.host"));
@@ -74,10 +75,10 @@ public class ServiceApplication {
                         .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404))
                 )
                 .build();
-
+        reverseProxy.start();
         try {
             reverseProxy.start();
-            System.out.println("Running on port 80");
+            System.out.println("Running on port "+System.getProperty("application.port"));
         } catch (Exception e) {
             e.printStackTrace();
             reverseProxy = Undertow.builder()
