@@ -42,7 +42,7 @@ public class ClientApplication extends BaseApplication {
         new ClientApplication();
     }
 
-    public ClientApplication() throws Exception {
+    public ClientApplication() {
         System.out.println("System.getProperty(\"application.host\") = " + System.getProperty("application.host"));
         System.out.println("System.getProperty(\"application.port\") = " + System.getProperty("application.port"));
         System.out.println("System.getProperty(\"db.url\") = " + System.getProperty("db.url"));
@@ -81,6 +81,10 @@ public class ClientApplication extends BaseApplication {
                 .build()
                 .start();
 
-        registerInZookeeper("clientservice", System.getProperty("zookeeper.host"), System.getProperty("application.host"), Integer.parseInt(System.getProperty("application.port")));
+        try {
+            registerInZookeeper("clientservice", System.getProperty("zookeeper.host"), System.getProperty("application.host"), Integer.parseInt(System.getProperty("application.port")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
