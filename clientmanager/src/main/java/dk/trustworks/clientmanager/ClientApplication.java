@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xnio.Options;
 
+import javax.servlet.ServletException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -60,26 +61,30 @@ public class ClientApplication extends BaseApplication {
         serviceRegistry.registerService("clientuuid", new ClientService());
         serviceRegistry.registerService("useruuid", new UserService());
 
-        Undertow.builder()
-                .addHttpListener(Integer.parseInt(System.getProperty("application.port")), System.getProperty("application.host"))
-                .setBufferSize(1024 * 16)
-                .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
-                .setSocketOption(Options.BACKLOG, 10000)
-                .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false) //don't send a keep-alive header for HTTP/1.1 requests, as it is not required
-                .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
-                .setHandler(Handlers.header(Handlers.path()
-                                .addPrefixPath("/api/clients", new ClientHandler())
-                                .addPrefixPath("/api/clientdatas", new ClientDataHandler())
-                                .addPrefixPath("/api/projects", new ProjectHandler())
-                                .addPrefixPath("/api/tasks", new TaskHandler())
-                                .addPrefixPath("/api/taskworkerconstraints", new TaskWorkerConstraintHandler())
-                                .addPrefixPath("/api/taskworkerconstraintbudgets", new TaskWorkerConstraintBudgetHandler())
-                                .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
-                                .addPrefixPath("/servlets", manager.start())
-                        , Headers.SERVER_STRING, "U-tow"))
-                .setWorkerThreads(200)
-                .build()
-                .start();
+        try {
+            Undertow.builder()
+                    .addHttpListener(Integer.parseInt(System.getProperty("application.port")), System.getProperty("application.host"))
+                    .setBufferSize(1024 * 16)
+                    .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
+                    .setSocketOption(Options.BACKLOG, 10000)
+                    .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false) //don't send a keep-alive header for HTTP/1.1 requests, as it is not required
+                    .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
+                    .setHandler(Handlers.header(Handlers.path()
+                                    .addPrefixPath("/api/clients", new ClientHandler())
+                                    .addPrefixPath("/api/clientdatas", new ClientDataHandler())
+                                    .addPrefixPath("/api/projects", new ProjectHandler())
+                                    .addPrefixPath("/api/tasks", new TaskHandler())
+                                    .addPrefixPath("/api/taskworkerconstraints", new TaskWorkerConstraintHandler())
+                                    .addPrefixPath("/api/taskworkerconstraintbudgets", new TaskWorkerConstraintBudgetHandler())
+                                    .addPrefixPath("/api/projectbudgets", new ProjectBudgetHandler())
+                                    .addPrefixPath("/servlets", manager.start())
+                            , Headers.SERVER_STRING, "U-tow"))
+                    .setWorkerThreads(200)
+                    .build()
+                    .start();
+        } catch (ServletException e) {
+            e.printStackTrace();
+        }
 
         try {
             registerInZookeeper("clientservice", System.getProperty("zookeeper.host"), System.getProperty("application.host"), Integer.parseInt(System.getProperty("application.port")));
