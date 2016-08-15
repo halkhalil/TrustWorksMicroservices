@@ -25,7 +25,7 @@ import java.util.*;
 public class CheckBudgetJob {
 
     private final RestClient restClient = new RestClient();
-    private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getenv("HAL_SLACK_TOKEN"));
+    private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
 
 
 }

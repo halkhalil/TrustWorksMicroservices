@@ -24,7 +24,7 @@ public class FileSearchCommand implements Command {
 
     private final DropboxAPI dropboxAPI;
 
-    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getenv("SLACK_TOKEN"));
+    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getProperty("SLACK_TOKEN"));
 
     public FileSearchCommand() {
         dropboxAPI = new DropboxAPI();

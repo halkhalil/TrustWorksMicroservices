@@ -51,8 +51,8 @@ public class MotherApplication extends Jooby {
         }
 /*
         System.setProperty("application.port", System.getProperty("MOTHERSERVICE_PORT"));
-        System.setProperty("application.host", System.getenv("APPLICATION_URL"));*/
-        //System.setProperty("slack.token", System.getenv("SLACK_TOKEN"));
+        System.setProperty("application.host", System.getProperty("APPLICATION_URL"));*/
+        //System.setProperty("slack.token", System.getProperty("SLACK_TOKEN"));
 
         //use(new Jdbc());
         use(new Jackson());

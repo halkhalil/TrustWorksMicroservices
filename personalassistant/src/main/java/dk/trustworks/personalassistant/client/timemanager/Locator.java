@@ -22,7 +22,7 @@ public class Locator {
     private Map<String, ServiceProvider> serviceProviders = new HashMap<>();
 
     private Locator() {
-        String zkHost = System.getenv("ZK_SERVER_HOST");
+        String zkHost = System.getProperty("ZK_SERVER_HOST");
         if(zkHost == null) zkHost = System.getProperty("ZK_SERVER_HOST");
         System.out.println("zkHost = " + zkHost);
         CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zkHost+":2181", new RetryNTimes(5, 1000));
