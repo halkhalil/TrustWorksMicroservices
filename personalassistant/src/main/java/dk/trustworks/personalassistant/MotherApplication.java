@@ -42,6 +42,12 @@ public class MotherApplication extends Jooby {
     private transient ObjectMapper metricsMapper;
 
     {
+
+        for (Object o : System.getProperties().keySet()) {
+            System.out.println(o+" = " + System.getProperty(o.toString()));
+        }
+
+
         this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));
 
         try {
