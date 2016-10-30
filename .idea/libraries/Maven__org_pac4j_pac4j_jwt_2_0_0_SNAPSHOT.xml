@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.pac4j:pac4j-jwt:2.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/pac4j/pac4j-jwt/2.0.0-SNAPSHOT/pac4j-jwt-2.0.0-20161021.093701-3.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/pac4j/pac4j-jwt/2.0.0-SNAPSHOT/pac4j-jwt-2.0.0-20161021.093701-3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/pac4j/pac4j-jwt/2.0.0-SNAPSHOT/pac4j-jwt-2.0.0-20161021.093701-3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

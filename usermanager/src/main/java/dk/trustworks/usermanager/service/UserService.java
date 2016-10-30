@@ -1,16 +1,17 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.usermanager.dto.Availability;
+import dk.trustworks.usermanager.dto.Capacity;
 import dk.trustworks.usermanager.dto.User;
+import dk.trustworks.usermanager.persistence.RoleRepository;
 import dk.trustworks.usermanager.persistence.UserRepository;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hans on 17/03/15.
@@ -18,9 +19,11 @@ import java.util.Map;
 public class UserService {
 
     private UserRepository userRepository;
+    private RoleRepository roleRepository;
 
     public UserService(DataSource ds) {
         userRepository = new UserRepository(ds);
+        roleRepository = new RoleRepository(ds);
     }
 
     public List<User> findAll() {
@@ -45,67 +48,76 @@ public class UserService {
 
     public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
         User credentials = userRepository.findByUsernameAndPasswordAndActiveTrue(username, password);
+        System.out.println("credentials = " + credentials);
         return credentials;
     }
 
-    public Map<String, Object> capacitypermonth(int year) {
-        int capacityPerMonth[] = new int[12];
-
-        for (int i = 0; i < 12; i++) {
-            DateTime dateTime = new DateTime(year, i+1, 1, 0, 0);
-            int capacityByMonth = userRepository.calculateCapacityByMonth(dateTime);
-            capacityPerMonth[i] = capacityByMonth;
-        }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("capacitypermonth", capacityPerMonth);
-        return result;
+    public List<String> getUserRoles(String username, String password) {
+        User user = findByUsernameAndPasswordAndActiveTrue(username, password);
+        List<String> roles = roleRepository.findByUserUUID(user.getUUID());
+        return roles;
     }
 
-    public Map<String, Object> capacitypermonthbyuser(int year, String userUUID) {
-        int capacityPerMonth[] = new int[12];
+    public List<Capacity> capacitypermonth(LocalDate periodStart, LocalDate periodEnd) {
+        List<Capacity> capacities = new ArrayList<>();
 
-        for (int i = 0; i < 12; i++) {
-            DateTime dateTime = new DateTime(year, i+1, 15, 0, 0);
-            int capacityByMonth = userRepository.calculateCapacityByMonthByUser(dateTime, userUUID);
-            capacityPerMonth[i] = capacityByMonth;
+        LocalDate currentDate = periodStart;
+        while(currentDate.isBefore(periodEnd)) {
+            Capacity capacity = new Capacity();
+            capacity.activeDate = currentDate;
+            int capacityByMonth = userRepository.calculateCapacityByMonth(currentDate);
+            capacity.capacity = capacityByMonth;
+            capacities.add(capacity);
+            currentDate = currentDate.plusMonths(1);
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("capacitypermonthbyuser", capacityPerMonth);
-        return result;
+        return capacities;
     }
 
-    public Map<String, int[]> useravailabilitypermonthbyyear(int year, boolean fiscal) {
-        Map<String, int[]> result = new HashMap<>();
+    public List<Capacity> capacitypermonthbyuser(String userUUID, LocalDate periodStart, LocalDate periodEnd) {
+        List<Capacity> capacities = new ArrayList<>();
 
-        int month = 1;
-        if(fiscal) {
-            month = 7;
-            year--;
+        LocalDate currentDate = periodStart;
+        while(currentDate.isBefore(periodEnd)) {
+            Capacity capacity = new Capacity();
+            capacity.activeDate = currentDate;
+            int capacityByMonth = userRepository.calculateCapacityByMonthByUser(currentDate, userUUID);
+            capacity.capacity = capacityByMonth;
+            capacities.add(capacity);
+            currentDate = currentDate.plusMonths(1);
         }
-        for (int i = 0; i < 12; i++) {
-            DateTime dateTime = new DateTime(year, month, 1, 0, 0);
-            List<String> activeUsers = userRepository.getAvailabilityByMonth(dateTime);
+        return capacities;
+    }
+
+    public List<Availability> useravailabilitypermonthbyyear(LocalDate periodStart, LocalDate periodEnd) {
+        List<Availability> availabilities = new ArrayList<>();
+
+        LocalDate currentDate = periodStart;
+        while(currentDate.isBefore(periodEnd)) {
+            List<String> activeUsers = userRepository.getAvailabilityByMonth(currentDate);
             for (String activeUser : activeUsers) {
-                result.putIfAbsent(activeUser, new int[12]);
-                result.get(activeUser)[i] = 1;
+                Availability availability = new Availability(activeUser, currentDate);
+                availabilities.add(availability);
             }
+            currentDate = currentDate.plusMonths(1);
+        }
 
-            month++;
-            if(month>12) {
-                month = 1;
-                year++;
+        return availabilities;
+    }
+
+    public List<Availability> useravailabilitypermonthbyyearbyuser(String userUUID, LocalDate periodStart, LocalDate periodEnd) {
+        List<Availability> availabilities = new ArrayList<>();
+
+        LocalDate currentDate = periodStart;
+        while(currentDate.isBefore(periodEnd)) {
+            List<String> activeUsers = userRepository.getAvailabilityByMonthAndUser(userUUID, currentDate);
+            for (String activeUser : activeUsers) {
+                Availability availability = new Availability(activeUser, currentDate);
+                availabilities.add(availability);
             }
+            currentDate = currentDate.plusMonths(1);
         }
-        return result;
-        /*
-        try {
-            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        */
+        return availabilities;
     }
 
     public void create(User user) throws SQLException {

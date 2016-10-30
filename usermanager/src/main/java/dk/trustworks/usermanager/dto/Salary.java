@@ -1,40 +1,20 @@
 package dk.trustworks.usermanager.dto;
 
+import org.joda.time.LocalDate;
+
 public class Salary {
-  private String uuid;
-  private String useruuid;
-  private Long salary;
-  private java.sql.Date activefrom;
+  public String uuid;
+  public String useruuid;
+  public Long salary;
+  public LocalDate activeDate;
 
-  public String getUuid() {
-    return uuid;
+  public Salary() {
   }
 
-  public void setUuid(String uuid) {
+  public Salary(String uuid, String useruuid, Long salary, LocalDate activeDate) {
     this.uuid = uuid;
-  }
-
-  public String getUseruuid() {
-    return useruuid;
-  }
-
-  public void setUseruuid(String useruuid) {
     this.useruuid = useruuid;
-  }
-
-  public Long getSalary() {
-    return salary;
-  }
-
-  public void setSalary(Long salary) {
     this.salary = salary;
-  }
-
-  public java.sql.Date getActivefrom() {
-    return activefrom;
-  }
-
-  public void setActivefrom(java.sql.Date activefrom) {
-    this.activefrom = activefrom;
+    this.activeDate = activeDate;
   }
 }

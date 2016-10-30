@@ -144,4 +144,23 @@ public class User {
     public void setAllocation(Long allocation) {
         this.allocation = allocation;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("UUID='").append(UUID).append('\'');
+        sb.append(", useruuid='").append(useruuid).append('\'');
+        sb.append(", username='").append(username).append('\'');
+        sb.append(", password='").append(password).append('\'');
+        sb.append(", firstname='").append(firstname).append('\'');
+        sb.append(", lastname='").append(lastname).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", created=").append(created);
+        sb.append(", active=").append(active);
+        sb.append(", status='").append(status).append('\'');
+        sb.append(", statusdate='").append(statusdate).append('\'');
+        sb.append(", allocation=").append(allocation);
+        sb.append('}');
+        return sb.toString();
+    }
 }

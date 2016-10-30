@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dk.trustworks.usermanager.dto.Salary;
 import dk.trustworks.usermanager.persistence.SalaryRepository;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hans on 17/03/15.
@@ -22,40 +22,40 @@ public class SalaryService {
         salaryRepository = new SalaryRepository(ds);
     }
 
-    public List<Salary> findActiveByDate(DateTime date) {
+    public List<Salary> findActiveByDate(LocalDate date) {
         return salaryRepository.findActiveByDate(date);
     }
 
-    public Map<String, double[]> usersalarypermonthbyyear(int year, boolean fiscal) {
-        Map<String, double[]> result = new HashMap<>();
-        int month = 1;
-        if(fiscal) {
-            month = 7;
-            year--;
-        }
-        for (int i = 0; i < 12; i++) {
-            DateTime date = new DateTime(year, month, 1, 0, 0);
-            List<Salary> activeUsers = salaryRepository.findActiveByDate(date);
-            for (Salary activeUser : activeUsers) {
-                result.putIfAbsent(activeUser.getUseruuid(), new double[12]);
-                result.get(activeUser.getUseruuid())[i] = Double.parseDouble(activeUser.getSalary().toString());
-            }
+    public List<Salary> usersalarypermonthbyyear(LocalDate periodStart, LocalDate periodEnd) {
+        List<Salary> salaries = new ArrayList<>();
 
-            month++;
-            if(month>12) {
-                month = 1;
-                year++;
+        LocalDate currentDate = periodStart;
+        while(currentDate.isBefore(periodEnd)) {
+            List<Salary> activeByDate = salaryRepository.findActiveByDate(currentDate);
+            for (Salary salary : activeByDate) {
+                salary.activeDate = currentDate;
             }
+            salaries.addAll(activeByDate);
+            currentDate = currentDate.plusMonths(1);
         }
 
-        return result;
-        /*
-        try {
-            exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(result));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        return salaries;
+    }
+
+    public List<Salary> usersalarypermonthbyyearbyuser(String userUUID, LocalDate periodStart, LocalDate periodEnd) {
+        List<Salary> salaries = new ArrayList<>();
+
+        LocalDate currentDate = periodStart;
+        while(currentDate.isBefore(periodEnd)) {
+            List<Salary> activeByDate = salaryRepository.findActiveByDateAndUser(userUUID, currentDate);
+            for (Salary salary : activeByDate) {
+                salary.activeDate = currentDate;
+            }
+            salaries.addAll(activeByDate);
+            currentDate = currentDate.plusMonths(1);
         }
-        */
+
+        return salaries;
     }
 
     public void create(JsonNode jsonNode) throws SQLException {

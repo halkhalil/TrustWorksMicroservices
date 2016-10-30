@@ -12,36 +12,172 @@
     <name>usermanager</name>
     <description>TrustWorks UserManager Microservice</description>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <start-class>dk.trustworks.usermanager.UserApplication</start-class>
+        <java.version>1.8</java.version>
+        <jackson.version>2.4.5</jackson.version>
+        <project.encoding>UTF-8</project.encoding>
+        <jooby.version>1.0.0.CR8</jooby.version>
+        <pac4j.version>2.0.0-SNAPSHOT</pac4j.version>
+    </properties>
+
     <dependencies>
+        <!-- Jooby -->
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>${jooby.version}</version>
         </dependency>
+
+        <!-- Security -->
         <dependency>
             <groupId>org.jooby</groupId>
-            <artifactId>jooby-undertow</artifactId>
-            <version>1.0.0.CR3</version>
+            <artifactId>jooby-pac4j</artifactId>
+            <version>${jooby.version}</version>
         </dependency>
+
+        <!-- Raml -->
         <dependency>
             <groupId>org.jooby</groupId>
-            <artifactId>jooby-jdbc</artifactId>
-            <version>1.0.0.CR3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-metrics</artifactId>
-            <version>1.0.0.CR3</version>
+            <artifactId>jooby-raml</artifactId>
+            <version>${jooby.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-swagger</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Server -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-netty</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Metrics -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-metrics</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jdbc</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-flyway</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sql2o</groupId>
+            <artifactId>sql2o</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.37</version>
+        </dependency>
+
+        <!-- Datatypes -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jackson</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>black.door</groupId>
+            <artifactId>hate</artifactId>
+            <version>v1r4t0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
+        </dependency>
+
+        <!-- zookeeper -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
+        <!-- security -->
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-http</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-jwt</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+
+        <!--
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby</artifactId>
+            <version>1.0.0.CR8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-undertow</artifactId>
+            <version>1.0.0.CR8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jdbc</artifactId>
+            <version>1.0.0.CR8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-metrics</artifactId>
+            <version>1.0.0.CR8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-swagger</artifactId>
+            <version>1.0.0.CR8</version>
         </dependency>
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-raml</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR8</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
@@ -52,17 +188,18 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-servlets</artifactId>
             <version>3.1.2</version>
-        </dependency>
+        </dependency>-->
         <!--
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-swagger</artifactId>
             <version>LATEST</version>
         </dependency>-->
+        <!--
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-jackson</artifactId>
-            <version>1.0.0.CR3</version>
+            <version>1.0.0.CR8</version>
         </dependency>
         <dependency>
             <groupId>org.sql2o</groupId>
@@ -87,101 +224,15 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.9.1</version>
-        </dependency>
-        <!--
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>2.9.4</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-core</artifactId>
-            <version>1.2.0.Beta4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-servlet</artifactId>
-            <version>1.2.0.Beta4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-websockets-jsr</artifactId>
-            <version>1.2.0.Beta4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-x-discovery</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>dk.trustworks</groupId>
-            <artifactId>trustworks-framework</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sql2o</groupId>
-            <artifactId>sql2o</artifactId>
-            <version>1.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.9.1</version>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
+            <version>2.8.0</version>
         </dependency>
         -->
     </dependencies>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>dk.trustworks.usermanager.UserApplication</start-class>
-        <java.version>1.8</java.version>
-        <jackson.version>2.4.5</jackson.version>
-        <project.encoding>UTF-8</project.encoding>
-    </properties>
 
     <build>
         <finalName>usermanager</finalName>
@@ -201,6 +252,11 @@
                 <configuration>
                     <encoding>${project.encoding}</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jooby</groupId>
+                <artifactId>jooby-maven-plugin</artifactId>
+                <version>1.0.0.CR8</version>
             </plugin>
             <plugin>
                 <inherited>true</inherited>
@@ -242,4 +298,12 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
 </project>

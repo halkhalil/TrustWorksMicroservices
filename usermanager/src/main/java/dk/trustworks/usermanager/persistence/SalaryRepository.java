@@ -3,6 +3,7 @@ package dk.trustworks.usermanager.persistence;
 import com.fasterxml.jackson.databind.JsonNode;
 import dk.trustworks.usermanager.dto.Salary;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -25,7 +26,8 @@ public class SalaryRepository {
         sql2o = new Sql2o(ds);
     }
 
-    public List<Salary> findActiveByDate(DateTime date) {
+    public List<Salary> findActiveByDate(LocalDate monthDate) {
+        DateTime toDate = monthDate.toDateTimeAtStartOfDay();
         try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT uuid, useruuid, salary FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.salary, t.activefrom " +
@@ -37,7 +39,29 @@ public class SalaryRepository {
                     "group by useruuid ) " +
                     "tm on t.useruuid = tm.useruuid and t.activefrom = tm.MaxDate " +
                     ") usi ON u.uuid = usi.useruuid;")
-                    .addParameter("date", date)
+                    .addParameter("date", toDate)
+                    .executeAndFetch(Salary.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Salary> findActiveByDateAndUser(String userUUID, LocalDate monthDate) {
+        DateTime toDate = monthDate.toDateTimeAtStartOfDay();
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT uuid, useruuid, salary FROM user u RIGHT JOIN ( " +
+                    "select t.useruuid, t.salary, t.activefrom " +
+                    "from salary t " +
+                    "inner join ( " +
+                    "select useruuid, salary, max(activefrom) as MaxDate " +
+                    "from salary " +
+                    "WHERE activefrom <= :date " +
+                    "group by useruuid ) " +
+                    "tm on t.useruuid = tm.useruuid and t.activefrom = tm.MaxDate " +
+                    ") usi ON u.uuid = usi.useruuid WHERE useruuid LIKE :useruuid;")
+                    .addParameter("date", toDate)
+                    .addParameter("useruuid", userUUID)
                     .executeAndFetch(Salary.class);
         } catch (Exception e) {
             e.printStackTrace();

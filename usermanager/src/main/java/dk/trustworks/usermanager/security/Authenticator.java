@@ -1,4 +1,4 @@
-package dk.trustworks.employeemanager.security;
+package dk.trustworks.usermanager.security;
 
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;

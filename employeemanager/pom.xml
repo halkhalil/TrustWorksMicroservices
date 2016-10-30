@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <jooby.version>1.0.0.CR6</jooby.version>
+        <jooby.version>1.0.0.CR8</jooby.version>
 
         <!-- Startup class -->
         <application.class>dk.trustworks.employeemanager.App</application.class>
@@ -132,7 +132,7 @@
             <plugin>
                 <groupId>org.jooby</groupId>
                 <artifactId>jooby-maven-plugin</artifactId>
-                <version>1.0.0.CR3</version>
+                <version>${jooby.version}</version>
                 <executions>
                     <execution>
                         <goals>

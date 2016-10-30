@@ -20,8 +20,13 @@ import io.undertow.server.handlers.proxy.SimpleProxyClientProvider;
 import io.undertow.util.Headers;
 import org.apache.curator.x.discovery.ServiceProvider;
 
+import javax.net.ssl.*;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyStore;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +36,8 @@ import java.util.Map;
  * Created by hans on 16/03/15.
  */
 public class ServiceApplication {
+
+    private static final char[] STORE_PASSWORD = "password".toCharArray();
 
     static ServiceProvider serviceProvider;
 
@@ -59,8 +66,11 @@ public class ServiceApplication {
 
         final IdentityManager identityManager = new MapIdentityManager(users);
 */
+        SSLContext sslContext = createSSLContext(loadKeyStore("server.keystore"), loadKeyStore("server.truststore"));
+
         Undertow reverseProxy = Undertow.builder()
                 .addHttpListener(Integer.parseInt(System.getProperty("application.port")), System.getProperty("application.host"))
+                .addHttpsListener(443, System.getProperty("application.host"), sslContext)
                 .setIoThreads(4)
                 .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
                 .setServerOption(UndertowOptions.ENABLE_SPDY, true)
@@ -97,6 +107,45 @@ public class ServiceApplication {
             reverseProxy.start();
             System.out.println("Running on port 9090");
         }
+    }
+
+    private static KeyStore loadKeyStore(String name) throws Exception {
+        String storeLoc = System.getProperty(name);
+        final InputStream stream;
+        if(storeLoc == null) {
+            stream = ServiceApplication.class.getResourceAsStream(name);
+        } else {
+            stream = Files.newInputStream(Paths.get(storeLoc));
+        }
+
+        try(InputStream is = stream) {
+            KeyStore loadedKeystore = KeyStore.getInstance("JKS");
+            loadedKeystore.load(is, password(name));
+            return loadedKeystore;
+        }
+    }
+
+    static char[] password(String name) {
+        String pw = System.getProperty(name + ".password");
+        return pw != null ? pw.toCharArray() : STORE_PASSWORD;
+    }
+
+    private static SSLContext createSSLContext(final KeyStore keyStore, final KeyStore trustStore) throws Exception {
+        KeyManager[] keyManagers;
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, password("key"));
+        keyManagers = keyManagerFactory.getKeyManagers();
+
+        TrustManager[] trustManagers;
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(trustStore);
+        trustManagers = trustManagerFactory.getTrustManagers();
+
+        SSLContext sslContext;
+        sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(keyManagers, trustManagers, null);
+
+        return sslContext;
     }
 
     private static HttpHandler addSecurity(final HttpHandler toWrap, final IdentityManager identityManager) {

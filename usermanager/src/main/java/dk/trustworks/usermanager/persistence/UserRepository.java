@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dk.trustworks.usermanager.dto.User;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -33,7 +34,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -57,7 +58,7 @@ public class UserRepository {
     public User findByUUID(String uuid) {
         System.out.println("uuid = " + uuid);
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM user WHERE uuid LIKE :uuid").addParameter("uuid", uuid).executeAndFetch(User.class).get(0);
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid").addParameter("uuid", uuid).executeAndFetch(User.class).get(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,7 +69,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -90,7 +91,7 @@ public class UserRepository {
 
     public List<User> findByActiveTrueOrderByFirstnameAsc() {
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -108,7 +109,7 @@ public class UserRepository {
 
     public User findByEmail(String email) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -127,7 +128,7 @@ public class UserRepository {
 
     public User findByUsername(String username) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -146,7 +147,7 @@ public class UserRepository {
 
     public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -164,7 +165,8 @@ public class UserRepository {
         return null;
     }
 
-    public int calculateCapacityByMonth(DateTime toDate) {
+    public int calculateCapacityByMonth(LocalDate monthDate) {
+        DateTime toDate = monthDate.toDateTimeAtStartOfDay();
         try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT SUM(allocation) capacity FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
@@ -184,7 +186,8 @@ public class UserRepository {
         return 0;
     }
 
-    public int calculateCapacityByMonthByUser(DateTime toDate, String userUUID) {
+    public int calculateCapacityByMonthByUser(LocalDate monthDate, String userUUID) {
+        DateTime toDate = monthDate.toDateTimeAtStartOfDay();
         try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT allocation FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
@@ -204,7 +207,8 @@ public class UserRepository {
         return 0;
     }
 
-    public List<String> getAvailabilityByMonth(DateTime toDate) {
+    public List<String> getAvailabilityByMonth(LocalDate monthDate) {
+        DateTime toDate = monthDate.toDateTimeAtStartOfDay();
         try (org.sql2o.Connection con = sql2o.open()) {
             return con.createQuery("SELECT uuid FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
@@ -217,6 +221,27 @@ public class UserRepository {
                     "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate and t.status LIKE 'ACTIVE' " +
                     ") usi ON u.uuid = usi.useruuid;")
                     .addParameter("toDate", toDate)
+                    .executeAndFetch(String.class);
+        } catch (Exception e) {
+        }
+        return new ArrayList<>();
+    }
+
+    public List<String> getAvailabilityByMonthAndUser(String userUUID, LocalDate monthDate) {
+        DateTime toDate = monthDate.toDateTimeAtStartOfDay();
+        try (org.sql2o.Connection con = sql2o.open()) {
+            return con.createQuery("SELECT uuid FROM user u RIGHT JOIN ( " +
+                    "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                    "from userstatus t " +
+                    "inner join ( " +
+                    "select useruuid, status, max(statusdate) as MaxDate " +
+                    "from userstatus " +
+                    "WHERE statusdate <= :toDate " +
+                    "group by useruuid ) " +
+                    "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate and t.status LIKE 'ACTIVE' " +
+                    ") usi ON u.uuid = usi.useruuid WHERE u.uuid LIKE :useruuid;")
+                    .addParameter("toDate", toDate)
+                    .addParameter("useruuid", userUUID)
                     .executeAndFetch(String.class);
         } catch (Exception e) {
         }
