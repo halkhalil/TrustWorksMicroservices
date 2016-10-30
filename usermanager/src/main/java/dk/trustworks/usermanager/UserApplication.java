@@ -93,7 +93,7 @@ public class UserApplication extends Jooby {
                             .setExpiration(LocalDate.now().plusDays(1).toDate())
                             .setIssuedAt(LocalDate.now().toDate())
                             .claim("roles", roles)
-                            .signWith(SignatureAlgorithm.HS256, KEY)
+                            .signWith(SignatureAlgorithm.HS512, KEY)
                             .compact();
                     resp.send(compactJws);
                 })
