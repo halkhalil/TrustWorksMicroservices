@@ -133,105 +133,10 @@
 
         <!-- security -->
         <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-http</artifactId>
-            <version>${pac4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-jwt</artifactId>
-            <version>${pac4j.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>0.7.0</version>
         </dependency>
-
-        <!--
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-undertow</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-jdbc</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-metrics</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-swagger</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-raml</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-servlets</artifactId>
-            <version>3.1.2</version>
-        </dependency>-->
-        <!--
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-swagger</artifactId>
-            <version>LATEST</version>
-        </dependency>-->
-        <!--
-        <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-jackson</artifactId>
-            <version>1.0.0.CR8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sql2o</groupId>
-            <artifactId>sql2o</artifactId>
-            <version>1.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.37</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-x-discovery</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.9.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-joda</artifactId>
-            <version>2.8.0</version>
-        </dependency>
-        -->
     </dependencies>
 
     <build>

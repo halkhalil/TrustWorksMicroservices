@@ -23,9 +23,10 @@ public class RestDelegate {
         return ((instance!=null)?instance:(instance = new RestDelegate()));
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, User> getAllUsersMap() {
         try {
-            return cacheHandler.getMapCache().get("users", () -> {
+            return (Map<String, User>)cacheHandler.getMapCache().get("users", () -> {
                 Map<String, User> userMap = new HashMap<>();
                 for (User user : restClient.getUsers()) {
                     userMap.put(user.getUUID(), user);

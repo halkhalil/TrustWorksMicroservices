@@ -18,24 +18,17 @@ import static com.codahale.metrics.MetricRegistry.name;
 
 public class GetUsersCommand extends HystrixCommand<List<User>> {
 
-    //private final Timer responses = MetricsServletContextListener.metricRegistry.timer(name(GetUsersCommand.class, "requests"));
-
     public GetUsersCommand() {
         super(HystrixCommandGroupKey.Factory.asKey("Users"));
     }
 
     public List<User> run() throws Exception {
-        //final Timer.Context context = responses.time();
-        try {
-            HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
-                    .header("accept", "application/json")
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
-            });
-        } finally {
-            //context.stop();
-        }
+        HttpResponse<JsonNode> jsonResponse;
+        jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
+                .header("accept", "application/json")
+                .asJson();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
+        });
     }
 }
