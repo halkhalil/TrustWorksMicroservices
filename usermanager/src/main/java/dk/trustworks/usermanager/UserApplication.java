@@ -79,8 +79,8 @@ public class UserApplication extends Jooby {
 
         use("/login")
                 .get("/", (req, resp) -> {
-                    String username = req.param("username").value("hans.lassen");
-                    String password = req.param("password").value("160675am");
+                    String username = req.param("username").value("");
+                    String password = req.param("password").value("");
 
                     DataSource db = req.require(DataSource.class);
                     List<String> roles = new UserService(db).getUserRoles(username, password);
