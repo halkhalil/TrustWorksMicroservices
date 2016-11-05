@@ -37,6 +37,8 @@ public abstract class DefaultHandler implements HttpHandler {
 
     private final List<String> commands = new ArrayList<>();
 
+    public static ThreadLocal<String> JWTTOKEN = new ThreadLocal<>();
+
     public DefaultHandler(String entity) {
         this.mapper = new ObjectMapper();
         this.entity = entity;
@@ -48,6 +50,8 @@ public abstract class DefaultHandler implements HttpHandler {
             exchange.dispatch(this);
             return;
         }
+        System.out.println("exchange.getRequestHeaders().get(\"jwt-token\").getFirst() = " + exchange.getRequestHeaders().get("jwt-token").getFirst());
+        JWTTOKEN.set(exchange.getRequestHeaders().get("jwt-token").getFirst());
         ThreadContext.push(UUID.randomUUID().toString());
         System.out.println("exchange.getRequestURI() = " + exchange.getRequestURI());
         System.out.println("exchange.getRequestURL() = " + exchange.getRequestURL());

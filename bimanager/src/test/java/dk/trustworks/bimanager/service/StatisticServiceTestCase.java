@@ -5,6 +5,8 @@ import dk.trustworks.bimanager.dto.AmountPerItem;
 import dk.trustworks.bimanager.dto.TaskWorkerConstraint;
 import dk.trustworks.bimanager.dto.User;
 import dk.trustworks.bimanager.dto.Work;
+import dk.trustworks.bimanager.utils.ArrayUtils;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -162,12 +164,14 @@ public class StatisticServiceTestCase {
         when(restDelegate.getTaskWorkerConstraintMap(null)).thenReturn(taskWorkerConstraintMap);
         when(restDelegate.getAllUsersMap()).thenReturn(userMap);
         when(restDelegate.getAllWork(year-1)).thenReturn(allWorkLastYear);
-        when(restDelegate.getCapacityPerMonthByYearByUser(year, user1UUID)).thenReturn(user1CapacityThisYear);
-        when(restDelegate.getCapacityPerMonthByYearByUser(year, user2UUID)).thenReturn(user2CapacityThisYear);
-        when(restDelegate.getCapacityPerMonthByYearByUser(year, user3UUID)).thenReturn(user3CapacityThisYear);
-        when(restDelegate.getCapacityPerMonthByYearByUser(year-1, user1UUID)).thenReturn(user1CapacityPrevYear);
-        when(restDelegate.getCapacityPerMonthByYearByUser(year-1, user2UUID)).thenReturn(user2CapacityPrevYear);
-        when(restDelegate.getCapacityPerMonthByYearByUser(year-1, user3UUID)).thenReturn(user3CapacityPrevYear);
+        LocalDate periodStart = LocalDate.parse(year+"-01-01");
+        LocalDate periodEnd = LocalDate.parse(year+"-12-31");
+        /*when(restDelegate.getCapacityPerMonthByYearByUser(periodStart, periodEnd, user1UUID)).thenReturn(Arrays.asList(user1CapacityThisYear));
+        when(restDelegate.getCapacityPerMonthByYearByUser(periodStart, periodEnd, user2UUID)).thenReturn(user2CapacityThisYear);
+        when(restDelegate.getCapacityPerMonthByYearByUser(periodStart, periodEnd, user3UUID)).thenReturn(user3CapacityThisYear);
+        when(restDelegate.getCapacityPerMonthByYearByUser(periodStart.minusYears(1), periodEnd.minusYears(1), user1UUID)).thenReturn(user1CapacityPrevYear);
+        when(restDelegate.getCapacityPerMonthByYearByUser(periodStart.minusYears(1), periodEnd.minusYears(1), user2UUID)).thenReturn(user2CapacityPrevYear);
+        when(restDelegate.getCapacityPerMonthByYearByUser(periodStart.minusYears(1), periodEnd.minusYears(1), user3UUID)).thenReturn(user3CapacityPrevYear);*/
 
         List<AmountPerItem> billablehourspercentageperuser = statisticService.billablehourspercentageperuser(year, fiscal);
 

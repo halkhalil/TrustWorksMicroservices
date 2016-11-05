@@ -9,11 +9,10 @@ import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.component.SparklineChart;
-import dk.trustworks.adminportal.domain.AmountPerItem;
-import dk.trustworks.adminportal.domain.DataAccess;
-import dk.trustworks.adminportal.domain.User;
+import dk.trustworks.adminportal.domain.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.Months;
 
 import java.text.DateFormatSymbols;
 import java.time.Month;
@@ -443,6 +442,9 @@ public class DashboardDesign extends CssLayout {
     public class RevenuePerMonthByCapacityChart extends Chart {
 
         public RevenuePerMonthByCapacityChart(int year) {
+            LocalDate periodStart = LocalDate.parse(year+"-01-01").minusMonths(6);
+            LocalDate periodEnd = LocalDate.parse(year+"-12-31").minusMonths(6);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
 
@@ -515,16 +517,22 @@ public class DashboardDesign extends CssLayout {
                 if(month>12) month = 1;
             }
 
-            int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
-            int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonthByYear(periodStart, periodEnd);
+            int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
+            int j = 0;
+            for (Capacity capacity : capacityPerMonthByYearList) {
+                capacityPerMonthByYear[j++] = capacity.capacity;
+            }
 
+            //int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+/*
             for (int i = 0; i < 6; i++) {
                 capacityPerMonthByYear[i+6] = capacityPerMonthByYear[i];
             }
             for (int i = 0; i < 6; i++) {
                 capacityPerMonthByYear[i] = capacityPerMonthByYearPrevYear[i+6];
             }
-
+*/
             ListSeries capacityList = new ListSeries("Capacity");
 
             YAxis yaxis = new YAxis();
@@ -665,6 +673,9 @@ public class DashboardDesign extends CssLayout {
     public class NetProfitPerEmployeesChart extends Chart {
 
         public NetProfitPerEmployeesChart(int year) {
+            LocalDate periodStart = LocalDate.parse(year+"-01-01").minusMonths(6);
+            LocalDate periodEnd = LocalDate.parse(year+"-12-31").minusMonths(6);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -686,7 +697,7 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            Map<String, double[]> userSalaryPerMonthByYear = dataAccess.getUserSalaryPerMonthByYear(year, true);
+            List<Salary> userSalaryPerMonthByYearList = dataAccess.getUserSalaryPerMonthByYear(periodStart, periodEnd);
 
             Long[] expensesByYear = dataAccess.getExpensesByCapacityByYearExceptSalary(year);
             Long[] expensesByYearPrevYear = dataAccess.getExpensesByCapacityByYearExceptSalary(year-1);
@@ -697,17 +708,29 @@ public class DashboardDesign extends CssLayout {
                 expensesByYear[i] = expensesByYearPrevYear[i+6];
             }
 
-            Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year, true);
+            List<Availability> userAvailabilityPerMonthByYearList = dataAccess.getUserAvailabilityPerMonthByYear(periodStart, periodEnd);
+            Map<String, int[]> userAvailabilityPerMonthByYear = new HashMap<>();
+            for (Availability availability: userAvailabilityPerMonthByYearList) {
+                if(!userAvailabilityPerMonthByYear.containsKey(availability.useruuid))
+                    userAvailabilityPerMonthByYear.put(availability.useruuid, new int[12]);
+                userAvailabilityPerMonthByYear.get(availability.useruuid)[Months.monthsBetween(periodStart, availability.activeDate).getMonths()] = 1;
+            }
 
-            int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
-            int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonthByYear(periodStart, periodEnd);
+            int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
+            int j = 0;
+            for (Capacity capacity : capacityPerMonthByYearList) {
+                capacityPerMonthByYear[j++] = capacity.capacity;
+            }
+            //int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+            /*
             for (int i = 0; i < 6; i++) {
                 capacityPerMonthByYear[i+6] = capacityPerMonthByYear[i];
             }
             for (int i = 0; i < 6; i++) {
                 capacityPerMonthByYear[i] = capacityPerMonthByYearPrevYear[i+6];
             }
-
+            */
             Map<String, User> userMap = new HashMap<>();
             for (User user : dataAccess.getUsers()) {
                 userMap.put(user.getUuid(), user);
@@ -716,6 +739,13 @@ public class DashboardDesign extends CssLayout {
             DataSeries netIncomeList = new DataSeries("Net Income");
 
             List<String> cats = new ArrayList<>();
+
+            Map<String, int[]> userSalaryPerMonthByYear = new HashMap<>();
+            for (Salary salary : userSalaryPerMonthByYearList) {
+                if(!userSalaryPerMonthByYear.containsKey(salary.useruuid))
+                    userSalaryPerMonthByYear.put(salary.useruuid, new int[12]);
+                userSalaryPerMonthByYear.get(salary.useruuid)[Months.monthsBetween(periodStart, salary.activeDate).getMonths()] = salary.salary;
+            }
 
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
                 boolean debug = false;
@@ -733,9 +763,9 @@ public class DashboardDesign extends CssLayout {
                     revenuePerMonthPerUser[i] = revenuePerMonthPerUserPrevYear[i+6];
                 }
 
-                double[] salaries = userSalaryPerMonthByYear.get(userUUID);
+                int[] salaries = userSalaryPerMonthByYear.get(userUUID);
                 if(debug) {
-                    for (double salary : salaries) {
+                    for (int salary : salaries) {
                         System.out.println("salary = " + salary);
                     }
                     for (Long revenue : revenuePerMonthPerUser) {

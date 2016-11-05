@@ -5,10 +5,13 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import dk.trustworks.usermanager.dto.JwtToken;
 import dk.trustworks.usermanager.security.JwtModule;
 import dk.trustworks.usermanager.security.UserRoles;
 import dk.trustworks.usermanager.service.SalaryService;
 import dk.trustworks.usermanager.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.util.Json;
@@ -77,7 +80,7 @@ public class UserApplication extends Jooby {
 
         //Key key = MacProvider.generateKey();
 
-        use("/login")
+        use("/jwttoken")
                 .get("/", (req, resp) -> {
                     String username = req.param("username").value("");
                     String password = req.param("password").value("");
@@ -95,18 +98,24 @@ public class UserApplication extends Jooby {
                             .claim("roles", roles)
                             .signWith(SignatureAlgorithm.HS512, KEY)
                             .compact();
-                    resp.send(compactJws);
+                    resp.send(new JwtToken(compactJws));
+                })
+                .get("/:key", (req, resp) -> {
+                    String jwtToken = req.param("key").value();
+                    Jws<Claims> claims = Jwts.parser()
+                            .setSigningKey(UserApplication.KEY)
+                            .parseClaimsJws(jwtToken);
+                    resp.send(claims.getBody());
                 })
                 .produces("json")
                 .consumes("json");
 
-        on("dev", () -> {
-            use(new JwtModule());
-        });
+        on("pr", () -> use(new JwtModule(false)))
+                .orElse(() -> use(new JwtModule(true)));
 
         use("/api/users")
                 .get("/", (req, resp) -> {
-                    if(!((UserRoles)req.get("roles")).hasRole(req.route().attr("role"))) throw new Err(403);
+                    if(req.get("secureMode")) if(!((UserRoles)req.get("roles")).hasRole(req.route().attr("role"))) throw new Err(403);
                     System.out.println("req.require(UserRoles.class).toString() = " + req.require(UserRoles.class).toString());;
 
                     try {

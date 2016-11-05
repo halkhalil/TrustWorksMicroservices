@@ -1,4 +1,4 @@
-package dk.trustworks.usermanager.dto;
+package dk.trustworks.adminportal.domain;
 
 import org.joda.time.LocalDate;
 

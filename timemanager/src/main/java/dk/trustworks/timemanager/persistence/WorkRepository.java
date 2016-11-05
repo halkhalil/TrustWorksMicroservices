@@ -1,72 +1,75 @@
 package dk.trustworks.timemanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.framework.persistence.GenericRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import dk.trustworks.timemanager.dto.Work;
+import org.apache.tomcat.jni.Local;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class WorkRepository extends GenericRepository {
+public class WorkRepository {
 
-    private static final Logger log = LogManager.getLogger(WorkRepository.class);
+    private final Sql2o sql2o;
 
-    //Cache<String, Double> calculateTaskUserTotalDurationCache = CacheBuilder.newBuilder().maximumSize(100).build();
-
-    public WorkRepository() {
-        super();
+    public WorkRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    public List<Map<String, Object>> findByTaskUUID(String taskUUID) {
-        log.debug("WorkRepository.findByTaskUUID");
-        log.debug("taskuuid = [" + taskUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByTaskUUID(String taskUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "from work yt inner join( " +
                     "select uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "from work WHERE taskuuid LIKE :taskuuid " +
                     "group by day, month, year " +
                     ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
                     .addParameter("taskuuid", taskUUID)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00610:", e);
+            throw new RuntimeException(e);
         }
+    }
+
+    public List<Work> findByPeriod(LocalDate periodStart, LocalDate periodEnd) {
+        int startYear = periodStart.getYear();
+        int startMonth = periodStart.getMonthOfYear();
+        int startDay = periodStart.getDayOfMonth();
+        int endYear = periodEnd.getYear();
+        int endMonth = periodEnd.getMonthOfYear();
+        int endDay = periodEnd.getDayOfMonth();
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYear(String year) {
-        log.debug("WorkRepository.findByYear");
-        log.debug("year = [" + year + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYear(int year) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "from work yt inner join ( " +
                     "select uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "from work WHERE year LIKE :year " +
                     "group by day, month, year, taskuuid, useruuid " +
                     ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00620:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYearAndUserUUID(String year, String userUUID) {
-        log.debug("WorkRepository.findByYearAndUserUUID");
-        log.debug("year = [" + year + "], userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndUserUUID(int year, String userUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE useruuid LIKE :useruuid AND year = :year " +
@@ -74,18 +77,15 @@ public class WorkRepository extends GenericRepository {
                     ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
                     .addParameter("useruuid", userUUID)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00630:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYearAndMonth(int year, int month) {
-        log.debug("WorkRepository.findByYearAndMonth");
-        log.debug("year = [" + year + "], month = [" + month + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndMonth(int year, int month) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE month = :month AND year = :year " +
@@ -93,18 +93,15 @@ public class WorkRepository extends GenericRepository {
                     ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00640:", e);
             throw new RuntimeException(e);
         }
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndTaskUUIDAndUserUUID(String year, String month, String taskUUID, String userUUID) {
-        log.debug("WorkRepository.findByYearAndMonthAndTaskUUIDAndUserUUID");
-        log.debug("year = [" + year + "], month = [" + month + "], taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndMonthAndTaskUUIDAndUserUUID(int year, int month, String taskUUID, String userUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE taskuuid LIKE :taskuuid AND useruuid LIKE useruuid AND month = :month AND year = :year " +
@@ -114,18 +111,15 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("useruuid", userUUID)
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00650:", e);
             throw new RuntimeException(e);
         }
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndDay(int year, int month, int day) {
-        log.debug("WorkRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID");
-        log.debug("year = [" + year + "], month = [" + month + "], day = [" + day + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndMonthAndDay(int year, int month, int day) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE day = :day AND month = :month AND year = :year " +
@@ -134,18 +128,15 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("day", day)
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00660:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(int year, int month, int day, String taskUUID, String userUUID) {
-        log.debug("WorkRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID");
-        log.debug("year = [" + year + "], month = [" + month + "], day = [" + day + "], taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(int year, int month, int day, String taskUUID, String userUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE taskuuid LIKE :taskuuid AND useruuid LIKE :useruuid AND year = :year AND month = :month AND day = :day " +
@@ -156,18 +147,15 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("month", month)
                     .addParameter("year", year)
                     .addParameter("day", day)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00660:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByTaskUUIDAndUserUUID(String taskUUID, String userUUID) {
-        log.debug("WorkRepository.findByTaskUUIDAndUserUUID");
-        log.debug("taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByTaskUUIDAndUserUUID(String taskUUID, String userUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE taskuuid LIKE :taskuuid AND useruuid LIKE :useruuid " +
@@ -175,18 +163,15 @@ public class WorkRepository extends GenericRepository {
                     "ON yt.created = ss.created AND yt.taskuuid = ss.taskuuid AND yt.useruuid = ss.useruuid;")
                     .addParameter("taskuuid", taskUUID)
                     .addParameter("useruuid", userUUID)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00670:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndTaskUUID(int year, int month, String taskUUID) {
-        log.debug("WorkRepository.findByYearAndMonthAndTaskUUID");
-        log.debug("year = [" + year + "], month = [" + month + "], taskUUID = [" + taskUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndMonthAndTaskUUID(int year, int month, String taskUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE taskuuid LIKE :taskuuid AND month = :month AND year = :year " +
@@ -195,18 +180,15 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("taskuuid", taskUUID)
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00680:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYearAndTaskUUIDAndUserUUID(int year, String taskUUID, String userUUID) {
-        log.debug("WorkRepository.findByYearAndTaskUUIDAndUserUUID");
-        log.debug("year = [" + year + "], taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+    public List<Work> findByYearAndTaskUUIDAndUserUUID(int year, String taskUUID, String userUUID) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
                     "SELECT uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
                     "FROM work WHERE taskuuid LIKE :taskuuid AND useruuid LIKE :useruuid AND year = :year " +
@@ -215,17 +197,14 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("taskuuid", taskUUID)
                     .addParameter("useruuid", userUUID)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Work.class);
         } catch (Exception e) {
-            log.error("LOG00690:", e);
+            throw new RuntimeException(e);
         }
-        return new ArrayList<>();
     }
 
     public double calculateTaskUserTotalDuration(String taskUUID, String userUUID) {
-        log.debug("WorkRepository.calculateTaskUserTotalDuration");
-        log.debug("taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
+        try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT sum(workduration) sum FROM ( " +
                     "SELECT yt.year, yt.month, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
@@ -239,18 +218,17 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("useruuid", userUUID)
                     .executeScalar(Double.class);
         } catch (Exception e) {
-            log.error("LOG00700:", e);
+            throw new RuntimeException(e);
         }
-        return 0.0;
     }
 
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        log.debug("WorkRepository.create");
-        log.debug("jsonNode = [" + jsonNode + "]");
-        try (org.sql2o.Connection con = database.open()) {
+    public void create(Work work) throws SQLException {
+        work.uuid = UUID.randomUUID().toString();
+        work.created = DateTime.now();
+        try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO work (uuid, day, month, year, taskuuid, useruuid, workduration, created)" +
-                    " VALUES (:uuid, :day, :month, :year, :taskuuid, :useruuid, :workduration, :created)")
+                    " VALUES (:uuid, :day, :month, :year, :taskuuid, :useruuid, :workduration, :created)").bind(work)
+                    /*
                     .addParameter("uuid", UUID.randomUUID().toString())
                     .addParameter("day", jsonNode.get("day").asInt())
                     .addParameter("month", jsonNode.get("month").asInt())
@@ -259,16 +237,16 @@ public class WorkRepository extends GenericRepository {
                     .addParameter("useruuid", jsonNode.get("useruuid").asText())
                     .addParameter("workduration", jsonNode.get("workduration").asDouble())
                     .addParameter("created", Timestamp.from(Instant.now()))
+                    */
                     .executeUpdate();
 
             //calculateTaskUserTotalDurationCache.invalidateAll();
         } catch (Exception e) {
-            log.error("LOG00710:", e);
+            throw new RuntimeException(e);
         }
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
+    public void update(Work work, String uuid) throws SQLException {
 
     }
 }

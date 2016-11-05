@@ -9,9 +9,11 @@ import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.domain.AmountPerItem;
+import dk.trustworks.adminportal.domain.Capacity;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.adminportal.domain.User;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.text.DateFormatSymbols;
 import java.time.DayOfWeek;
@@ -290,6 +292,9 @@ public class UserPerformanceDesign extends CssLayout {
     public class RevenuePerMonthByCapacityChart extends Chart {
 
         public RevenuePerMonthByCapacityChart(int year) {
+            LocalDate periodStart = LocalDate.parse(year+"-01-01");
+            LocalDate periodEnd = LocalDate.parse(year+"-12-31");
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -322,7 +327,13 @@ public class UserPerformanceDesign extends CssLayout {
                 avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
             }
 
-            int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
+            //int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
+            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonthByYear(periodStart, periodEnd);
+            int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
+            int j = 0;
+            for (Capacity capacity : capacityPerMonthByYearList) {
+                capacityPerMonthByYear[j++] = capacity.capacity;
+            }
             ListSeries series2 = new ListSeries("Capacity");
 
             YAxis yaxis = new YAxis();

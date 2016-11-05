@@ -1,108 +1,72 @@
 package dk.trustworks.timemanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.framework.persistence.GenericRepository;
-import dk.trustworks.framework.service.DefaultLocalService;
+import dk.trustworks.timemanager.dto.Work;
 import dk.trustworks.timemanager.persistence.WorkRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class WorkService extends DefaultLocalService {
+public class WorkService {
 
-    private static final Logger log = LogManager.getLogger(WorkService.class);
     private WorkRepository workRepository;
 
-    public WorkService() {
-        workRepository = new WorkRepository();
+    public WorkService(DataSource ds) {
+        workRepository = new WorkRepository(ds);
     }
 
-    public List<Map<String, Object>> findByTaskUUID(Map<String, Deque<String>> queryParameters) {
-        String taskuuid = queryParameters.get("taskuuid").getFirst();
-        return workRepository.findByTaskUUID(taskuuid);
+    public List<Work> findByTaskUUID(String taskUUID) {
+        return workRepository.findByTaskUUID(taskUUID);
     }
 
-    public List<Map<String, Object>> findByYear(Map<String, Deque<String>> queryParameters) {
-        String year = queryParameters.get("year").getFirst();
+    public List<Work> findByYear(int year) {
         return workRepository.findByYear(year);
     }
 
-    public List<Map<String, Object>> findByYearAndUserUUID(Map<String, Deque<String>> queryParameters) {
-        String year = queryParameters.get("year").getFirst();
-        String userUUID = queryParameters.get("useruuid").getFirst();
+    public List<Work> findByYearAndUserUUID(String userUUID, int year) {
         return workRepository.findByYearAndUserUUID(year, userUUID);
     }
 
-    public List<Map<String, Object>> findByYearAndMonth(Map<String, Deque<String>> queryParameters) {
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        int month = Integer.parseInt(queryParameters.get("month").getFirst());
-        List<Map<String, Object>> result = workRepository.findByYearAndMonth(year, month);
-        log.debug("result: " + result.size());
-        return result;
+    public List<Work> findByYearAndMonth(int year, int month) {
+        return workRepository.findByYearAndMonth(year, month);
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndTaskUUIDAndUserUUID(Map<String, Deque<String>> queryParameters) {
-        String year = queryParameters.get("year").getFirst();
-        String month = queryParameters.get("month").getFirst();
-        String taskUUID = queryParameters.get("taskuuid").getFirst();
-        String userUUID = queryParameters.get("useruuid").getFirst();
+    public List<Work> findByYearAndMonthAndTaskUUIDAndUserUUID(int year, int month, String taskUUID, String userUUID) {
         return workRepository.findByYearAndMonthAndTaskUUIDAndUserUUID(year, month, taskUUID, userUUID);
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(Map<String, Deque<String>> queryParameters) {
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        int month = Integer.parseInt(queryParameters.get("month").getFirst());
-        int day = Integer.parseInt(queryParameters.get("day").getFirst());
-        String taskUUID = queryParameters.get("taskuuid").getFirst();
-        String userUUID = queryParameters.get("useruuid").getFirst();
+    public List<Work> findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(int year, int month, int day, String taskUUID, String userUUID) {
         return workRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(year, month, day, taskUUID, userUUID);
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndDay(Map<String, Deque<String>> queryParameters) {
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        int month = Integer.parseInt(queryParameters.get("month").getFirst());
-        int day = Integer.parseInt(queryParameters.get("day").getFirst());
+    public List<Work> findByYearAndMonthAndDay(int year, int month, int day) {
         return workRepository.findByYearAndMonthAndDay(year, month, day);
     }
 
-    public List<Map<String, Object>> findByYearAndMonthAndTaskUUID(Map<String, Deque<String>> queryParameters) {
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        int month = Integer.parseInt(queryParameters.get("month").getFirst());
-        String taskUUID = queryParameters.get("taskuuid").getFirst();
+    public List<Work> findByYearAndMonthAndTaskUUID(int year, int month, String taskUUID) {
         return workRepository.findByYearAndMonthAndTaskUUID(year, month, taskUUID);
     }
 
-    public List<Map<String, Object>> findByYearAndTaskUUIDAndUserUUID(Map<String, Deque<String>> queryParameters) {
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        String taskUUID = queryParameters.get("taskuuid").getFirst();
-        String userUUID = queryParameters.get("useruuid").getFirst();
+    public List<Work> findByYearAndTaskUUIDAndUserUUID(int year, String taskUUID, String userUUID) {
         return workRepository.findByYearAndTaskUUIDAndUserUUID(year, taskUUID, userUUID);
     }
 
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        workRepository.create(jsonNode);
+    public Map<String, Object> calculateTaskUserTotalDuration(String taskUUID, String userUUID) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalworkduration", workRepository.calculateTaskUserTotalDuration(taskUUID, userUUID));
+        return result;
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        workRepository.update(jsonNode, uuid);
+    public void create(Work work) throws SQLException {
+        workRepository.create(work);
     }
 
-    @Override
-    public GenericRepository getGenericRepository() {
-        return workRepository;
-    }
-
-    @Override
-    public String getResourcePath() {
-        return "works";
+    public void update(Work work, String uuid) throws SQLException {
+        workRepository.update(work, uuid);
     }
 }

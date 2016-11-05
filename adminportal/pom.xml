@@ -143,6 +143,13 @@
 			<artifactId>loginform</artifactId>
 			<version>0.6.2</version>
 		</dependency>
+
+		<!-- security -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.7.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

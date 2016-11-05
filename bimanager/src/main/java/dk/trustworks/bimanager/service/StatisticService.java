@@ -70,17 +70,18 @@ public class StatisticService extends DefaultLocalService {
             System.out.println("user = " + users.get(userUUID).getUsername());
             double avgCapacityPerUser;
 
-            int[] capacityPerMonthByYearByUser = gatherFiscalPeriodData(restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID), restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), fiscal);
+            List<Capacity> capacityPerMonthByYearByUser = restDelegate.getCapacityPerMonthByYearByUser(fiscalPeriod.getStart().toLocalDate(), fiscalPeriod.getEnd().toLocalDate(), userUUID);//gatherFiscalPeriodData(restDelegate.getCapacityPerMonthByYearByUser(year - 1, userUUID), restDelegate.getCapacityPerMonthByYearByUser(year, userUUID), fiscal);
 
             System.out.print("capacityPerMonthByYearByUser: ");
-            for (int i : capacityPerMonthByYearByUser) {
+            for (Capacity i : capacityPerMonthByYearByUser) {
                 System.out.print(i + ", ");
             }
             System.out.println();
 
             //if(year==dt.getYear()) {
             System.out.println("Months.monthsIn(fiscalPeriod).getMonths() = " + Months.monthsIn(fiscalPeriod.withEnd(fiscalPeriod.getEnd().withDayOfMonth(fiscalPeriod.getEnd().dayOfMonth().getMaximumValue()))).getMonths());
-                avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod.withEnd(fiscalPeriod.getEnd().withDayOfMonth(fiscalPeriod.getEnd().dayOfMonth().getMaximumValue()))).getMonths());
+                avgCapacityPerUser = capacityPerMonthByYearByUser.stream().mapToInt((x) -> x.capacity).summaryStatistics().getAverage();
+                //avgCapacityPerUser = stats.getAverage(); //ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod.withEnd(fiscalPeriod.getEnd().withDayOfMonth(fiscalPeriod.getEnd().dayOfMonth().getMaximumValue()))).getMonths());
             /*} else {
                 avgCapacityPerUser = ArrayUtils.average(capacityPerMonthByYearByUser, Months.monthsIn(fiscalPeriod).getMonths());
             }*/

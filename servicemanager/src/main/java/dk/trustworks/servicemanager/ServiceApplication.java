@@ -66,11 +66,11 @@ public class ServiceApplication {
 
         final IdentityManager identityManager = new MapIdentityManager(users);
 */
-        SSLContext sslContext = createSSLContext(loadKeyStore("server.keystore"), loadKeyStore("server.truststore"));
+        //SSLContext sslContext = createSSLContext(loadKeyStore("server.keystore"), loadKeyStore("server.truststore"));
 
         Undertow reverseProxy = Undertow.builder()
                 .addHttpListener(Integer.parseInt(System.getProperty("application.port")), System.getProperty("application.host"))
-                .addHttpsListener(443, System.getProperty("application.host"), sslContext)
+                //.addHttpsListener(443, System.getProperty("application.host"), sslContext)
                 .setIoThreads(4)
                 .setServerOption(UndertowOptions.ENABLE_HTTP2, true)
                 .setServerOption(UndertowOptions.ENABLE_SPDY, true)
@@ -90,6 +90,7 @@ public class ServiceApplication {
             reverseProxy.start();
             System.out.println("Running on port "+System.getProperty("application.port"));
         } catch (Exception e) {
+            /*
             e.printStackTrace();
             reverseProxy = Undertow.builder()
                     .addHttpListener(9090, "localhost")
@@ -106,6 +107,7 @@ public class ServiceApplication {
                     .build();
             reverseProxy.start();
             System.out.println("Running on port 9090");
+            */
         }
     }
 

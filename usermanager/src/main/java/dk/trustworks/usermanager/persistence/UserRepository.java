@@ -58,7 +58,9 @@ public class UserRepository {
     public User findByUUID(String uuid) {
         System.out.println("uuid = " + uuid);
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid").addParameter("uuid", uuid).executeAndFetch(User.class).get(0);
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid")
+                    .addParameter("uuid", uuid)
+                    .executeAndFetchFirst(User.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

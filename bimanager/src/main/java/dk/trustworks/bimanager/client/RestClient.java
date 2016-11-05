@@ -1,7 +1,11 @@
 package dk.trustworks.bimanager.client;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -9,8 +13,11 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import dk.trustworks.bimanager.client.commands.*;
 import dk.trustworks.bimanager.dto.*;
 import dk.trustworks.framework.network.Locator;
+import dk.trustworks.framework.server.DefaultHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.json.JSONArray;
 
 import java.io.IOException;
@@ -34,6 +41,7 @@ public class RestClient {
                     .queryString("taskuuid", taskuuid)
                     .queryString("useruuid", useruuid)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             log.exit((double) jsonResponse.getBody().getObject().get("totalworkduration"));
             return (double) jsonResponse.getBody().getObject().get("totalworkduration");
@@ -50,6 +58,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/tasks/" + taskUUID)
                     .queryString("projection", "projectuuid")
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             log.exit((double) jsonResponse.getBody().getObject().getJSONObject("project").get("budget"));
             return (double) jsonResponse.getBody().getObject().getJSONObject("project").get("budget");
@@ -68,6 +77,7 @@ public class RestClient {
                     .queryString("taskuuid", taskuuid)
                     .queryString("useruuid", useruuid)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             return (double) jsonResponse.getBody().getObject().get("price");
         } catch (UnirestException e) {
@@ -85,6 +95,7 @@ public class RestClient {
                     .queryString("month", month)
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {
@@ -105,6 +116,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("timeservice") + "/api/works/search/findByYear")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {});
@@ -117,38 +129,45 @@ public class RestClient {
         return new ArrayList<>();
     }
 
-    public Integer[] getCapacityPerMonthByYear(int year) {
-        log.entry(year);
+    public List<Capacity> getCapacityPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/capacitypermonth")
-                    .queryString("year", year)
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/capacities")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
-            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonth");
-            Integer[] result = new Integer[12];
-            if (jsonArray != null) {
-                int len = jsonArray.length();
-                for (int i=0;i<len;i++){
-                    result[i] = jsonArray.getInt(i);
-                }
-            }
-            return result;
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            JodaModule module = new JodaModule();
+            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+            mapper.registerModule(module);
+
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
+        } catch (JsonParseException e) {
+            e.printStackTrace();
         } catch (UnirestException e) {
             e.printStackTrace();
-            log.catching(e);
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        log.exit(new int[12]);
-        return new Integer[12];
+        System.out.println("NOTHING FOUND!!!");
+        return new ArrayList<>();
     }
 
-    public int[] getCapacityPerMonthByYearByUser(int year, String userUUID) {
-        log.entry(year);
+    public List<Capacity> getCapacityPerMonthByYearByUser(LocalDate periodStart, LocalDate periodEnd, String userUUID) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/capacitypermonthbyuser")
-                    .queryString("year", year)
-                    .queryString("useruuid", userUUID)
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/"+userUUID+"/capacities")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
+            /*
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonthbyuser");
             int[] result = new int[12];
             if (jsonArray != null) {
@@ -158,12 +177,20 @@ public class RestClient {
                 }
             }
             return result;
+            */
         } catch (UnirestException e) {
             e.printStackTrace();
-            log.catching(e);
+            throw new RuntimeException(e);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        log.exit(new int[12]);
-        return new int[12];
     }
 
     public List<Work> getRegisteredWorkByUserAndYear(String userUUID, int year) {
@@ -173,6 +200,7 @@ public class RestClient {
                     .queryString("useruuid", userUUID)
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {
@@ -193,6 +221,7 @@ public class RestClient {
                     .queryString("taskuuid", taskUUID)
                     .queryString("useruuid", userUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             TaskWorkerConstraint result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<TaskWorkerConstraint>() {
@@ -212,6 +241,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraints/search/findByTaskUUID")
                     .queryString("taskuuid", taskUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraint>>() {
@@ -230,6 +260,7 @@ public class RestClient {
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets/search/findByTaskWorkerConstraintUUID")
                     .queryString("taskworkerconstraintuuid", taskWorkerConstraint.getUUID())
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
@@ -250,6 +281,7 @@ public class RestClient {
                     .queryString("month", month)
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
@@ -270,6 +302,7 @@ public class RestClient {
                     .queryString("year", year)
                     .queryString("ahead", ahead)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
@@ -291,6 +324,7 @@ public class RestClient {
                     .queryString("year", year)
                     .queryString("useruuid", userUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
@@ -313,6 +347,7 @@ public class RestClient {
                     .queryString("year", year)
                     .queryString("datetime", datetime)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<TaskWorkerConstraintBudget> taskBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<TaskWorkerConstraintBudget>>() {
@@ -332,6 +367,7 @@ public class RestClient {
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projectbudgets/search/findByYear")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<ProjectYearEconomy> projectBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<ProjectYearEconomy>>() {
@@ -352,6 +388,7 @@ public class RestClient {
                     .queryString("useruuid", userUUID)
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<ProjectYearEconomy> projectBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<ProjectYearEconomy>>() {
@@ -372,6 +409,7 @@ public class RestClient {
                     .queryString("useruuid", userUUID)
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             List<ProjectYearEconomy> projectBudgets = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<ProjectYearEconomy>>() {
@@ -390,6 +428,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/tasks/" + taskUUID)
                     .queryString("projection", "projectuuid/clientuuid")
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             log.debug("getTaskWorkerRate: jsonResponse.getBody().getObject().toString() = " + jsonResponse.getBody().getObject().toString());
 
@@ -411,6 +450,7 @@ public class RestClient {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects/" + projectUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             log.debug("jsonResponse = " + jsonResponse.getBody());
             ObjectMapper mapper = new ObjectMapper();
@@ -429,6 +469,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/tasks/" + taskUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Task>() {
@@ -446,6 +487,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/tasks/search/findByProjectUUIDOrderByNameAsc")
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .queryString("projectuuid", projectUUID)
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -463,6 +505,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects")
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Project>>() {
@@ -484,7 +527,12 @@ public class RestClient {
     }
 
     public List<User> getUsers() {
-        return new GetUsersCommand().execute();
+        try {
+            return new GetUsersCommand().run();//;.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
     public void postTaskBudget(TaskWorkerConstraintBudget taskWorkerConstraintBudget) {
@@ -493,6 +541,7 @@ public class RestClient {
         try {
             Unirest.post(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets")
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .body(new ObjectMapper().writeValueAsString(taskWorkerConstraintBudget))
                     .asJson();
         } catch (Exception e) {
@@ -506,6 +555,7 @@ public class RestClient {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
+                    .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {

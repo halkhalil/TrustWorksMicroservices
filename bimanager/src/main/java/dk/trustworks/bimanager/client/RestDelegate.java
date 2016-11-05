@@ -3,6 +3,7 @@ package dk.trustworks.bimanager.client;
 import com.google.common.cache.Cache;
 import dk.trustworks.bimanager.caches.CacheHandler;
 import dk.trustworks.bimanager.dto.*;
+import org.joda.time.LocalDate;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -65,16 +66,14 @@ public class RestDelegate {
         }
     }
 
-    public List<Integer> getCapacityPerMonthByYear(int year) {
-        //try { //listCache.get("capacitypermonth"+year, (Callable<? extends List>)
-        return new ArrayList<>(Arrays.asList(restClient.getCapacityPerMonthByYear(year)));
-        //} catch (ExecutionException e) {
-        //  throw new RuntimeException(e.getCause());
-        //}
+    public List<Capacity> getCapacityPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
+        System.out.println("RestDelegate.getCapacityPerMonthByYear");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
+        return restClient.getCapacityPerMonthByYear(periodStart, periodEnd);
     }
 
-    public int[] getCapacityPerMonthByYearByUser(int year, String userUUID) {
-        return restClient.getCapacityPerMonthByYearByUser(year, userUUID);
+    public List<Capacity> getCapacityPerMonthByYearByUser(LocalDate periodStart, LocalDate periodEnd, String userUUID) {
+        return restClient.getCapacityPerMonthByYearByUser(periodStart, periodEnd, userUUID);
     }
 
     @SuppressWarnings("unchecked")

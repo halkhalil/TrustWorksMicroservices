@@ -1,14 +1,18 @@
 package dk.trustworks.adminportal.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.vaadin.server.VaadinSession;
 import dk.trustworks.framework.network.Locator;
+import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,10 +27,22 @@ public class DataAccess implements Serializable {
     public DataAccess() {
     }
 
+    public JwtToken getJwtToken(String username, String password) throws Exception {
+        HttpResponse<JsonNode> jsonResponse;
+        jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/jwttoken")
+                .queryString("username", username)
+                .queryString("password", password)
+                .header("accept", "application/json")
+                .asJson();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<JwtToken>() {});
+    }
+
     public Double[] getRevenuePerDay() {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenueperday")
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("revenueperday");
             ArrayList<Double> list = new ArrayList<>();
@@ -48,6 +64,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenuepermonth")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("revenuepermonth");
             ArrayList<Long> list = new ArrayList<>();
@@ -70,6 +87,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("ahead", ahead)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("budgetpermonth");
             ArrayList<Long> list = new ArrayList<>();
@@ -93,6 +111,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
@@ -108,6 +127,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
@@ -122,6 +142,7 @@ public class DataAccess implements Serializable {
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenuepertaskperpersonbyproject")
                     .queryString("projectuuid", projectUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
@@ -136,6 +157,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("useruuid", useruuid)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("revenuepermonth");
             ArrayList<Long> list = new ArrayList<>();
@@ -158,6 +180,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("useruuid", useruuid)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("sickdayspermonth");
             ArrayList<Double> list = new ArrayList<>();
@@ -180,6 +203,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("useruuid", useruuid)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("freedayspermonth");
             ArrayList<Double> list = new ArrayList<>();
@@ -201,6 +225,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenuepermonthbycapacity")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("revenuepermonthbycapacity");
             ArrayList<Long> list = new ArrayList<>();
@@ -222,6 +247,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonthbycapacity")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonthbycapacity");
             ArrayList<Long> list = new ArrayList<>();
@@ -243,6 +269,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonthbycapacityexceptsalary")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonthbycapacity");
             ArrayList<Long> list = new ArrayList<>();
@@ -264,6 +291,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonth")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonth");
             ArrayList<Long> list = new ArrayList<>();
@@ -280,39 +308,51 @@ public class DataAccess implements Serializable {
         return null;
     }
 
-    public int[] getCapacityPerMonthByYear(int year) {
+    public List<Capacity> getCapacityPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/capacitypermonth")
-                    .queryString("year", year)
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/capacities")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
-            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("capacitypermonth");
-            int[] result = new int[12];
-            if (jsonArray != null) {
-                int len = jsonArray.length();
-                for (int i = 0; i < len; i++) {
-                    result[i] = jsonArray.getInt(i);
-                }
-            }
-            return result;
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            JodaModule module = new JodaModule();
+            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+            mapper.registerModule(module);
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
         } catch (UnirestException e) {
-            System.err.println(e);
+            e.printStackTrace();
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public Map<String, int[]> getUserAvailabilityPerMonthByYear(int year, boolean fiscal) {
+    public List<Availability> getUserAvailabilityPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/command/useravailabilitypermonthbyyear")
-                    .queryString("year", year)
-                    .queryString("fiscal", fiscal)
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/availabilities")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, int[]>>() {});
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            JodaModule module = new JodaModule();
+            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+            mapper.registerModule(module);
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Availability>>() {});
         } catch (UnirestException e) {
-            System.err.println(e);
+            e.printStackTrace();
         } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -322,17 +362,23 @@ public class DataAccess implements Serializable {
 
 
 
-    public Map<String, double[]> getUserSalaryPerMonthByYear(int year, boolean fiscal) {
+    public List<Salary> getUserSalaryPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/salaries/command/usersalarypermonthbyyear")
-                    .queryString("year", year)
-                    .queryString("fiscal", fiscal)
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/salaries")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, double[]>>() {});
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            JodaModule module = new JodaModule();
+            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+            mapper.registerModule(module);
+
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Salary>>() {});
         } catch (UnirestException e) {
-            System.err.println(e);
+            e.printStackTrace();
         } catch (JsonParseException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -347,6 +393,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("useruuid", userUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("budgetpermonth");
             ArrayList<Long> list = new ArrayList<>();
@@ -370,6 +417,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {
@@ -386,6 +434,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {
@@ -401,6 +450,7 @@ public class DataAccess implements Serializable {
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/workregisterdelay")
                     .queryString("year", year)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {
@@ -417,6 +467,7 @@ public class DataAccess implements Serializable {
                     .queryString("year", year)
                     .queryString("useruuid", userUUID)
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("billablehoursperday");
             double[] result = new double[7];
@@ -437,6 +488,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
@@ -452,6 +504,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {
@@ -467,6 +520,7 @@ public class DataAccess implements Serializable {
             Unirest.post(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("Content-Type", "application/json")
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .body(new ObjectMapper().writeValueAsString(expense))
                     .asJson();
         } catch (Exception e) {
@@ -479,6 +533,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/revenuerate")
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .asJson();
             return jsonResponse.getBody().getObject().getDouble("revenuerate");
         } catch (Exception e) {
@@ -492,6 +547,7 @@ public class DataAccess implements Serializable {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/fiscalyearincome")
                     .header("accept", "application/json")
+                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
                     .queryString("year", year)
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();

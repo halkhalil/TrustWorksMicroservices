@@ -238,22 +238,24 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenuepermonthbycapacity(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        LocalDate periodStart = LocalDate.parse(year+"-01-01");
+        LocalDate periodEnd = LocalDate.parse(year+"-12-31");
+
         List<Work> allWork = restDelegate.getAllWork(year);
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = restDelegate.getTaskWorkerConstraintMap(restDelegate.getAllProjects());
-        List<Integer> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(year);
+        List<Capacity> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(periodStart, periodEnd);
         int revenuepermonth[] = new int[12];
 
         for (Work work : allWork) {
-            //if (work.getYear()!=year) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(work.getUserUUID()+work.getTaskUUID());
             if(taskWorkerConstraint==null) continue;
             revenuepermonth[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
 
         for (int i = 0; i < 12; i++) {
-            if(capacityPerMonth.get(i) == 0) continue;
+            if(capacityPerMonth.get(i).capacity == 0) continue;
             if(revenuepermonth[i] == 0) continue;
-            revenuepermonth[i] = Math.round((revenuepermonth[i] / capacityPerMonth.get(i)) * 37);
+            revenuepermonth[i] = Math.round((revenuepermonth[i] / capacityPerMonth.get(i).capacity) * 37);
         }
 
         Map<String, Object> result = new HashMap<>();
@@ -267,8 +269,20 @@ public class StatisticHandler extends DefaultHandler {
 
     public void expensepermonthbycapacity(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        LocalDate periodStart = LocalDate.parse(year+"-01-01");
+        LocalDate periodEnd = LocalDate.parse(year+"-12-31");
+
         List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
-        List<Integer> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(year);
+        for (Expense expense : allExpensesByYear) {
+            System.out.println("expense = " + expense);
+        }
+
+        List<Capacity> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(periodStart, periodEnd);
+        System.out.println("capacityPerMonth.size() = " + capacityPerMonth.size());
+        for (Capacity capacity : capacityPerMonth) {
+            System.out.println("capacity = " + capacity);
+        }
+
         long expensepermonth[] = new long[12];
 
         for (Expense expense : allExpensesByYear) {
@@ -276,9 +290,9 @@ public class StatisticHandler extends DefaultHandler {
         }
 
         for (int i = 0; i < 12; i++) {
-            if(capacityPerMonth.get(i) == 0) continue;
+            if(capacityPerMonth.get(i).capacity == 0) continue;
             if(expensepermonth[i] == 0) continue;
-            expensepermonth[i] = Math.round(expensepermonth[i] / (capacityPerMonth.get(i) / 37.0));
+            expensepermonth[i] = Math.round(expensepermonth[i] / (capacityPerMonth.get(i).capacity / 37.0));
         }
 
         Map<String, Object> result = new HashMap<>();
@@ -292,8 +306,11 @@ public class StatisticHandler extends DefaultHandler {
 
     public void expensepermonthbycapacityexceptsalary(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
+        LocalDate periodStart = LocalDate.parse(year+"-01-01");
+        LocalDate periodEnd = LocalDate.parse(year+"-12-31");
+
         List<Expense> allExpensesByYear = restDelegate.getAllExpensesByYear(year);
-        List<Integer> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(year);
+        List<Capacity> capacityPerMonth = restDelegate.getCapacityPerMonthByYear(periodStart, periodEnd);
         long expensepermonth[] = new long[12];
 
         for (Expense expense : allExpensesByYear) {
@@ -302,9 +319,9 @@ public class StatisticHandler extends DefaultHandler {
         }
 
         for (int i = 0; i < 12; i++) {
-            if(capacityPerMonth.get(i) == 0) continue;
+            if(capacityPerMonth.get(i).capacity == 0) continue;
             if(expensepermonth[i] == 0) continue;
-            expensepermonth[i] = Math.round(expensepermonth[i] / (capacityPerMonth.get(i) / 37.0));
+            expensepermonth[i] = Math.round(expensepermonth[i] / (capacityPerMonth.get(i).capacity / 37.0));
         }
 
         Map<String, Object> result = new HashMap<>();
@@ -343,8 +360,12 @@ public class StatisticHandler extends DefaultHandler {
         allWork.addAll(restDelegate.getAllWork(today.getYear()-1));
         allWork.addAll(restDelegate.getAllWork(today.getYear()-2));
 
-        List<Integer> capacityPerMonthThisYear = restDelegate.getCapacityPerMonthByYear(today.getYear());
-        List<Integer> capacityPerMonthLastYear = restDelegate.getCapacityPerMonthByYear(today.getYear()-1);
+
+        LocalDate periodStart = LocalDate.parse(today.getYear()+"-01-01");
+        LocalDate periodEnd = LocalDate.parse(today.getYear()+"-12-31");
+
+        List<Capacity> capacityPerMonthThisYear = restDelegate.getCapacityPerMonthByYear(periodStart, periodEnd);
+        List<Capacity> capacityPerMonthLastYear = restDelegate.getCapacityPerMonthByYear(periodStart.minusYears(1), periodEnd.minusYears(1));
 
         double revenueLastYearsMonth = 0;
         //int thisMonth = today.getMonthOfYear()-1;
@@ -361,7 +382,7 @@ public class StatisticHandler extends DefaultHandler {
             revenueLastYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
 
-        if(revenueLastYearsMonth > 0) revenueLastYearsMonth = Math.round((revenueLastYearsMonth / capacityPerMonthLastYear.get(lastYearWorkDate.getMonthOfYear()-1)) * 37);
+        if(revenueLastYearsMonth > 0) revenueLastYearsMonth = Math.round((revenueLastYearsMonth / capacityPerMonthLastYear.get(lastYearWorkDate.getMonthOfYear()-1).capacity) * 37);
 
 
         double revenueThisYearsMonth = 0;
@@ -377,7 +398,7 @@ public class StatisticHandler extends DefaultHandler {
             revenueThisYearsMonth += work.getWorkDuration() * taskWorkerConstraint.getPrice();
         }
 
-        if(revenueThisYearsMonth > 0) revenueThisYearsMonth = Math.round((revenueThisYearsMonth / capacityPerMonthThisYear.get(today.getMonthOfYear()-1)) * 37);
+        if(revenueThisYearsMonth > 0) revenueThisYearsMonth = Math.round((revenueThisYearsMonth / capacityPerMonthThisYear.get(today.getMonthOfYear()-1).capacity) * 37);
 
         double percent = (100.0 / revenueLastYearsMonth) * revenueThisYearsMonth;
 

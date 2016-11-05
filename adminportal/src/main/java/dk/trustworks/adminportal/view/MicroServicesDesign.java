@@ -54,7 +54,7 @@ public class MicroServicesDesign extends CssLayout {
         //WorkRegistrationDelayChart workRegistrationDelayChart = new WorkRegistrationDelayChart(year);
         //dashboard_item30.removeAllComponents();
         //dashboard_item30.addComponent(workRegistrationDelayChart);
-
+/*
         BiManagerTimersChart topGrossingEmployeesChart = new BiManagerTimersChart();
         dashboard_item5.removeAllComponents();
         dashboard_item5.addComponent(topGrossingEmployeesChart);
@@ -63,6 +63,7 @@ public class MicroServicesDesign extends CssLayout {
         dashboard_item26.removeAllComponents();
         dashboard_item26.addComponent(topGrossingProjectsChart);
 
+
         RevenuePerMonthChart revenuePerMonthChart = new RevenuePerMonthChart(year);
         dashboard_item27.removeAllComponents();
         dashboard_item27.addComponent(revenuePerMonthChart);
@@ -70,7 +71,7 @@ public class MicroServicesDesign extends CssLayout {
         RevenuePerMonthByCapacityChart revenuePerMonthByCapacityChart = new RevenuePerMonthByCapacityChart();
         dashboard_item28.removeAllComponents();
         dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
-
+*/
 //        MotherManagerTimersChart motherManagerTimersChart = new MotherManagerTimersChart();
         dashboard_item29.removeAllComponents();
         //      dashboard_item29.addComponent(motherManagerTimersChart);

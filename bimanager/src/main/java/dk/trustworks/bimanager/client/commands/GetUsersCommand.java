@@ -9,6 +9,7 @@ import com.mashape.unirest.http.Unirest;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import dk.trustworks.bimanager.dto.User;
+import dk.trustworks.framework.server.DefaultHandler;
 import dk.trustworks.framework.servlets.MetricsServletContextListener;
 import dk.trustworks.framework.network.Locator;
 
@@ -24,8 +25,10 @@ public class GetUsersCommand extends HystrixCommand<List<User>> {
 
     public List<User> run() throws Exception {
         HttpResponse<JsonNode> jsonResponse;
+        System.out.println("DefaultHandler.JWTTOKEN.get() = " + DefaultHandler.JWTTOKEN.get());
         jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
                 .header("accept", "application/json")
+                .header("jwt-token", DefaultHandler.JWTTOKEN.get())
                 .asJson();
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {
