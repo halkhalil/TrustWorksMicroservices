@@ -1,37 +1,49 @@
 package dk.trustworks.clientmanager.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.framework.persistence.GenericRepository;
+import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.jooby.Err;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
+public class TaskWorkerConstraintBudgetRepository {
 
     private static final Logger log = LogManager.getLogger();
+    private final Sql2o sql2o;
 
-    public TaskWorkerConstraintBudgetRepository() {
-        super();
+    public TaskWorkerConstraintBudgetRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    @Override
-    public List<Map<String, Object>> findByParentUUID(String entityName, String parentUUIDName, String parentUUID) {
-        return findByTaskWorkerConstraintUUID(parentUUID);
+    public List<TaskWorkerConstraintBudget> findAll() {
+        try (Connection con = sql2o.open()) {
+            List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgets = con.createQuery("select * from taskworkerconstraintbudget")
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
+            con.close();
+            return taskWorkerConstraintBudgets;
+        } catch (Exception e) {
+            log.error("LOG00474:", e);
+        }
+        return new ArrayList<>();
     }
-
-    public List<Map<String, Object>> findByTaskWorkerConstraintUUID(String taskWorkerConstraintUUID) {
+/*
+    public List<TaskWorkerConstraintBudget> findByTaskWorkerConstraintUUID(String taskWorkerConstraintUUID) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUID");
         log.debug("taskWorkerConstraintUUID = " + taskWorkerConstraintUUID);
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("" +
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("" +
                     "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
                     "from taskworkerconstraintbudget yt " +
                     "inner join( " +
@@ -40,18 +52,18 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
                     "group by month, year " +
                     ") ss on yt.month = ss.month and yt.year = ss.year and yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
                     .addParameter("taskworkerconstraintuuid", taskWorkerConstraintUUID)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
         } catch (Exception e) {
             log.error("LOG00470:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByMonthAndYear(int month, int year) {
+    public List<TaskWorkerConstraintBudget> findByMonthAndYear(int month, int year) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByMonthAndYear");
         log.debug("month = [" + month + "], year = [" + year + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("" +
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("" +
                     "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
                     "from taskworkerconstraintbudget yt " +
                     "inner join( " +
@@ -61,39 +73,39 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
                     ") ss on yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
         } catch (Exception e) {
             log.error("LOG00480:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByYear(int year) {
+    public List<TaskWorkerConstraintBudget> findByYear(int year) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByYear");
         log.debug("year = [" + year + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("" +
-                    "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("" +
+                    "select yt.month, yt.year, yt.useruuid, yt.taskuuid, yt.created, yt.budget " +
                     "from taskworkerconstraintbudget yt " +
                     "inner join( " +
-                    "select uuid, month, year, taskworkerconstraintuuid, max(created) created " +
+                    "select uuid, month, year, useruuid, taskuuid, max(created) created " +
                     "from taskworkerconstraintbudget WHERE year = :year " +
-                    "group by month, year, taskworkerconstraintuuid " +
-                    ") ss on yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
+                    "group by month, year, useruuid, taskuuid " +
+                    ") ss on yt.created = ss.created and yt.useruuid = ss.useruuid and yt.taskuuid = ss.taskuuid;")
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
         } catch (Exception e) {
             log.error("LOG00480:", e);
         }
         return new ArrayList<>();
     }
-
-    public List<Map<String, Object>> findByYearAndUser(int year, String userUUID) {
+*/
+    public List<TaskWorkerConstraintBudget> findByYearAndUser(int year, String userUUID) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByYear");
         log.debug("year = [" + year + "]");
         log.debug("userUUID = [" + userUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("" +
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("" +
                     "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid  " +
                     "from taskworkerconstraintbudget yt " +
                     "inner join( " +
@@ -104,21 +116,17 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
                     "INNER JOIN (select * from taskworkerconstraint twc where twc.useruuid LIKE :useruuid) r ON r.uuid = ss.taskworkerconstraintuuid;")
                     .addParameter("year", year)
                     .addParameter("useruuid", userUUID)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
         } catch (Exception e) {
             log.error("LOG00480:", e);
         }
         return new ArrayList<>();
     }
-
-    public List<Map<String, Object>> findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(String taskWorkerConstraintUUID, int month, int year, Date datetime) {
+/*
+    public List<TaskWorkerConstraintBudget> findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(String taskWorkerConstraintUUID, int month, int year, LocalDate date) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate");
-        log.debug("taskWorkerConstraintUUID = [" + taskWorkerConstraintUUID + "], month = [" + month + "], year = [" + year + "], ldt = [" + datetime + "]");
-        if (taskWorkerConstraintUUID.equals("6af071fa-6a95-44e5-8634-9820e0887500") && month == 7) {
-            System.out.println("new SimpleDateFormat(\"yyyy-MM-dd HH:mm\").format(datetime) = " + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(datetime));
-        }
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("" +
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("" +
                     "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
                     "from taskworkerconstraintbudget yt " +
                     "inner join( " +
@@ -127,42 +135,41 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
                     "group by month, year " +
                     ") ss on yt.month = ss.month and yt.year = ss.year and yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
                     .addParameter("taskworkerconstraintuuid", taskWorkerConstraintUUID)
-                    .addParameter("created", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(datetime))
+                    .addParameter("created", date.toDateTimeAtCurrentTime())
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
         } catch (Exception e) {
             log.error("LOG00490:", e);
         }
         return new ArrayList<>();
     }
-
-    public List<Map<String, Object>> findByMonthAndYearAndDate(int month, int year, Date datetime) {
+*/
+    public List<TaskWorkerConstraintBudget> findByMonthAndYearAndDate(int month, int year, LocalDate date) {
         log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate");
-        log.debug("month = [" + month + "], year = [" + year + "], ldt = [" + datetime + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("" +
-                    "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("" +
+                    "select yt.month, yt.year, yt.useruuid, yt.taskuuid, yt.created, yt.budget " +
                     "from taskworkerconstraintbudget yt " +
                     "inner join( " +
-                    "select uuid, month, year, taskworkerconstraintuuid, max(created) created " +
+                    "select uuid, month, year, useruuid, taskuuid, max(created) created " +
                     "from taskworkerconstraintbudget WHERE created < :created AND month = :month AND year = :year " +
-                    "group by month, year, taskworkerconstraintuuid" +
-                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.created = ss.created and yt.taskworkerconstraintuuid = ss.taskworkerconstraintuuid;")
-                    .addParameter("created", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(datetime))
+                    "group by month, year, useruuid, taskuuid" +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.created = ss.created and yt.useruuid = ss.useruuid and yt.taskuuid = ss.taskuuid;")
+                    .addParameter("created", date.toDateTimeAtCurrentTime())
                     .addParameter("month", month)
                     .addParameter("year", year)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
         } catch (Exception e) {
             log.error("LOG00490:", e);
         }
         return new ArrayList<>();
     }
-
+/*
     public double calculateTotalTaskBudget(String taskUUID) {
         log.debug("TaskWorkerConstraintBudgetRepository.calculateTotalTaskBudget");
         log.debug("taskUUID = [" + taskUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
+        try (Connection con = sql2o.open()) {
             return con.createQuery("" +
                     "SELECT sum(budget) sum FROM ( " +
                     "select yt.month, yt.year, yt.created, yt.budget, yt.taskworkerconstraintuuid " +
@@ -180,32 +187,31 @@ public class TaskWorkerConstraintBudgetRepository extends GenericRepository {
         }
         return 0.0;
     }
-
-    public void create(JsonNode jsonNode) throws SQLException {
-        log.entry(jsonNode);
+*/
+    public void create(TaskWorkerConstraintBudget taskWorkerConstraintBudget) throws SQLException {
         log.debug("TaskWorkerConstraintBudgetRepository.create");
-        log.debug("jsonNode = [" + jsonNode + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            con.createQuery("INSERT INTO taskworkerconstraintbudget (uuid, budget, month, year, taskworkerconstraintuuid, created) " +
-                    "VALUES (:uuid, :budget, :month, :year, :taskworkerconstraintuuid, :created)")
-                    .addParameter("uuid", jsonNode.get("uuid").asText(UUID.randomUUID().toString()))
-                    .addParameter("budget", jsonNode.get("budget").asDouble(0.0))
-                    .addParameter("month", jsonNode.get("month").asInt(0))
-                    .addParameter("year", jsonNode.get("year").asInt(0))
-                    .addParameter("taskworkerconstraintuuid", jsonNode.get("taskworkerconstraintuuid").asText())
-                    .addParameter("created", Timestamp.from(Instant.now()))
+        taskWorkerConstraintBudget.uuid = UUID.randomUUID().toString();
+        taskWorkerConstraintBudget.created = DateTime.now();
+        try (Connection con = sql2o.open()) {
+            con.createQuery("INSERT INTO taskworkerconstraintbudget (uuid, budget, month, year, useruuid, taskuuid, created) " +
+                    "VALUES (:uuid, :budget, :month, :year, :useruuid, :taskuuid, :created)")
+                    .bind(taskWorkerConstraintBudget)
                     .executeUpdate();
         } catch (Exception e) {
             log.error("LOG00510:", e);
         }
         log.exit();
-
     }
 
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        log.entry(jsonNode, uuid);
-        log.debug("Update taskworkerconstraintbudget: " + jsonNode);
-        log.error("LOG00250: NOT ALLOWED");
-        throw new RuntimeException("Not allowed");
+    public void update(TaskWorkerConstraintBudget taskWorkerConstraintBudget, String uuid) throws SQLException {
+        throw new Err(405);
+    }
+
+    public void addUserTask(TaskWorkerConstraintBudget taskWorkerConstraintBudget) {
+        Connection con = sql2o.open();
+        con.createQuery("UPDATE taskworkerconstraintbudget p SET p.useruuid = :useruuid, p.taskuuid = :taskuuid WHERE p.uuid LIKE :uuid")
+                .bind(taskWorkerConstraintBudget)
+                .executeUpdate();
+        con.close();
     }
 }

@@ -1,138 +1,133 @@
 package dk.trustworks.clientmanager.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.framework.persistence.GenericRepository;
+import dk.trustworks.clientmanager.model.Client;
+import dk.trustworks.clientmanager.model.Project;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class ProjectRepository extends GenericRepository {
+public class ProjectRepository {
 
     private static final Logger logger = LogManager.getLogger();
+    private final Sql2o sql2o;
 
-    public ProjectRepository() {
-        super();
+    public ProjectRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    public List<Map<String, Object>> findByOrderByNameAsc() {
-        logger.debug("ProjectRepository.findByOrderByNameAsc");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project ORDER BY name ASC").executeAndFetchTable().asList());
+    public List<Project> findAll() {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project ORDER BY name ASC").executeAndFetch(Project.class);
         } catch (Exception e) {
-            logger.error("LOG00350:", e);
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByActiveTrueOrderByNameAsc() {
+    public List<Project> findAllByClientUUIDs(List<Client> clients, boolean active) {
+        String activeFilter = "";
+        if(active) activeFilter = "AND active = 1";
+
+        StringBuilder builder = new StringBuilder();
+        for( int i = 0 ; i < clients.size(); i++ ) {
+            builder.append("'"+clients.get(i).uuid+"',");
+        }
+
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project WHERE clientuuid IN ("+builder.deleteCharAt( builder.length() -1 ).toString()+") "+activeFilter+" ORDER BY name ASC")
+                    .executeAndFetch(Project.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public Project findByUUID(String uuid) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project WHERE uuid LIKE :uuid")
+                    .addParameter("uuid", uuid)
+                    .executeAndFetchFirst(Project.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Project();
+    }
+
+    public List<Project> findByActiveTrue() {
         logger.debug("ProjectRepository.findByActiveTrueOrderByNameAsc");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project WHERE active = TRUE ORDER BY name ASC").executeAndFetchTable().asList());
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project WHERE active = TRUE ORDER BY name ASC").executeAndFetch(Project.class);
         } catch (Exception e) {
             logger.error("LOG00360:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByActiveFalseOrderByNameAsc() {
+    public List<Project> findByActiveFalse() {
         logger.debug("ProjectRepository.findByActiveFalseOrderByNameAsc");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project WHERE active = FALSE ORDER BY name ASC").executeAndFetchTable().asList());
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project WHERE active = FALSE ORDER BY name ASC").executeAndFetch(Project.class);
         } catch (Exception e) {
             logger.error("LOG00870:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByClientUUID(String clientUUID) {
+    public List<Project> findByClientUUID(String clientUUID) {
         logger.debug("ProjectRepository.findByClientUUID");
         logger.debug("clientUUID = [" + clientUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid").addParameter("clientuuid", clientUUID).executeAndFetchTable().asList());
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid ORDER BY name ASC").addParameter("clientuuid", clientUUID).executeAndFetch(Project.class);
         } catch (Exception e) {
             logger.error("LOG00370:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByClientUUIDAndActiveTrue(String clientUUID) {
+    public List<Project> findByClientUUIDAndActiveTrue(String clientUUID) {
         logger.debug("ProjectRepository.findByClientUUIDAndActiveTrue");
         logger.debug("clientUUID = [" + clientUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid AND active = TRUE").addParameter("clientuuid", clientUUID).executeAndFetchTable().asList());
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid AND active = TRUE ORDER BY name ASC").addParameter("clientuuid", clientUUID).executeAndFetch(Project.class);
         } catch (Exception e) {
             logger.error("LOG00380:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByClientUUIDOrderByNameAsc(String clientUUID) {
-        logger.debug("ProjectRepository.findByClientUUIDOrderByNameAsc");
-        logger.debug("clientUUID = [" + clientUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid ORDER BY name ASC").addParameter("clientuuid", clientUUID).executeAndFetchTable().asList());
-        } catch (Exception e) {
-            logger.error("LOG00390:", e);
-        }
-        return new ArrayList<>();
-    }
-
-    public List<Map<String, Object>> findByClientUUIDAndActiveTrueOrderByNameAsc(String clientUUID) {
-        logger.debug("ProjectRepository.findByClientUUIDAndActiveTrueOrderByNameAsc");
-        logger.debug("clientUUID = [" + clientUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid AND active = TRUE ORDER BY name ASC").addParameter("clientuuid", clientUUID).executeAndFetchTable().asList());
-        } catch (Exception e) {
-            logger.error("LOG00400:", e);
-        }
-        return new ArrayList<>();
-    }
-
-    public void create(JsonNode jsonNode) {
+    public void create(Project project) {
         logger.info("ProjectRepository.create");
-        logger.info("jsonNode = [" + jsonNode + "]");
-        testForNull(jsonNode, new String[]{"clientuuid", "clientdatauuid"});
-        try (org.sql2o.Connection con = database.open()) {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.MONTH, 4);
+        project.uuid = UUID.randomUUID().toString();
+        project.active = true;
+        project.created = DateTime.now();
+        project.startdate = DateTime.now();
+        project.enddate = DateTime.now().plusMonths(4);
+        try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO project (uuid, active, budget, clientuuid, created, customerreference, name, userowneruuid, clientdatauuid, startdate, enddate) VALUES (:uuid, :active, :budget, :clientuuid, :created, :customerreference, :name, :userowneruuid, :clientdatauuid, :startdate, :enddate)")
-                    .addParameter("uuid", jsonNode.get("uuid").asText(UUID.randomUUID().toString()))
-                    .addParameter("active", jsonNode.get("active").asBoolean(true))
-                    .addParameter("budget", jsonNode.get("budget").asDouble(0.0))
-                    .addParameter("clientuuid", jsonNode.get("clientuuid").asText())
-                    .addParameter("created", new Date(new java.util.Date().getTime()))
-                    .addParameter("customerreference", jsonNode.get("customerreference").asText())
-                    .addParameter("name", jsonNode.get("name").asText())
-                    .addParameter("userowneruuid", jsonNode.get("userowneruuid").asText())
-                    .addParameter("clientdatauuid", jsonNode.get("clientdatauuid").asText())
-                    .addParameter("startdate", (jsonNode.get("startdate").asText(new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()))))
-                    .addParameter("enddate", (jsonNode.get("enddate").asText(new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()))))
+                    .bind(project)
                     .executeUpdate();
         } catch (Exception e) {
             logger.error("LOG00410:", e);
         }
     }
 
-    public void update(JsonNode jsonNode, String uuid) {
+    public void update(Project project, String uuid) {
         logger.info("ProjectRepository.update");
-        logger.info("jsonNode = [" + jsonNode + "], uuid = [" + uuid + "]");
-
-        try (org.sql2o.Connection con = database.open()) {
+        project.uuid = uuid;
+        try (Connection con = sql2o.open()) {
             con.createQuery("UPDATE project p SET p.active = :active, p.budget = :budget, p.customerreference = :customerreference, p.name = :name, p.userowneruuid = :userowneruuid, p.startdate = :startdate, p.enddate = :enddate WHERE p.uuid LIKE :uuid")
-                    .addParameter("active", jsonNode.get("active").asBoolean(true))
-                    .addParameter("budget", jsonNode.get("budget").asDouble(0.0))
-                    .addParameter("customerreference", jsonNode.get("customerreference").asText())
-                    .addParameter("name", jsonNode.get("name").asText())
-                    .addParameter("userowneruuid", jsonNode.get("userowneruuid").asText(""))
-                    .addParameter("startdate", new Date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonNode.get("startdate").asText()).getTime()))
-                    .addParameter("enddate", new Date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonNode.get("enddate").asText()).getTime()))
-                    .addParameter("uuid", jsonNode.get("uuid").asText())
+                    .bind(project)
                     .executeUpdate();
         } catch (Exception e) {
             logger.error("LOG00420:", e);

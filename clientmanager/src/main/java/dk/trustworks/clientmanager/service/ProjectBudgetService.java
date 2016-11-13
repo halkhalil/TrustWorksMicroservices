@@ -1,14 +1,18 @@
 package dk.trustworks.clientmanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
+import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.persistence.ProjectRepository;
 import dk.trustworks.clientmanager.persistence.TaskRepository;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintBudgetRepository;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintRepository;
+import dk.trustworks.clientmanager.model.Project;
 import dk.trustworks.framework.persistence.GenericRepository;
 import dk.trustworks.framework.service.DefaultLocalService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -27,10 +31,10 @@ public class ProjectBudgetService extends DefaultLocalService {
     private TaskWorkerConstraintBudgetRepository taskWorkerConstraintBudgetRepository;
 
     public ProjectBudgetService() {
-        projectRepository = new ProjectRepository();
-        taskRepository = new TaskRepository();
-        taskWorkerConstraintRepository = new TaskWorkerConstraintRepository();
-        taskWorkerConstraintBudgetRepository = new TaskWorkerConstraintBudgetRepository();
+        projectRepository = new ProjectRepository(null);
+        //taskRepository = new TaskRepository();
+        //taskWorkerConstraintRepository = new TaskWorkerConstraintRepository();
+        //taskWorkerConstraintBudgetRepository = new TaskWorkerConstraintBudgetRepository();
     }
 
     public List<Map<String, Object>> findByYear(Map<String, Deque<String>> queryParameters) {
@@ -45,18 +49,18 @@ public class ProjectBudgetService extends DefaultLocalService {
 
             long timer = System.currentTimeMillis();
 
-            List<Map<String, Object>> projectsAndTasksAndTaskWorkerConstraints = projectRepository.getAllEntities("project");
+            List<Project> projectsAndTasksAndTaskWorkerConstraints = projectRepository.findAll();
             log.debug("projectsAndTasksAndTaskWorkerConstraints: {}", (System.currentTimeMillis() - timer));
 
             StreamSupport.stream(projectsAndTasksAndTaskWorkerConstraints.spliterator(), true).map((project) -> {
                 Map<String, Object> budgetSummary = new HashMap<>();
-                budgetSummary.put("projectuuid", project.get("uuid"));
-                budgetSummary.put("projectname", project.get("name"));
+                budgetSummary.put("projectuuid", project.uuid);
+                budgetSummary.put("projectname", project.name);
                 budgetSummary.put("amount", new double[12]);
-                List<Map<String, Object>> tasks = taskRepository.findByProjectUUID((String) project.get("uuid"));
+                List<Map<String, Object>> tasks = null;//taskRepository.findByProjectUUID((String) project.uuid);
                 for (int month = 0; month < 12; month++) {
                     for (Map<String, Object> task : tasks) {
-                        for (Map<String, Object> taskWorkerConstraint : taskWorkerConstraintRepository.findByTaskUUID((String) task.get("uuid"))) {
+                        for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraintRepository.findByTaskUUID((String) task.get("uuid"))) {
                             Calendar calendar = Calendar.getInstance();
                             calendar.set(year, month, 1, 0, 0);
 
@@ -73,13 +77,13 @@ public class ProjectBudgetService extends DefaultLocalService {
                             if (year < 2015 || (year < 2016 && month < 6)) calendar = Calendar.getInstance();
                             if (year > Calendar.getInstance().get(Calendar.YEAR)) calendar = Calendar.getInstance();
                             if (year == Calendar.getInstance().get(Calendar.YEAR) && month >= Calendar.getInstance().get(Calendar.MONTH)) calendar = Calendar.getInstance();*/
-                            List<Map<String, Object>> budgets = taskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(taskWorkerConstraint.get("uuid").toString(), month, year, calendar.getTime());
-                            if (taskWorkerConstraint.get("uuid").equals("6af071fa-6a95-44e5-8634-9820e0887500") && month == 7) {
+                            List<TaskWorkerConstraintBudget> budgets = null;//taskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(taskWorkerConstraint.uuid.toString(), month, year, LocalDate.now());
+                            if (taskWorkerConstraint.uuid.equals("6af071fa-6a95-44e5-8634-9820e0887500") && month == 7) {
                                 System.out.println("calendar = " + calendar.getTime());
-                                System.out.println("budgets.get(\"budget\") = " + budgets.get(0).get("budget"));
+                                System.out.println("budgets.get(\"budget\") = " + budgets.get(0).budget);
                             }
                             if (budgets.size() > 0)
-                                ((double[]) budgetSummary.get("amount"))[month] += (double) budgets.get(0).get("budget");
+                                ((double[]) budgetSummary.get("amount"))[month] += (double) budgets.get(0).budget;
                         }
                     }
                 }

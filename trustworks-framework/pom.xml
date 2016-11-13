@@ -9,7 +9,21 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <jackson.version>2.4.5</jackson.version>
+        <jooby.version>1.0.0.CR8</jooby.version>
+    </properties>
+
     <dependencies>
+        <!-- Jooby -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -104,13 +118,14 @@
             <artifactId>hystrix-request-servlet</artifactId>
             <version>1.4.21</version>
         </dependency>
-    </dependencies>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <jackson.version>2.4.5</jackson.version>
-    </properties>
+        <!-- security -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

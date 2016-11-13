@@ -1,48 +1,44 @@
 package dk.trustworks.clientmanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.ClientData;
 import dk.trustworks.clientmanager.persistence.ClientDataRepository;
-import dk.trustworks.framework.persistence.GenericRepository;
-import dk.trustworks.framework.service.DefaultLocalService;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Deque;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class ClientDataService extends DefaultLocalService {
+public class ClientDataService {
 
     private ClientDataRepository clientDataRepository;
 
-    public ClientDataService() {
-        clientDataRepository = new ClientDataRepository();
+    public ClientDataService(DataSource ds) {
+        clientDataRepository = new ClientDataRepository(ds);
     }
 
-    public List<Map<String, Object>> findByActiveTrue(Map<String, Deque<String>> queryParameters) {
-        String clientUUID = queryParameters.get("clientuuid").getFirst();
+    public List<ClientData> findAll() {
+        return clientDataRepository.findAll();
+    }
+
+    public ClientData findByUUID(String uuid) {
+        return clientDataRepository.findByUUID(uuid);
+    }
+
+    public List<ClientData> findByClientUUID(String clientUUID) {
         return clientDataRepository.findByClientUUID(clientUUID);
     }
 
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        clientDataRepository.create(jsonNode);
+    public ClientData findByProjectUUID(String projectUUID) {
+        return clientDataRepository.findByProjectUUID(projectUUID);
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        clientDataRepository.update(jsonNode, uuid);
+    public void create(ClientData clientData) throws SQLException {
+        clientDataRepository.create(clientData);
     }
 
-    @Override
-    public GenericRepository getGenericRepository() {
-        return clientDataRepository;
-    }
-
-    @Override
-    public String getResourcePath() {
-        return "clientdata";
+    public void update(ClientData clientData, String uuid) throws SQLException {
+        clientDataRepository.update(clientData, uuid);
     }
 }

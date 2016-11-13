@@ -1,8 +1,8 @@
 package dk.trustworks.timemanager;
 
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import dk.trustworks.timemanager.security.JwtModule;
-import dk.trustworks.timemanager.security.UserRoles;
+import dk.trustworks.framework.security.JwtModule;
+import dk.trustworks.timemanager.dto.Work;
 import dk.trustworks.timemanager.service.WeekService;
 import dk.trustworks.timemanager.service.WorkService;
 import org.apache.curator.framework.CuratorFramework;
@@ -58,23 +58,22 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
         use(new Jdbc());
         use(new Jackson().module(new JodaModule()));
-        //use(new Json());
 
         get("/", () -> HOME);
 
-        on("prod", () -> {
-            use(new JwtModule());
-        });
+        on("pr", () -> use(new JwtModule(false)))
+                .orElse(() -> use(new JwtModule(true)));
 
-        use("/api/weeks")
+        use("/api/weektasks")
                 .get("/", (req, resp) -> {
-                    if(!((UserRoles)req.get("roles")).hasRole(req.route().attr("role"))) throw new Err(403);
+                    JwtModule.authorize(req);
 
                     DataSource db = req.require(DataSource.class);
                     resp.send(new WeekService(db).findAll());
                 }).attr("role", "tm.user")
 
                 .get("/:uuid", (req, resp) -> {
+                    JwtModule.authorize(req);
                     String uuid = req.param("uuid").value();
 
                     DataSource db = req.require(DataSource.class);
@@ -82,6 +81,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int weekNumber = req.param("weeknumber").intValue();
                     int year = req.param("year").intValue();
                     String userUUID = req.param("useruuid").value();
@@ -91,6 +91,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int weekNumber = req.param("weeknumber").intValue();
                     int year = req.param("year").intValue();
                     String userUUID = req.param("useruuid").value();
@@ -101,6 +102,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .post("/commands/cloneweek", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int weekNumber = req.param("weeknumber").intValue();
                     int year = req.param("year").intValue();
                     String userUUID = req.param("useruuid").value();
@@ -122,6 +124,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByTaskUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
                     String taskuuid = req.param("taskuuid").value();
 
                     DataSource db = req.require(DataSource.class);
@@ -129,6 +132,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYear", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
 
                     DataSource db = req.require(DataSource.class);
@@ -136,6 +140,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndUserUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     String useruuid = req.param("useruuid").value();
 
@@ -144,6 +149,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndMonth", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     int month = req.param("month").intValue();
 
@@ -152,6 +158,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndMonthAndTaskUUIDAndUserUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     int month = req.param("month").intValue();
                     String taskuuid = req.param("taskuuid").value();
@@ -162,6 +169,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndMonthAndDayAndTaskUUIDAndUserUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     int month = req.param("month").intValue();
                     int day = req.param("day").intValue();
@@ -173,6 +181,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndMonthAndDay", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     int month = req.param("month").intValue();
                     int day = req.param("day").intValue();
@@ -182,6 +191,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndMonthAndTaskUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     int month = req.param("month").intValue();
                     String taskuuid = req.param("taskuuid").value();
@@ -191,6 +201,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYearAndTaskUUIDAndUserUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
                     int year = req.param("year").intValue();
                     String taskuuid = req.param("taskuuid").value();
                     String useruuid = req.param("useruuid").value();
@@ -200,12 +211,22 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 }).attr("role", "tm.user")
 
                 .get("/sums", (req, resp) -> {
+                    JwtModule.authorize(req);
                     String taskuuid = req.param("taskuuid").value();
                     String useruuid = req.param("useruuid").value();
 
                     DataSource db = req.require(DataSource.class);
                     resp.send(new WorkService(db).calculateTaskUserTotalDuration(taskuuid, useruuid));
                 }).attr("role", "tm.user")
+
+                // Verified
+                .post("/", (req, resp) -> {
+                    Work work = req.body(Work.class);
+                    JwtModule.authorize(req);
+                    DataSource db = req.require(DataSource.class);
+                    new WorkService(db).create(work);
+                    resp.send(Status.OK);
+                })
 
                 .produces("json")
                 .consumes("json");

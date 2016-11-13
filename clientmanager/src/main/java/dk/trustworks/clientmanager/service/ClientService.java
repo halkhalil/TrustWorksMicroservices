@@ -1,51 +1,71 @@
 package dk.trustworks.clientmanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.Client;
+import dk.trustworks.clientmanager.model.Project;
 import dk.trustworks.clientmanager.persistence.ClientRepository;
-import dk.trustworks.framework.persistence.GenericRepository;
-import dk.trustworks.framework.service.DefaultLocalService;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class ClientService extends DefaultLocalService {
+public class ClientService {
 
     private ClientRepository clientRepository;
+    private ProjectService projectService;
 
-    public ClientService() {
-        clientRepository = new ClientRepository();
+    public ClientService(DataSource ds) {
+        clientRepository = new ClientRepository(ds);
+        projectService = new ProjectService(ds);
     }
 
-    public List<Map<String, Object>> findByActiveTrue(Map<String, Deque<String>> queryParameters) {
-        return clientRepository.findByActiveTrue();
+    public List<Client> findAll(String projection) {
+        List<Client> clients = clientRepository.findAll();
+        if(!projection.contains("project")) return clients;
+
+        return addProjectsToClients(clients, projection);
     }
 
-    public List<Map<String, Object>> findByActiveTrueOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        return clientRepository.findByActiveTrue();
+    public Client findByUUID(String uuid, String projection) {
+        Client client = clientRepository.findByUUID(uuid);
+        if(!projection.contains("project")) return client;
+
+        List<Client> clients = new ArrayList<>();
+        clients.add(client);
+        return addProjectsToClients(clients, projection).get(0);
     }
 
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        clientRepository.create(jsonNode);
+    public List<Client> findByActiveTrue(String projection) {
+        List<Client> clients = clientRepository.findByActiveTrue();
+        if(!projection.contains("project")) return clients;
+
+        return addProjectsToClients(clients, projection);
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        clientRepository.update(jsonNode, uuid);
+    public void create(Client client) throws SQLException {
+        clientRepository.create(client);
     }
 
-    @Override
-    public GenericRepository getGenericRepository() {
-        return clientRepository;
+    public void update(Client client, String uuid) throws SQLException {
+        clientRepository.update(client, uuid);
     }
 
-    @Override
-    public String getResourcePath() {
-        return "client";
+    private ArrayList<Client> addProjectsToClients(List<Client> clients, String projection) {
+        Map<String, Client> clientsMap = new HashMap<>();
+        for (Client client : clients) {
+            clientsMap.put(client.uuid, client);
+        }
+
+        Map<String, Project> projectsMap = new HashMap<>();
+        for (Project project : projectService.findAllByClientUUIDs(clients, false, projection)) {
+            projectsMap.put(project.uuid, project);
+            clientsMap.get(project.clientuuid).projects.add(project);
+        }
+
+        ArrayList<Client> clientsResult = new ArrayList<>();
+        clientsResult.addAll(clientsMap.values());
+        return clientsResult;
     }
 }

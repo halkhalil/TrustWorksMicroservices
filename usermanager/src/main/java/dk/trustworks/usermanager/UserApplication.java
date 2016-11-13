@@ -5,16 +5,15 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import dk.trustworks.usermanager.dto.JwtToken;
-import dk.trustworks.usermanager.security.JwtModule;
-import dk.trustworks.usermanager.security.UserRoles;
+import dk.trustworks.framework.security.JwtModule;
+import dk.trustworks.framework.security.JwtToken;
+import dk.trustworks.framework.security.UserRoles;
 import dk.trustworks.usermanager.service.SalaryService;
 import dk.trustworks.usermanager.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.swagger.util.Json;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -23,7 +22,10 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import org.jooby.*;
+import org.jooby.Jooby;
+import org.jooby.RequestLogger;
+import org.jooby.Result;
+import org.jooby.Results;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
@@ -36,8 +38,6 @@ import java.util.List;
  * Created by hans on 16/03/15.
  */
 public class UserApplication extends Jooby {
-
-    public static final String KEY = "2b393761-fd50-4c54-8d41-61bcb17cf173";
 
     //public static final MetricRegistry metricRegistry = new MetricRegistry();
     //private transient ObjectMapper metricsMapper;
@@ -96,14 +96,14 @@ public class UserApplication extends Jooby {
                             .setExpiration(LocalDate.now().plusDays(1).toDate())
                             .setIssuedAt(LocalDate.now().toDate())
                             .claim("roles", roles)
-                            .signWith(SignatureAlgorithm.HS512, KEY)
+                            .signWith(SignatureAlgorithm.HS512, JwtModule.KEY)
                             .compact();
                     resp.send(new JwtToken(compactJws));
                 })
                 .get("/:key", (req, resp) -> {
                     String jwtToken = req.param("key").value();
                     Jws<Claims> claims = Jwts.parser()
-                            .setSigningKey(UserApplication.KEY)
+                            .setSigningKey(JwtModule.KEY)
                             .parseClaimsJws(jwtToken);
                     resp.send(claims.getBody());
                 })
@@ -115,8 +115,7 @@ public class UserApplication extends Jooby {
 
         use("/api/users")
                 .get("/", (req, resp) -> {
-                    if(req.get("secureMode")) if(!((UserRoles)req.get("roles")).hasRole(req.route().attr("role"))) throw new Err(403);
-                    System.out.println("req.require(UserRoles.class).toString() = " + req.require(UserRoles.class).toString());;
+                    JwtModule.authorize(req);
 
                     try {
                         DataSource db = req.require(DataSource.class);
@@ -127,6 +126,7 @@ public class UserApplication extends Jooby {
                 }).attr("role", "tm.user")
 
                 .get("/:uuid", (req, resp) -> {
+                    JwtModule.authorize(req);
                     String uuid = req.param("uuid").value();
 
                     //final Timer timer = metricRegistry.timer(name("user", "get", "response"));
@@ -140,7 +140,7 @@ public class UserApplication extends Jooby {
                 }).attr("role", "tm.user")
 
                 .get("/{uuid}/capacities", (req, resp) -> {
-                    //int year = req.param("year").intValue(2016);
+                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
@@ -157,6 +157,7 @@ public class UserApplication extends Jooby {
                 }).attr("role", "tm.admin")
 
                 .get("/{uuid}/availabilities", (req, resp) -> {
+                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
@@ -172,6 +173,7 @@ public class UserApplication extends Jooby {
                 }).attr("role", "tm.user")
 
                 .get("/{uuid}/salaries", (req, resp) -> {
+                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
@@ -186,7 +188,9 @@ public class UserApplication extends Jooby {
                     }
                 }).attr("role", "tm.admin")
 
+                // Verified
                 .get("/search/findByActiveTrue", (req, resp) -> {
+                    JwtModule.authorize(req);
                     //final Timer timer = metricRegistry.timer(name("user", "search", "findByActiveTrue", "response"));
                     //final Timer.Context context = timer.time();
                     try {
@@ -199,6 +203,7 @@ public class UserApplication extends Jooby {
 
 
                 .get("/search/findByUsername", (req, resp) -> {
+                    JwtModule.authorize(req);
                     String username = req.param("username").value();
 
                     //final Timer timer = metricRegistry.timer(name("user", "search", "findByActiveTrue", "response"));
@@ -212,6 +217,7 @@ public class UserApplication extends Jooby {
                 }).attr("role", "tm.user")
 
                 .get("/search/findByUsernameAndPasswordAndActiveTrue", (req, resp) -> {
+                    JwtModule.authorize(req);
                     String username = req.param("username").value();
                     String password = req.param("password").value();
 
@@ -234,6 +240,7 @@ public class UserApplication extends Jooby {
          */
         use("/api/salaries")
                 .get("/", (req, resp) -> {
+                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
 
@@ -248,6 +255,7 @@ public class UserApplication extends Jooby {
                 }).attr("role", "tm.admin")
 
                 .get("/search/findActiveByDate", (req, resp) -> {
+                    JwtModule.authorize(req);
                     LocalDate date = LocalDate.parse(req.param("date").value(), DateTimeFormat.forPattern("yyyy-MM-dd"));
 
                     //final Timer timer = metricRegistry.timer(name("salary", "search", "findActiveByDate", "response"));
@@ -268,6 +276,7 @@ public class UserApplication extends Jooby {
          */
         use("/api/capacities")
                 .get("/", (req, resp) -> {
+                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
 
@@ -285,6 +294,7 @@ public class UserApplication extends Jooby {
 
         use("/api/availabilities")
                 .get("/", (req, resp) -> {
+                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
 

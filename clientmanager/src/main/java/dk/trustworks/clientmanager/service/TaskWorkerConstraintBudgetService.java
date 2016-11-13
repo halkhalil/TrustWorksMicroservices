@@ -1,97 +1,96 @@
 package dk.trustworks.clientmanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
+import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintBudgetRepository;
-import dk.trustworks.framework.persistence.GenericRepository;
-import dk.trustworks.framework.service.DefaultLocalService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.LocalDate;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class TaskWorkerConstraintBudgetService extends DefaultLocalService {
+public class TaskWorkerConstraintBudgetService {
 
     private static final Logger logger = LogManager.getLogger();
 
     private TaskWorkerConstraintBudgetRepository taskWorkerConstraintBudgetRepository;
+    private TaskWorkerConstraintService taskWorkerConstraintService;
 
-    public TaskWorkerConstraintBudgetService() {
-        taskWorkerConstraintBudgetRepository = new TaskWorkerConstraintBudgetRepository();
+    public TaskWorkerConstraintBudgetService(DataSource ds) {
+        taskWorkerConstraintBudgetRepository = new TaskWorkerConstraintBudgetRepository(ds);
+        taskWorkerConstraintService = new TaskWorkerConstraintService(ds);
     }
 
-    public List<Map<String, Object>> findByTaskWorkerConstraintUUID(Map<String, Deque<String>> queryParameters) {
-        logger.debug("TaskWorkerConstraintBudgetService.findByTaskWorkerConstraintUUID");
-        String taskworkerconstraintuuid = queryParameters.get("taskworkerconstraintuuid").getFirst();
+    public List<TaskWorkerConstraintBudget> findByPeriod(LocalDate fromDate, LocalDate toDate, int ahead) {
+        List<TaskWorkerConstraintBudget> result = new ArrayList<>();
+
+        LocalDate currentDate = fromDate;
+        while(currentDate.isBefore(toDate)) {
+            LocalDate entryDate = (ahead > 0)?currentDate.minusMonths(ahead):LocalDate.now();
+            result.addAll(taskWorkerConstraintBudgetRepository.findByMonthAndYearAndDate(currentDate.getMonthOfYear()-1, currentDate.getYear(), entryDate));
+            currentDate.plusMonths(1);
+        }
+        return result;
+    }
+
+/*
+    public List<TaskWorkerConstraintBudget> findByTaskWorkerConstraintUUID(String taskworkerconstraintuuid) {
         return taskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUID(taskworkerconstraintuuid);
     }
 
-    public List<Map<String, Object>> findByMonthAndYear(Map<String, Deque<String>> queryParameters) {
+    public List<TaskWorkerConstraintBudget> findByMonthAndYear(int month, int year) {
         logger.debug("TaskWorkerConstraintBudgetService.findByMonthAndYear");
-        int month = Integer.parseInt(queryParameters.get("month").getFirst());
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
         return taskWorkerConstraintBudgetRepository.findByMonthAndYear(month, year);
     }
 
-    public List<Map<String, Object>> findByYear(Map<String, Deque<String>> queryParameters) {
+
+    public List<TaskWorkerConstraintBudget> findByYear(int year, int ahead) {
         logger.debug("TaskWorkerConstraintBudgetService.findByYear");
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        Deque<String> aheadParam = queryParameters.get("ahead");
-        //System.out.println("aheadParam = " + aheadParam.getFirst());
-        if(aheadParam!=null && !aheadParam.getFirst().trim().equals("")) {
-            System.out.println("ahead");
-            int ahead = Integer.parseInt(aheadParam.getFirst());
-            List<Map<String, Object>> result = new ArrayList<>();
-            for (int month = 0; month < 12; month++) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(year, month, 1, 1, 0, 0);
-                calendar.add(Calendar.MONTH, -ahead);
-                System.out.println("calendar = " + calendar.getTime());
-                System.out.println("month = " + month);
-                result.addAll(taskWorkerConstraintBudgetRepository.findByMonthAndYearAndDate(month, year, calendar.getTime()));
+        //if(ahead.isPresent()) {
+            List<TaskWorkerConstraintBudget> result = new ArrayList<>();
+            for (int month = 1; month < 13; month++) {
+                LocalDate localDate = new LocalDate(year, month, 1).minusMonths(ahead);
+                result.addAll(taskWorkerConstraintBudgetRepository.findByMonthAndYearAndDate(month-1, year, localDate));
             }
             System.out.println("result.size() = " + result.size());
             return result;
-        }
-        return taskWorkerConstraintBudgetRepository.findByYear(year);
+        //}
+        //return taskWorkerConstraintBudgetRepository.findByYear(year);
     }
 
-    public List<Map<String, Object>> findByYearAndUser(Map<String, Deque<String>> queryParameters) {
+    public List<TaskWorkerConstraintBudget> findByYearAndUser(int year, String userUUID) {
         logger.debug("TaskWorkerConstraintBudgetService.findByYear");
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        String userUUID = queryParameters.get("useruuid").getFirst();
         return taskWorkerConstraintBudgetRepository.findByYearAndUser(year, userUUID);
     }
 
-    public List<Map<String, Object>> findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(Map<String, Deque<String>> queryParameters) {
+    public List<TaskWorkerConstraintBudget> findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(String taskworkerconstraintuuid, int month, int year, LocalDate date) {
         logger.debug("TaskWorkerConstraintBudgetService.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate");
-        String taskworkerconstraintuuid = queryParameters.get("taskworkerconstraintuuid").getFirst();
-        int month = Integer.parseInt(queryParameters.get("month").getFirst());
-        int year = Integer.parseInt(queryParameters.get("year").getFirst());
-        Date datetime = new Date(Long.parseLong(queryParameters.get("datetime").getFirst()));
-        return taskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(taskworkerconstraintuuid, month, year, datetime);
+        return taskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(taskworkerconstraintuuid, month, year, date);
+    }
+*/
+    public void create(TaskWorkerConstraintBudget taskWorkerConstraintBudget) throws SQLException {
+        taskWorkerConstraintBudgetRepository.create(taskWorkerConstraintBudget);
     }
 
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        taskWorkerConstraintBudgetRepository.create(jsonNode);
+    public void update(TaskWorkerConstraintBudget taskWorkerConstraintBudget, String uuid) throws SQLException {
+        taskWorkerConstraintBudgetRepository.update(taskWorkerConstraintBudget, uuid);
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        taskWorkerConstraintBudgetRepository.update(jsonNode, uuid);
-    }
-
-    @Override
-    public GenericRepository getGenericRepository() {
-        return taskWorkerConstraintBudgetRepository;
-    }
-
-    @Override
-    public String getResourcePath() {
-        return "taskworkerconstraintbudget";
+    public void addUserTask() {
+        for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : taskWorkerConstraintBudgetRepository.findAll()) {
+            if(taskWorkerConstraintBudget.taskworkerconstraintuuid.trim().equals("")) continue;
+            TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintService.findByUUID(taskWorkerConstraintBudget.taskworkerconstraintuuid);
+            if(taskWorkerConstraint == null) continue;
+            taskWorkerConstraintBudget.useruuid = taskWorkerConstraint.useruuid;
+            taskWorkerConstraintBudget.taskuuid = taskWorkerConstraint.taskuuid;
+            taskWorkerConstraintBudgetRepository.addUserTask(taskWorkerConstraintBudget);
+        }
     }
 }

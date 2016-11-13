@@ -1,4 +1,4 @@
-package dk.trustworks.timemanager.security;
+package dk.trustworks.framework.security;
 
 import java.util.List;
 import java.util.Set;

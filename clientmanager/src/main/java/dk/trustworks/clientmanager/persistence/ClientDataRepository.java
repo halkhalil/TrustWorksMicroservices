@@ -1,79 +1,111 @@
 package dk.trustworks.clientmanager.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.framework.persistence.GenericRepository;
+import dk.trustworks.clientmanager.model.ClientData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class ClientDataRepository extends GenericRepository {
+public class ClientDataRepository {
 
     private static final Logger logger = LogManager.getLogger();
+    private final Sql2o sql2o;
 
-    public ClientDataRepository() {
-        super();
+    public ClientDataRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    public List<Map<String, Object>> findByClientUUID(String clientUUID) {
-        logger.debug("ClientDataRepository.findByClientUUID");
-        logger.debug("clientUUID = [" + clientUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM clientdata WHERE clientuuid LIKE :clientuuid")
-                    .addParameter("clientuuid", clientUUID)
-                    .executeAndFetchTable().asList());
+    public List<ClientData> findAll() {
+        try (Connection con = sql2o.open()) {
+            List<ClientData> clientDatas = con.createQuery("SELECT * FROM clientdata")
+                    .executeAndFetch(ClientData.class);
+            con.close();
+            return clientDatas;
         } catch (Exception e) {
             logger.error("LOG00280:", e);
         }
         return new ArrayList<>();
     }
 
-    public void create(JsonNode jsonNode) throws SQLException {
+    public ClientData findByUUID(String uuid) {
+        try (Connection con = sql2o.open()) {
+            ClientData clientData = con.createQuery("SELECT * FROM clientdata WHERE uuid LIKE :uuid")
+                    .addParameter("uuid", uuid)
+                    .executeAndFetchFirst(ClientData.class);
+            con.close();
+            return clientData;
+        } catch (Exception e) {
+            logger.error("LOG00280:", e);
+        }
+        return null;
+    }
+
+    public List<ClientData> findByClientUUID(String clientUUID) {
+        logger.debug("ClientDataRepository.findByClientUUID");
+        logger.debug("clientUUID = [" + clientUUID + "]");
+        try (Connection con = sql2o.open()) {
+            List<ClientData> clientDatas = con.createQuery("SELECT * FROM clientdata WHERE clientuuid LIKE :clientuuid")
+                    .addParameter("clientuuid", clientUUID)
+                    .executeAndFetch(ClientData.class);
+            con.close();
+            return clientDatas;
+        } catch (Exception e) {
+            logger.error("LOG00280:", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public ClientData findByProjectUUID(String projectUUID) {
+        try (Connection con = sql2o.open()) {
+            ClientData clientData = con.createQuery("SELECT cd.uuid, cd.city, cd.clientuuid, cd.clientname, cd.contactperson, cd.cvr, cd.ean, cd.otheraddressinfo, cd.postalcode, cd.streetnamenumber " +
+                    "FROM project p " +
+                    "INNER JOIN clientdata cd " +
+                    "ON p.clientdatauuid = cd.uuid " +
+                    "WHERE p.uuid LIKE :projectuuid")
+                    .addParameter("projectuuid", projectUUID)
+                    .executeAndFetchFirst(ClientData.class);
+            con.close();
+            return clientData;
+        } catch (Exception e) {
+            logger.error("LOG00280:", e);
+        }
+        return new ClientData();
+    }
+
+    public void create(ClientData clientData) throws SQLException {
         logger.debug("ClientDataRepository.create");
-        logger.debug("jsonNode = [" + jsonNode + "]");
-        testForNull(jsonNode, new String[]{"clientuuid", "clientname"});
-        try (org.sql2o.Connection con = database.open()) {
+        clientData.uuid = UUID.randomUUID().toString();
+
+        try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO clientdata (uuid, city, clientuuid, clientname, contactperson, cvr, ean, otheraddressinfo, postalcode, streetnamenumber)" +
                     " VALUES (:uuid, :city, :clientuuid, :clientname, :contactperson, :cvr, :ean, :otheraddressinfo, :postalcode, :streetnamenumber)")
-                    .addParameter("uuid", jsonNode.get("uuid").asText(UUID.randomUUID().toString()))
-                    .addParameter("city", jsonNode.get("city").asText())
-                    .addParameter("clientuuid", jsonNode.get("clientuuid").asText())
-                    .addParameter("clientname", jsonNode.get("clientname").asText())
-                    .addParameter("contactperson", jsonNode.get("contactperson").asText(""))
-                    .addParameter("cvr", jsonNode.get("cvr").asText(""))
-                    .addParameter("ean", jsonNode.get("ean").asText(""))
-                    .addParameter("otheraddressinfo", jsonNode.get("otheraddressinfo").asText())
-                    .addParameter("postalcode", jsonNode.get("postalcode").asInt(0))
-                    .addParameter("streetnamenumber", jsonNode.get("streetnamenumber").asText(""))
+                    .bind(clientData)
                     .executeUpdate();
+            con.close();
         } catch (Exception e) {
             logger.error("LOG00290:", e);
         }
     }
 
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
+    public void update(ClientData clientData, String uuid) throws SQLException {
         logger.debug("ClientDataRepository.update");
-        logger.debug("jsonNode = [" + jsonNode + "], uuid = [" + uuid + "]");
-        try (org.sql2o.Connection con = database.open()) {
+        clientData.uuid = uuid;
+
+        try (Connection con = sql2o.open()) {
             con.createQuery("UPDATE clientdata SET city = :city, clientname = :clientname, contactperson = :contactperson, cvr = :cvr, ean = :ean, otheraddressinfo = :otheraddressinfo, " +
                     "postalcode = :postalcode, streetnamenumber  = :streetnamenumber WHERE uuid LIKE :uuid")
-                    .addParameter("city", jsonNode.get("city").asText())
-                    .addParameter("clientname", jsonNode.get("clientname").asText())
-                    .addParameter("contactperson", jsonNode.get("contactperson").asText())
-                    .addParameter("cvr", jsonNode.get("cvr").asText())
-                    .addParameter("ean", jsonNode.get("ean").asText())
-                    .addParameter("otheraddressinfo", jsonNode.get("otheraddressinfo").asText())
-                    .addParameter("postalcode", jsonNode.get("postalcode").asInt(0))
-                    .addParameter("streetnamenumber", jsonNode.get("streetnamenumber").asText())
-                    .addParameter("uuid", jsonNode.get("uuid").asText())
+                    .bind(clientData)
                     .executeUpdate();
+            con.close();
         } catch (Exception e) {
             logger.error("LOG00300:", e);
         }

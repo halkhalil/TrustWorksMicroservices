@@ -1,81 +1,103 @@
 package dk.trustworks.clientmanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.Client;
+import dk.trustworks.clientmanager.model.Task;
 import dk.trustworks.clientmanager.persistence.ProjectRepository;
-import dk.trustworks.framework.persistence.GenericRepository;
-import dk.trustworks.framework.service.DefaultLocalService;
+import dk.trustworks.clientmanager.model.Project;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class ProjectService extends DefaultLocalService {
+public class ProjectService {
 
     private static final Logger logger = LogManager.getLogger();
 
     private ProjectRepository projectRepository;
+    private TaskService taskService;
 
-    public ProjectService() {
-        projectRepository = new ProjectRepository();
+    public ProjectService(DataSource ds) {
+        projectRepository = new ProjectRepository(ds);
+        taskService = new TaskService(ds);
     }
 
-    public List<Map<String, Object>> findByActiveTrueOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        return projectRepository.findByActiveTrueOrderByNameAsc();
+    public List<Project> findAll(String projection) {
+        List<Project> projects = projectRepository.findAll();
+        if(!projection.contains("task")) return projects;
+
+        return addTasksToProjects(projects, projection);
     }
 
-    public List<Map<String, Object>> findByActiveFalseOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        return projectRepository.findByActiveFalseOrderByNameAsc();
+    public List<Project> findAllByClientUUIDs(List<Client> clients, boolean active, String projection) {
+        List<Project> projects = projectRepository.findAllByClientUUIDs(clients, active);
+        if(!projection.contains("task")) return projects;
+
+        return addTasksToProjects(projects, projection);
     }
 
-    public List<Map<String, Object>> findByClientUUID(Map<String, Deque<String>> queryParameters) {
-        String clientUUID = queryParameters.get("clientuuid").getFirst();
-        return projectRepository.findByClientUUID(clientUUID);
+    public Project findByUUID(String uuid, String projection) {
+        Project project = projectRepository.findByUUID(uuid);
+        if(!projection.contains("task")) return project;
+
+        List<Project> projects = new ArrayList<>();
+        projects.add(project);
+        return addTasksToProjects(projects, projection).get(0);
     }
 
-    public List<Map<String, Object>> findByClientUUIDAndActiveTrue(Map<String, Deque<String>> queryParameters) {
-        String clientUUID = queryParameters.get("clientuuid").getFirst();
-        return projectRepository.findByClientUUIDAndActiveTrue(clientUUID);
+    public List<Project> findByActiveTrue(String projection) {
+        List<Project> projects = projectRepository.findByActiveTrue();
+        if(!projection.contains("task")) return projects;
+
+        return addTasksToProjects(projects, projection);
     }
 
-    public List<Map<String, Object>> findByClientUUIDAndActiveTrueOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        String clientUUID = queryParameters.get("clientuuid").getFirst();
-        return projectRepository.findByClientUUIDAndActiveTrueOrderByNameAsc(clientUUID);
+    public List<Project> findByClientUUID(String clientUUID, String projection) {
+        List<Project> projects = projectRepository.findByClientUUID(clientUUID);
+        if(!projection.contains("task")) return projects;
+
+        return addTasksToProjects(projects, projection);
     }
 
-    public List<Map<String, Object>> findByClientUUIDOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        String clientUUID = queryParameters.get("clientuuid").getFirst();
-        return projectRepository.findByClientUUIDOrderByNameAsc(clientUUID);
+    public List<Project> findByClientUUIDAndActiveTrue(String clientUUID, String projection) {
+        List<Project> projects = projectRepository.findByClientUUIDAndActiveTrue(clientUUID);
+        if(!projection.contains("task")) return projects;
+
+        return addTasksToProjects(projects, projection);
     }
 
-    public List<Map<String, Object>> findByOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        return projectRepository.findByOrderByNameAsc();
-    }
-
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
+    public void create(Project project) throws SQLException {
         logger.debug("ProjectService.create");
-        projectRepository.create(jsonNode);
+        projectRepository.create(project);
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
+    public void update(Project project, String uuid) throws SQLException {
         logger.debug("ProjectService.update");
-        projectRepository.update(jsonNode, uuid);
+        projectRepository.update(project, uuid);
     }
 
-    @Override
-    public GenericRepository getGenericRepository() {
-        return projectRepository;
+    private ArrayList<Project> addTasksToProjects(List<Project> projects, String projection) {
+        Map<String, Project> projectsMap = new HashMap<>();
+        for (Project project : projects) {
+            projectsMap.put(project.uuid, project);
+        }
+
+        Map<String, Task> tasksMap = new HashMap<>();;
+        for (Task task : taskService.findAllByProjectUUIDs(projects, projection)) {
+            tasksMap.put(task.uuid, task);
+            projectsMap.get(task.projectuuid).tasks.add(task);
+        }
+
+        ArrayList<Project> projectsResult = new ArrayList<>();
+        projectsResult.addAll(projectsMap.values());
+        return projectsResult;
     }
 
-    @Override
-    public String getResourcePath() {
-        return "project";
-    }
 }

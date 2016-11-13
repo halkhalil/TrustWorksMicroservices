@@ -1,53 +1,79 @@
 package dk.trustworks.clientmanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.Project;
+import dk.trustworks.clientmanager.model.Task;
+import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
 import dk.trustworks.clientmanager.persistence.TaskRepository;
-import dk.trustworks.framework.persistence.GenericRepository;
-import dk.trustworks.framework.service.DefaultLocalService;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hans on 17/03/15.
  */
-public class TaskService extends DefaultLocalService {
+public class TaskService {
 
     private TaskRepository taskRepository;
+    private TaskWorkerConstraintService taskWorkerConstraintService;
 
-    public TaskService() {
-        taskRepository = new TaskRepository();
+    public TaskService(DataSource ds) {
+        taskRepository = new TaskRepository(ds);
+        taskWorkerConstraintService = new TaskWorkerConstraintService(ds);
     }
 
-    public List<Map<String, Object>> findByProjectUUID(Map<String, Deque<String>> queryParameters) {
-        String projectUUID = queryParameters.get("projectuuid").getFirst();
-        return taskRepository.findByProjectUUID(projectUUID);
+    public List<Task> findAll(String projection) {
+        List<Task> tasks = taskRepository.findAll();
+        if(!projection.contains("taskworkerconstraint")) return tasks;
+
+        return addTaskWorkerConstraintsToTasks(tasks);
     }
 
-    public List<Map<String, Object>> findByProjectUUIDOrderByNameAsc(Map<String, Deque<String>> queryParameters) {
-        String projectUUID = queryParameters.get("projectuuid").getFirst();
-        return taskRepository.findByProjectUUIDOrderByNameAsc(projectUUID);
+    public List<Task> findAllByProjectUUIDs(List<Project> projects, String projection) {
+        List<Task> tasks = taskRepository.findAllByProjectUUIDs(projects);
+        if(!projection.contains("taskworkerconstraint")) return tasks;
+
+        return addTaskWorkerConstraintsToTasks(tasks);
     }
 
-    @Override
-    public void create(JsonNode jsonNode) throws SQLException {
-        taskRepository.create(jsonNode);
+    public Task findByUUID(String uuid, String projection) {
+        Task task = taskRepository.findByUUID(uuid);
+        if(!projection.contains("taskworkerconstraint")) return task;
+
+        List<Task> tasks = new ArrayList<>();
+        tasks.add(task);
+        return addTaskWorkerConstraintsToTasks(tasks).get(0);
     }
 
-    @Override
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        taskRepository.update(jsonNode, uuid);
+    public List<Task> findByProjectUUID(String projectUUID, String projection) {
+        List<Task> tasks = taskRepository.findByProjectUUID(projectUUID);
+        if(!projection.contains("taskworkerconstraint")) return tasks;
+
+        return addTaskWorkerConstraintsToTasks(tasks);
     }
 
-    @Override
-    public String getResourcePath() {
-        return "task";
+    public void create(Task task) throws SQLException {
+        taskRepository.create(task);
     }
 
-    @Override
-    public GenericRepository getGenericRepository() {
-        return taskRepository;
+    public void update(Task task, String uuid) throws SQLException {
+        taskRepository.update(task, uuid);
+    }
+
+    private ArrayList<Task> addTaskWorkerConstraintsToTasks(List<Task> tasks) {
+        Map<String, Task> tasksMap = new HashMap<>();
+        for (Task task : tasks) {
+            tasksMap.put(task.uuid, task);
+        }
+
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintsMap = new HashMap<>();;
+        for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraintService.findAllByTaskUUIDs(tasks)) {
+            taskWorkerConstraintsMap.put(taskWorkerConstraint.uuid, taskWorkerConstraint);
+            tasksMap.get(taskWorkerConstraint.taskuuid).taskworkerconstraints.add(taskWorkerConstraint);
+        }
+
+        ArrayList<Task> tasksResult = new ArrayList<>();
+        tasksResult.addAll(tasksMap.values());
+        return tasksResult;
     }
 }

@@ -1,31 +1,21 @@
-package dk.trustworks.usermanager.security;
+package dk.trustworks.framework.security;
 
-import com.google.common.base.Throwables;
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.binder.ScopedBindingBuilder;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
-import dk.trustworks.usermanager.UserApplication;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import javaslang.control.Try;
-import org.jooby.Env;
-import org.jooby.Err;
-import org.jooby.Jooby;
-import org.jooby.Routes;
+import org.jooby.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Created by hans on 25/10/2016.
  */
 public class JwtModule implements Jooby.Module {
+
+    public static final String KEY = "2b393761-fd50-4c54-8d41-61bcb17cf173";
 
     private boolean secureMode;
 
@@ -47,7 +37,7 @@ public class JwtModule implements Jooby.Module {
                 System.out.println("jwtToken = " + jwtToken);
 
                 Jws<Claims> claims = Jwts.parser()
-                        .setSigningKey(UserApplication.KEY)
+                        .setSigningKey(KEY)
                         .parseClaimsJws(jwtToken.get());
                 List<String> roles = claims.getBody().get("roles", List.class);
                 for (String role : roles) {
@@ -59,6 +49,10 @@ public class JwtModule implements Jooby.Module {
             }
         });
 
+    }
+
+    public static void authorize(Request req) {
+        if(req.get("secureMode")) if(!((UserRoles)req.get("roles")).hasRole(req.route().attr("role"))) throw new Err(403);
     }
 
 }

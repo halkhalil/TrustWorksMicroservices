@@ -12,6 +12,140 @@
     <name>clientmanager</name>
     <description>TrustWorks ClientManager Microservice</description>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <start-class>dk.trustworks.clientmanager.ClientApplication</start-class>
+        <java.version>1.8</java.version>
+        <jackson.version>2.4.5</jackson.version>
+        <project.encoding>UTF-8</project.encoding>
+        <jooby.version>1.0.0.CR8</jooby.version>
+    </properties>
+
+    <dependencies>
+        <!-- Jooby -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Security -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-pac4j</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Raml -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-raml</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-swagger</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Server -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-netty</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Metrics -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-metrics</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jdbc</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-flyway</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sql2o</groupId>
+            <artifactId>sql2o</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.37</version>
+        </dependency>
+
+        <!-- Datatypes -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jackson</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>black.door</groupId>
+            <artifactId>hate</artifactId>
+            <version>v1r4t0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
+        </dependency>
+
+        <!-- zookeeper -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
+        <!-- security -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+
+        <!-- trustworks -->
+        <dependency>
+            <groupId>dk.trustworks</groupId>
+            <artifactId>trustworks-framework</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <!--
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -90,12 +224,15 @@
         </dependency>
     </dependencies>
 
+
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>dk.trustworks.clientmanager.ClientApplication</start-class>
         <java.version>1.8</java.version>
         <jackson.version>2.4.5</jackson.version>
     </properties>
+    -->
 
     <build>
         <finalName>clientmanager</finalName>

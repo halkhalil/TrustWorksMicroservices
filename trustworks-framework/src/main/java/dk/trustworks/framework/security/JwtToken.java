@@ -1,4 +1,4 @@
-package dk.trustworks.usermanager.dto;
+package dk.trustworks.framework.security;
 
 /**
  * Created by hans on 04/11/2016.

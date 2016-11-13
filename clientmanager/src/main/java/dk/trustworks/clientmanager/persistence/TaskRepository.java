@@ -1,10 +1,16 @@
 package dk.trustworks.clientmanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.clientmanager.model.Client;
+import dk.trustworks.clientmanager.model.Project;
+import dk.trustworks.clientmanager.model.Task;
 import dk.trustworks.framework.persistence.GenericRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,64 +20,86 @@ import java.util.UUID;
 /**
  * Created by hans on 17/03/15.
  */
-public class TaskRepository extends GenericRepository {
+public class TaskRepository {
 
     private static final Logger logger = LogManager.getLogger();
+    private final Sql2o sql2o;
 
-    public TaskRepository() {
-        super();
+    public TaskRepository(DataSource ds) {
+        sql2o = new Sql2o(ds);
     }
 
-    public List<Map<String, Object>> findByProjectUUID(String projectUUID) {
+    public List<Task> findAll() {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM task")
+                    .executeAndFetch(Task.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Task> findAllByProjectUUIDs(List<Project> projects) {
+        StringBuilder builder = new StringBuilder();
+        for( int i = 0 ; i < projects.size(); i++ ) {
+            builder.append("'"+projects.get(i).uuid+"',");
+        }
+
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM task WHERE projectuuid IN ("+builder.deleteCharAt( builder.length() -1 ).toString()+") ORDER BY name ASC")
+                    .executeAndFetch(Task.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public Task findByUUID(String uuid) {
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM task WHERE uuid LIKE :uuid")
+                    .addParameter("uuid", uuid)
+                    .executeAndFetchFirst(Task.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Task();
+    }
+
+    public List<Task> findByProjectUUID(String projectUUID) {
         logger.debug("TaskRepository.findByProjectUUID");
         logger.debug("projectUUID = [" + projectUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM task WHERE projectuuid LIKE :projectuuid")
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM task WHERE projectuuid LIKE :projectuuid ORDER BY name")
                     .addParameter("projectuuid", projectUUID)
-                    .executeAndFetchTable().asList());
+                    .executeAndFetch(Task.class);
         } catch (Exception e) {
             logger.error("LOG00430:", e);
         }
         return new ArrayList<>();
     }
 
-    public List<Map<String, Object>> findByProjectUUIDOrderByNameAsc(String projectUUID) {
-        logger.debug("TaskRepository.findByProjectUUIDOrderByNameAsc");
-        logger.debug("projectUUID = [" + projectUUID + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            return getEntitiesFromMapSet(con.createQuery("SELECT * FROM task WHERE projectuuid LIKE :projectuuid ORDER BY name ASC")
-                    .addParameter("projectuuid", projectUUID)
-                    .executeAndFetchTable().asList());
-        } catch (Exception e) {
-            logger.error("LOG00440:", e);
-        }
-        return new ArrayList<>();
-    }
-
-    public void create(JsonNode jsonNode) throws SQLException {
+    public void create(Task task) throws SQLException {
         logger.debug("TaskRepository.create");
-        logger.debug("jsonNode = [" + jsonNode + "]");
-        try (org.sql2o.Connection con = database.open()) {
-            con.createQuery("INSERT INTO task (uuid, type, na" +
-                    "me, projectuuid) VALUES (:uuid, :type, :name, :projectuuid)")
-                    .addParameter("uuid", jsonNode.get("uuid").asText(UUID.randomUUID().toString()))
-                    .addParameter("type", jsonNode.get("type").asText("KONSULENT"))
-                    .addParameter("name", jsonNode.get("name").asText(""))
-                    .addParameter("projectuuid", jsonNode.get("projectuuid").asText())
+        task.uuid = UUID.randomUUID().toString();
+        task.type = "KONSULENT";
+
+        try (Connection con = sql2o.open()) {
+            con.createQuery("INSERT INTO task (uuid, type, name, projectuuid) " +
+                    "VALUES (:uuid, :type, :name, :projectuuid)")
+                    .bind(task)
                     .executeUpdate();
         } catch (Exception e) {
             logger.error("LOG00450:", e);
         }
     }
 
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
+    public void update(Task task, String uuid) throws SQLException {
         logger.debug("TaskRepository.update");
-        logger.debug("jsonNode = [" + jsonNode + "], uuid = [" + uuid + "]");
-        try (org.sql2o.Connection con = database.open()) {
+        task.uuid = uuid;
+
+        try (Connection con = sql2o.open()) {
             con.createQuery("UPDATE task t SET t.type = :type, t.name = :name WHERE t.uuid LIKE :uuid")
-                    .addParameter("uuid", jsonNode.get("uuid").asText())
-                    .addParameter("type", jsonNode.get("type").asText())
-                    .addParameter("name", jsonNode.get("name").asText())
+                    .bind(task)
                     .executeUpdate();
         } catch (Exception e) {
             logger.error("LOG00460:", e);

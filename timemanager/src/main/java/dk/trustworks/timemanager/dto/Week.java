@@ -1,8 +1,12 @@
 package dk.trustworks.timemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 /**
  * Created by hans on 30/10/2016.
  */
+
+@JsonTypeName("weektasks")
 public class Week {
 
     public String UUID;
