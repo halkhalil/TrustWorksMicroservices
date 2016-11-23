@@ -3,13 +3,9 @@ package dk.trustworks.clientmanager;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.clientmanager.model.Client;
 import dk.trustworks.clientmanager.model.ClientData;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
 import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.service.*;
 import dk.trustworks.framework.security.JwtModule;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.Authorization;
-import io.swagger.annotations.AuthorizationScope;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -21,11 +17,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
-import org.jooby.raml.Raml;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by hans on 16/03/15.
@@ -51,7 +45,7 @@ public class ClientApplication extends Jooby {
             .type("html");
 
     {
-        new Raml().install(this);
+        //new Raml().install(this);
         use("*", new RequestLogger());
 
         try {
@@ -110,6 +104,22 @@ public class ClientApplication extends Jooby {
                     resp.send(Status.OK);
                 }).attr("role", "tm.editor")
 
+                .get("/:uuid/projects", (req, resp) -> {
+                    String projection = req.param("projection").value("");
+                    JwtModule.authorize(req);
+                    String clientuuid = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new ProjectService(db).findByClientUUID(clientuuid, projection));
+                }).attr("role", "tm.user")
+
+                .get("/:uuid/projects/search/findByActiveTrue", (req, resp) -> {
+                    String projection = req.param("projection").value("");
+                    JwtModule.authorize(req);
+                    String clientuuid = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new ProjectService(db).findByClientUUIDAndActiveTrue(clientuuid, projection));
+                }).attr("role", "tm.user")
+
                 .produces("json")
                 .consumes("json");
 
@@ -127,6 +137,21 @@ public class ClientApplication extends Jooby {
                     JwtModule.authorize(req);
                     DataSource db = req.require(DataSource.class);
                     resp.send(new ProjectService(db).findByUUID(uuid, projection));
+                }).attr("role", "tm.user")
+
+                .get("/:uuid/tasks", (req, resp) -> {
+                    String projection = req.param("projection").value("");
+                    JwtModule.authorize(req);
+                    String projectuuid = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new TaskService(db).findByProjectUUID(projectuuid, projection));
+                }).attr("role", "tm.user")
+
+                .get("/:uuid/budget", (req, resp) -> {
+                    JwtModule.authorize(req);
+                    String projectuuid = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new ProjectService(db).getProjectBudget(projectuuid));
                 }).attr("role", "tm.user")
 
                 .get("/search/findByActiveTrue", (req, resp) -> {
@@ -203,6 +228,15 @@ public class ClientApplication extends Jooby {
                     resp.send(new TaskWorkerConstraintService(db).findByTaskUUID(taskUUID));
                 }).attr("role", "tm.user")
 
+                .get("/search/findByTaskUUIDAndUserUUID", (req, resp) -> {
+                    String taskUUID = req.param("taskuuid").value();
+                    String userUUID = req.param("useruuid").value();
+                    String projection = req.param("projection").value("");
+                    JwtModule.authorize(req);
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new TaskWorkerConstraintService(db).findByTaskUUIDAndUserUUID(taskUUID, userUUID, projection));
+                }).attr("role", "tm.user")
+
                 .produces("json")
                 .consumes("json");
 
@@ -220,6 +254,14 @@ public class ClientApplication extends Jooby {
                     int ahead = req.param("ahead").intValue(0);
                     DataSource db = req.require(DataSource.class);
                     List<TaskWorkerConstraintBudget> budgets = new TaskWorkerConstraintBudgetService(db).findByPeriod(fromPeriod, toPeriod, ahead);
+                    resp.send(budgets);
+                }).attr("role", "tm.user")
+
+                .get("/search/findByTaskUUIDAndUserUUID", (req, resp) -> {
+                    String userUUID = req.param("useruuid").value();
+                    String taskUUID = req.param("taskuuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    List<TaskWorkerConstraintBudget> budgets = new TaskWorkerConstraintBudgetService(db).findByTaskUUIDAndUserUUID(userUUID, taskUUID);
                     resp.send(budgets);
                 }).attr("role", "tm.user")
 

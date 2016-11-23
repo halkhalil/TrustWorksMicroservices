@@ -1,11 +1,14 @@
 package dk.trustworks.timemanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.timemanager.dto.Week;
-import dk.trustworks.timemanager.persistence.WeekRepository;
+import dk.trustworks.timemanager.client.RestClient;
+import dk.trustworks.timemanager.client.dto.*;
+import dk.trustworks.timemanager.dto.WeekItem;
+import dk.trustworks.timemanager.dto.WeekRow;
+import dk.trustworks.timemanager.dto.Work;
+import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,37 +16,56 @@ import java.util.List;
  */
 public class WeekService {
 
-    private WeekRepository weekRepository;
+    private final WeekItemService weekItemService;
+    private final WorkService workService;
+    private final RestClient restClient;
 
     public WeekService(DataSource ds) {
-        weekRepository = new WeekRepository(ds);
+        weekItemService = new WeekItemService(ds);
+        workService = new WorkService(ds);
+        restClient = new RestClient();
     }
 
-    public List<Week> findAll() {
-        return weekRepository.findAll();
+    public List<WeekRow> findByWeekNumberAndYearAndUserUUID(int weekNumber, int year, String userUUID) {
+        List<WeekItem> weekItems = weekItemService.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
+
+        List<WeekRow> weekRows = new ArrayList<>(weekItems.size());
+        for (WeekItem weekItem : weekItems) {
+            WeekRow weekRow = new WeekRow();
+            weekRow.taskuuid = weekItem.taskuuid;
+            Task task = restClient.getTask(weekItem.taskuuid);
+            Project project = restClient.getProject(task.projectuuid);
+            Client client = restClient.getClient(project.clientuuid);
+            weekRow.taskname = task.name + " / " + project.name + " / " + client.name;
+
+            LocalDate date = LocalDate.now().withYear(year).withWeekOfWeekyear(weekNumber).withDayOfWeek(1);
+
+            for (Budget budget : restClient.getBudget(weekItem.taskuuid, weekItem.useruuid)) {
+                weekRow.budgetleft += budget.budget;
+            }
+
+            for (int i = 1; i < 8; i++) {
+                List<Work> workList = workService.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(), weekItem.taskuuid, weekItem.useruuid);
+
+                System.out.println("weekRow.taskname = " + weekRow.taskname);
+                System.out.println("weekRow.budgetleft = " + weekRow.budgetleft);
+
+                for (Work work : workList) {
+                    System.out.println("work = " + work);
+                    weekRow.hours[date.getDayOfWeek() - 1] += work.workduration;
+                }
+                date = date.plusDays(1);
+            }
+            double totalDuration = workService.calculateTaskUserTotalDuration(weekItem.taskuuid, weekItem.useruuid);
+            double price = restClient.getTaskUserPrice(weekItem.taskuuid, weekItem.useruuid).price;
+            weekRow.budgetleft -= (totalDuration * price);
+            weekRows.add(weekRow);
+        }
+
+        return weekRows;
     }
 
-    public Week findByUUID(String uuid) {
-        return weekRepository.findByUUID(uuid);
-    }
-
-    public List<Week> findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc(int weekNumber, int year, String userUUID, String taskUUID) {
-        return weekRepository.findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc(weekNumber, year, userUUID, taskUUID);
-    }
-
-    public List<Week> findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(int weekNumber, int year, String userUUID) {
-        return weekRepository.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
-    }
-
-    public List<Week> cloneWeek(int weekNumber, int year, String userUUID) {
-        return weekRepository.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber - 1, year, userUUID);
-    }
-
-    public void create(Week week) throws SQLException {
-        weekRepository.create(week);
-    }
-
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        weekRepository.update(jsonNode, uuid);
+    public List<WeekItem> cloneWeek(int weekNumber, int year, String userUUID) {
+        return weekItemService.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber - 1, year, userUUID);
     }
 }

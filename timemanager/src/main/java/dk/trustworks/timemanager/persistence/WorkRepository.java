@@ -135,6 +135,8 @@ public class WorkRepository {
     }
 
     public List<Work> findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(int year, int month, int day, String taskUUID, String userUUID) {
+        System.out.println("WorkRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID");
+        System.out.println("year = [" + year + "], month = [" + month + "], day = [" + day + "], taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
         try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "FROM work yt INNER JOIN( " +
@@ -218,11 +220,14 @@ public class WorkRepository {
                     .addParameter("useruuid", userUUID)
                     .executeScalar(Double.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return 0.0;
+            //throw new RuntimeException(e);
         }
     }
 
     public void create(Work work) throws SQLException {
+        System.out.println("WorkRepository.create");
+        System.out.println("work = [" + work + "]");
         work.uuid = UUID.randomUUID().toString();
         work.created = DateTime.now();
         try (Connection con = sql2o.open()) {

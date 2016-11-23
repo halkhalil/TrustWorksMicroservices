@@ -1,13 +1,8 @@
-package dk.trustworks.clientmanager.model;
+package dk.trustworks.timemanager.client.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dk.trustworks.framework.network.CustomDateSerializer;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +21,10 @@ public class Project {
 
     public String clientdatauuid;
 
-    public Date enddate;
+    public LocalDate enddate;
 
-    public Date startdate;
+    public LocalDate startdate;
 
-    @JsonIgnore
     public DateTime created;
 
     public String userowneruuid;

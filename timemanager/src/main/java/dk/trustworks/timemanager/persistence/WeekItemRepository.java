@@ -1,7 +1,7 @@
 package dk.trustworks.timemanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.timemanager.dto.Week;
+import dk.trustworks.timemanager.dto.WeekItem;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -13,34 +13,34 @@ import java.util.UUID;
 /**
  * Created by hans on 17/03/15.
  */
-public class WeekRepository {
+public class WeekItemRepository {
 
     private final Sql2o sql2o;
 
-    public WeekRepository(DataSource ds) {
+    public WeekItemRepository(DataSource ds) {
         sql2o = new Sql2o(ds);
     }
 
-    public List<Week> findAll() {
+    public List<WeekItem> findAll() {
         try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT * FROM week w ORDER BY sorting ASC")
-                    .executeAndFetch(Week.class);
+                    .executeAndFetch(WeekItem.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Week findByUUID(String uuid) {
+    public WeekItem findByUUID(String uuid) {
         try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT * FROM week w WHERE w.uuid LIKE :uuid ORDER BY sorting ASC")
                     .addParameter("uuid", uuid)
-                    .executeAndFetchFirst(Week.class);
+                    .executeAndFetchFirst(WeekItem.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<Week> findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc(int weekNumber, int year, String userUUID, String taskUUID) {
+    public List<WeekItem> findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc(int weekNumber, int year, String userUUID, String taskUUID) {
         try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT * FROM week w WHERE w.weeknumber = :weeknumber AND w.year = :year AND w.useruuid " +
                     "LIKE :useruuid AND taskuuid LIKE :taskuuid ORDER BY sorting ASC")
@@ -48,30 +48,30 @@ public class WeekRepository {
                     .addParameter("year", year)
                     .addParameter("useruuid", userUUID)
                     .addParameter("taskuuid", taskUUID)
-                    .executeAndFetch(Week.class);
+                    .executeAndFetch(WeekItem.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<Week> findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(int weekNumber, int year, String userUUID) {
+    public List<WeekItem> findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(int weekNumber, int year, String userUUID) {
         try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT * FROM week w WHERE w.weeknumber = :weeknumber AND w.year = :year AND w.useruuid " +
                     "LIKE :useruuid ORDER BY sorting ASC")
                     .addParameter("weeknumber", weekNumber)
                     .addParameter("year", year)
                     .addParameter("useruuid", userUUID)
-                    .executeAndFetch(Week.class);
+                    .executeAndFetch(WeekItem.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void create(Week week) throws SQLException {
-        week.UUID = UUID.randomUUID().toString();
+    public void create(WeekItem weekItem) throws SQLException {
+        weekItem.uuid = UUID.randomUUID().toString();
         try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO week (uuid, taskuuid, useruuid, weeknumber, year)" +
-                    " VALUES (:uuid, :taskuuid, :useruuid, :weeknumber, :year)").bind(week)
+                    " VALUES (:uuid, :taskuuid, :useruuid, :weeknumber, :year)").bind(weekItem)
                     /*
                     .addParameter("uuid", UUID.randomUUID().toString())
                     .addParameter("taskuuid", jsonNode.get("taskuuid").asText())

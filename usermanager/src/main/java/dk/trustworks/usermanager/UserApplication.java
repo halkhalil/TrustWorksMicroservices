@@ -7,7 +7,6 @@ import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.framework.security.JwtModule;
 import dk.trustworks.framework.security.JwtToken;
-import dk.trustworks.framework.security.UserRoles;
 import dk.trustworks.usermanager.service.SalaryService;
 import dk.trustworks.usermanager.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -110,7 +109,7 @@ public class UserApplication extends Jooby {
                 .produces("json")
                 .consumes("json");
 
-        on("pr", () -> use(new JwtModule(false)))
+        on("dev", () -> use(new JwtModule(false)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/users")

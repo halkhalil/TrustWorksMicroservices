@@ -2,7 +2,9 @@ package dk.trustworks.timemanager;
 
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.framework.security.JwtModule;
+import dk.trustworks.timemanager.dto.WeekItem;
 import dk.trustworks.timemanager.dto.Work;
+import dk.trustworks.timemanager.service.WeekItemService;
 import dk.trustworks.timemanager.service.WeekService;
 import dk.trustworks.timemanager.service.WorkService;
 import org.apache.curator.framework.CuratorFramework;
@@ -61,15 +63,15 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
         get("/", () -> HOME);
 
-        on("pr", () -> use(new JwtModule(false)))
+        on("dev", () -> use(new JwtModule(false)))
                 .orElse(() -> use(new JwtModule(true)));
 
-        use("/api/weektasks")
+        use("/api/weekitems")
                 .get("/", (req, resp) -> {
                     JwtModule.authorize(req);
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new WeekService(db).findAll());
+                    resp.send(new WeekItemService(db).findAll());
                 }).attr("role", "tm.user")
 
                 .get("/:uuid", (req, resp) -> {
@@ -77,7 +79,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                     String uuid = req.param("uuid").value();
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new WeekService(db).findByUUID(uuid));
+                    resp.send(new WeekItemService(db).findByUUID(uuid));
                 }).attr("role", "tm.user")
 
                 .get("/search/findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc", (req, resp) -> {
@@ -87,7 +89,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                     String userUUID = req.param("useruuid").value();
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new WeekService(db).findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID));
+                    resp.send(new WeekItemService(db).findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID));
                 }).attr("role", "tm.user")
 
                 .get("/search/findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc", (req, resp) -> {
@@ -98,7 +100,15 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                     String taskUUID = req.param("taskuuid").value();
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new WeekService(db).findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc(weekNumber, year, userUUID, taskUUID));
+                    resp.send(new WeekItemService(db).findByWeekNumberAndYearAndUserUUIDAndTaskUUIDOrderBySortingAsc(weekNumber, year, userUUID, taskUUID));
+                }).attr("role", "tm.user")
+
+                .post("/", (req, resp) -> {
+                    WeekItem weekItem = req.body(WeekItem.class);
+                    JwtModule.authorize(req);
+                    DataSource db = req.require(DataSource.class);
+                    new WeekItemService(db).create(weekItem);
+                    resp.send(Status.OK);
                 }).attr("role", "tm.user")
 
                 .post("/commands/cloneweek", (req, resp) -> {
@@ -108,8 +118,8 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                     String userUUID = req.param("useruuid").value();
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new WeekService(db).cloneWeek(weekNumber, year, userUUID));
-                })
+                    resp.send(new WeekItemService(db).cloneWeek(weekNumber, year, userUUID));
+                }).attr("role", "tm.user")
 
                 .produces("json")
                 .consumes("json");
@@ -129,6 +139,14 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
                     DataSource db = req.require(DataSource.class);
                     resp.send(new WorkService(db).findByTaskUUID(taskuuid));
+                }).attr("role", "tm.user")
+
+                .get("/search/findByProjectUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
+                    String projectUUID = req.param("projectuuid").value();
+
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new WorkService(db).findByProjectUUID(projectUUID));
                 }).attr("role", "tm.user")
 
                 .get("/search/findByYear", (req, resp) -> {
@@ -231,6 +249,28 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 .produces("json")
                 .consumes("json");
 
+
+        use("/api/weeks")
+                .get("/", (req, resp) -> {
+                    throw new Err(416);
+                }).attr("role", "tm.user")
+
+                .get("/:uuid", (req, resp) -> {
+                    throw new Err(416);
+                }).attr("role", "tm.user")
+
+                .get("/search/findByWeekNumberAndYearAndUserUUID", (req, resp) -> {
+                    JwtModule.authorize(req);
+                    int weeknumber = req.param("weeknumber").intValue();
+                    int year = req.param("year").intValue();
+                    String userUUID = req.param("useruuid").value();
+
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new WeekService(db).findByWeekNumberAndYearAndUserUUID(weeknumber, year, userUUID));
+                }).attr("role", "tm.user")
+
+                .produces("json")
+                .consumes("json");
     }
 
     public static void main(final String[] args) throws Throwable {

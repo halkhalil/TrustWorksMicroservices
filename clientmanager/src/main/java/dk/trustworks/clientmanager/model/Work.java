@@ -1,8 +1,6 @@
-package dk.trustworks.timemanager.dto;
+package dk.trustworks.clientmanager.model;
 
 import org.joda.time.DateTime;
-
-import java.time.LocalDate;
 
 /**
  * Created by hans on 30/10/2016.

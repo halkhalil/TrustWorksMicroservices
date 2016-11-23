@@ -1,4 +1,4 @@
-package dk.trustworks.clientmanager.model;
+package dk.trustworks.timemanager.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,7 +19,7 @@ public class Task implements Serializable {
     public Project project;
 
     @JsonProperty("taskuserprice")
-    public List<TaskWorkerConstraint> taskworkerconstraints = new ArrayList<>();
+    public List<TaskUserPrice> taskworkerconstraints = new ArrayList<>();
 
     public Task() {
     }

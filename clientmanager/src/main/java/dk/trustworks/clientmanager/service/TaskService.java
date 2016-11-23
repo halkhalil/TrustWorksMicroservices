@@ -26,14 +26,14 @@ public class TaskService {
         List<Task> tasks = taskRepository.findAll();
         if(!projection.contains("taskworkerconstraint")) return tasks;
 
-        return addTaskWorkerConstraintsToTasks(tasks);
+        return addTaskWorkerConstraintsToTasks(tasks, projection);
     }
 
     public List<Task> findAllByProjectUUIDs(List<Project> projects, String projection) {
         List<Task> tasks = taskRepository.findAllByProjectUUIDs(projects);
         if(!projection.contains("taskworkerconstraint")) return tasks;
 
-        return addTaskWorkerConstraintsToTasks(tasks);
+        return addTaskWorkerConstraintsToTasks(tasks, projection);
     }
 
     public Task findByUUID(String uuid, String projection) {
@@ -42,14 +42,14 @@ public class TaskService {
 
         List<Task> tasks = new ArrayList<>();
         tasks.add(task);
-        return addTaskWorkerConstraintsToTasks(tasks).get(0);
+        return addTaskWorkerConstraintsToTasks(tasks, projection).get(0);
     }
 
     public List<Task> findByProjectUUID(String projectUUID, String projection) {
         List<Task> tasks = taskRepository.findByProjectUUID(projectUUID);
         if(!projection.contains("taskworkerconstraint")) return tasks;
 
-        return addTaskWorkerConstraintsToTasks(tasks);
+        return addTaskWorkerConstraintsToTasks(tasks, projection);
     }
 
     public void create(Task task) throws SQLException {
@@ -60,14 +60,14 @@ public class TaskService {
         taskRepository.update(task, uuid);
     }
 
-    private ArrayList<Task> addTaskWorkerConstraintsToTasks(List<Task> tasks) {
+    private ArrayList<Task> addTaskWorkerConstraintsToTasks(List<Task> tasks, String projection) {
         Map<String, Task> tasksMap = new HashMap<>();
         for (Task task : tasks) {
             tasksMap.put(task.uuid, task);
         }
 
         Map<String, TaskWorkerConstraint> taskWorkerConstraintsMap = new HashMap<>();;
-        for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraintService.findAllByTaskUUIDs(tasks)) {
+        for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraintService.findAllByTaskUUIDs(tasks, projection)) {
             taskWorkerConstraintsMap.put(taskWorkerConstraint.uuid, taskWorkerConstraint);
             tasksMap.get(taskWorkerConstraint.taskuuid).taskworkerconstraints.add(taskWorkerConstraint);
         }

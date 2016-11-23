@@ -10,6 +10,7 @@ import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import javax.sql.DataSource;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +29,9 @@ public class ProjectRepository {
 
     public List<Project> findAll() {
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM project ORDER BY name ASC").executeAndFetch(Project.class);
+            List<Project> projects = con.createQuery("SELECT * FROM project ORDER BY name ASC").executeAndFetch(Project.class);
+            con.close();
+            return projects;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -55,9 +58,12 @@ public class ProjectRepository {
 
     public Project findByUUID(String uuid) {
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM project WHERE uuid LIKE :uuid")
+            Project project = con.createQuery("SELECT * FROM project WHERE uuid LIKE :uuid")
                     .addParameter("uuid", uuid)
                     .executeAndFetchFirst(Project.class);
+            con.close();
+            System.out.println("project = " + project);
+            return project;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,7 +105,12 @@ public class ProjectRepository {
         logger.debug("ProjectRepository.findByClientUUIDAndActiveTrue");
         logger.debug("clientUUID = [" + clientUUID + "]");
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid AND active = TRUE ORDER BY name ASC").addParameter("clientuuid", clientUUID).executeAndFetch(Project.class);
+            List<Project> projects = con.createQuery("SELECT * FROM project WHERE clientuuid LIKE :clientuuid AND active = true ORDER BY name ASC")
+                    .addParameter("clientuuid", clientUUID)
+                    .executeAndFetch(Project.class);
+            con.close();
+            System.out.println("projects.size() = " + projects.size());
+            return projects;
         } catch (Exception e) {
             logger.error("LOG00380:", e);
         }
@@ -111,8 +122,8 @@ public class ProjectRepository {
         project.uuid = UUID.randomUUID().toString();
         project.active = true;
         project.created = DateTime.now();
-        project.startdate = DateTime.now();
-        project.enddate = DateTime.now().plusMonths(4);
+        project.startdate = new Date(LocalDate.now().toDateTimeAtCurrentTime().getMillis());
+        project.enddate = new Date(LocalDate.now().plusMonths(4).toDateTimeAtCurrentTime().getMillis());
         try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO project (uuid, active, budget, clientuuid, created, customerreference, name, userowneruuid, clientdatauuid, startdate, enddate) VALUES (:uuid, :active, :budget, :clientuuid, :created, :customerreference, :name, :userowneruuid, :clientdatauuid, :startdate, :enddate)")
                     .bind(project)

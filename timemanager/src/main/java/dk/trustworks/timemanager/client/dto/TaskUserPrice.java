@@ -1,14 +1,10 @@
-package dk.trustworks.clientmanager.model;
+package dk.trustworks.timemanager.client.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @JsonTypeName("taskuserprice")
-public class TaskWorkerConstraint {
+public class TaskUserPrice {
 
     public String uuid;
 
@@ -18,13 +14,10 @@ public class TaskWorkerConstraint {
 
     public String taskuuid;
 
-    @JsonProperty("taskworkerconstraintbudgets")
-    public List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgets = new ArrayList<>();
-
-    public TaskWorkerConstraint() {
+    public TaskUserPrice() {
     }
 
-    public TaskWorkerConstraint(String uuid, double price, String useruuid, String taskuuid) {
+    public TaskUserPrice(String uuid, double price, String useruuid, String taskuuid) {
         this.uuid = uuid;
         this.price = price;
         this.useruuid = useruuid;

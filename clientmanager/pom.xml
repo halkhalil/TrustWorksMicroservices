@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>dk.trustworks.clientmanager.ClientApplication</start-class>
         <java.version>1.8</java.version>
-        <jackson.version>2.4.5</jackson.version>
+        <jackson.version>2.8.4</jackson.version>
         <project.encoding>UTF-8</project.encoding>
         <jooby.version>1.0.0.CR8</jooby.version>
     </properties>
@@ -38,6 +38,12 @@
 
         <!-- Raml -->
         <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>1.0.23</version>
+        </dependency>
+        <!--
+        <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-raml</artifactId>
             <version>${jooby.version}</version>
@@ -47,6 +53,7 @@
             <artifactId>jooby-swagger</artifactId>
             <version>${jooby.version}</version>
         </dependency>
+        -->
 
         <!-- Server -->
         <dependency>

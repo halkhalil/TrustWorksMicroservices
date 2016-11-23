@@ -1,5 +1,7 @@
 package dk.trustworks.clientmanager.persistence;
 
+import dk.trustworks.clientmanager.model.Project;
+import dk.trustworks.clientmanager.model.Task;
 import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +39,92 @@ public class TaskWorkerConstraintBudgetRepository {
             log.error("LOG00474:", e);
         }
         return new ArrayList<>();
+    }
+
+    public List<TaskWorkerConstraintBudget> findByTaskUUIDsWithHistory(List<Task> tasks) {
+        StringBuilder builder = new StringBuilder();
+        for( int i = 0 ; i < tasks.size(); i++ ) {
+            builder.append("'"+tasks.get(i).uuid+"',");
+        }
+
+        try (Connection con = sql2o.open()) {
+            List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgets = con.createQuery("SELECT * FROM taskworkerconstraintbudget " +
+                    "WHERE taskuuid IN ("+builder.deleteCharAt( builder.length() -1 ).toString()+") " +
+                    "ORDER BY year ASC, month ASC, created DESC;")
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
+            con.close();
+            return taskWorkerConstraintBudgets;
+        } catch (Exception e) {
+            log.error("LOG00474:", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<TaskWorkerConstraintBudget> findByTaskUUIDAndUserUUID(String taskUUID, String userUUID) {
+        log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUID");
+        System.out.println("taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
+        try (Connection con = sql2o.open()) {
+            List<TaskWorkerConstraintBudget> taskWorkerConstraintBudget = con.createQuery("" +
+                    "select yt.month, yt.year, yt.created, yt.budget, yt.taskuuid, yt.useruuid " +
+                    "from taskworkerconstraintbudget yt " +
+                    "inner join( " +
+                    "select uuid, month, year, taskuuid, useruuid, max(created) created " +
+                    "from taskworkerconstraintbudget WHERE taskuuid LIKE :taskuuid AND useruuid LIKE :useruuid " +
+                    "group by month, year " +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
+                    .addParameter("taskuuid", taskUUID)
+                    .addParameter("useruuid", userUUID)
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
+            System.out.println("taskWorkerConstraintBudget.size() = " + taskWorkerConstraintBudget.size());
+            con.close();
+            return taskWorkerConstraintBudget;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<String> getUniqueUsersBudgetsPerTask(String taskUUID) {
+        System.out.println("TaskWorkerConstraintBudgetRepository.getUniqueUsersBudgetsPerTask");
+        System.out.println("taskUUID = [" + taskUUID + "]");
+        try (Connection con = sql2o.open()) {
+            List<String> userUUIDs = con.createQuery("" +
+                    "SELECT DISTINCT useruuid FROM taskworkerconstraintbudget " +
+                    "WHERE taskuuid LIKE :taskuuid;")
+                    .addParameter("taskuuid", taskUUID)
+                    .executeAndFetch(String.class);
+            con.close();
+            return userUUIDs;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Deprecated
+    public List<TaskWorkerConstraintBudget> findByTaskUUID(String taskUUID) {
+        log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUID");
+        System.out.println("taskUUID = [" + taskUUID + "]");
+        try (Connection con = sql2o.open()) {
+            List<TaskWorkerConstraintBudget> taskWorkerConstraintBudget = con.createQuery("" +
+                    "select yt.month, yt.year, yt.created, yt.budget, yt.taskuuid, yt.useruuid " +
+                    "from taskworkerconstraintbudget yt " +
+                    "inner join( " +
+                    "select uuid, month, year, taskuuid, useruuid, max(created) created " +
+                    "from taskworkerconstraintbudget WHERE taskuuid LIKE :taskuuid " +
+                    "group by month, year " +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
+                    .addParameter("taskuuid", taskUUID)
+                    .executeAndFetch(TaskWorkerConstraintBudget.class);
+            System.out.println("taskWorkerConstraintBudget.size() = " + taskWorkerConstraintBudget.size());
+            con.close();
+            throw new RuntimeException("NOT ALLOWED!!");
+            //return taskWorkerConstraintBudget;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("NOT ALLOWED!!");
+        //return new ArrayList<>();
     }
 /*
     public List<TaskWorkerConstraintBudget> findByTaskWorkerConstraintUUID(String taskWorkerConstraintUUID) {
