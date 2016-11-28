@@ -4,11 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dk.trustworks.clientmanager.model.*;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintRepository;
 import dk.trustworks.framework.persistence.GenericRepository;
+import dk.trustworks.framework.security.Authenticator;
+import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.framework.service.DefaultLocalService;
+import net.sf.cglib.proxy.Enhancer;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by hans on 17/03/15.
@@ -17,32 +22,56 @@ public class TaskWorkerConstraintService {
 
     private TaskWorkerConstraintRepository taskWorkerConstraintRepository;
     private TaskWorkerConstraintBudgetService taskWorkerConstraintBudgetService;
+    private UserService userService;
+
+    public TaskWorkerConstraintService() {
+    }
 
     public TaskWorkerConstraintService(DataSource ds) {
         taskWorkerConstraintRepository = new TaskWorkerConstraintRepository(ds);
         taskWorkerConstraintBudgetService = new TaskWorkerConstraintBudgetService(ds);
+        userService = new UserService();
     }
 
-    public List<TaskWorkerConstraint> findAll() {
-        return taskWorkerConstraintRepository.findAll();
+    public static TaskWorkerConstraintService getInstance(DataSource ds) {
+        TaskWorkerConstraintService service = new TaskWorkerConstraintService(ds);
+        return (TaskWorkerConstraintService) Enhancer.create(service.getClass(), new Authenticator(service));
     }
 
+    @RoleRight("tm.user")
+    public List<TaskWorkerConstraint> findAll(String projection) {
+        List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintRepository.findAll();
+        if(projection.contains("taskworkerconstraintbudget")) taskWorkerConstraints = addTaskWorkerConstraintBudgetsToTaskWorkerConstraint(taskWorkerConstraints);
+        if(projection.contains("user")) taskWorkerConstraints = addUsersToTaskWorkerConstraint(taskWorkerConstraints);
+
+        return taskWorkerConstraints;
+    }
+
+    @RoleRight("tm.user")
     public TaskWorkerConstraint findByUUID(String uuid) {
         return taskWorkerConstraintRepository.findByUUID(uuid);
     }
 
+    @RoleRight("tm.user")
     public List<TaskWorkerConstraint> findAllByTaskUUIDs(List<Task> tasks, String projection) {
         List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintRepository.findAllByTaskUUIDs(tasks);
-        if(!projection.contains("taskworkerconstraintbudget")) return taskWorkerConstraints;
+        if(projection.contains("taskworkerconstraintbudget")) taskWorkerConstraints = addTaskWorkerConstraintBudgetsToTaskWorkerConstraint(taskWorkerConstraints);
+        if(projection.contains("user")) taskWorkerConstraints = addUsersToTaskWorkerConstraint(taskWorkerConstraints);
 
-        return addTaskWorkerConstraintBudgetsToTaskWorkerConstraint(taskWorkerConstraints);
+        return taskWorkerConstraints;
     }
 
-    public List<TaskWorkerConstraint> findByTaskUUID(String taskuuid) {
-        return taskWorkerConstraintRepository.findByTaskUUID(taskuuid);
+    @RoleRight("tm.user")
+    public List<TaskWorkerConstraint> findByTaskUUID(String taskuuid, String projection) {
+        List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintRepository.findByTaskUUID(taskuuid);
+        if(projection.contains("taskworkerconstraintbudget")) taskWorkerConstraints = addTaskWorkerConstraintBudgetsToTaskWorkerConstraint(taskWorkerConstraints);
+        if(projection.contains("user")) taskWorkerConstraints = addUsersToTaskWorkerConstraint(taskWorkerConstraints);
+
+        return taskWorkerConstraints;
     }
 
     // Verifired
+    @RoleRight("tm.user")
     public TaskWorkerConstraint findByTaskUUIDAndUserUUID(String taskuuid, String useruuid, String projection) {
         TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintRepository.findByTaskUUIDAndUserUUID(taskuuid, useruuid);
         if(!projection.contains("taskworkerconstraintbudget")) return taskWorkerConstraint;
@@ -52,28 +81,36 @@ public class TaskWorkerConstraintService {
         return addTaskWorkerConstraintBudgetsToTaskWorkerConstraint(taskWorkerConstraints).get(0);
     }
 
+    @RoleRight("tm.editor")
     public void create(TaskWorkerConstraint taskWorkerConstraint) throws SQLException {
         taskWorkerConstraintRepository.create(taskWorkerConstraint);
     }
 
+    @RoleRight("tm.editor")
     public void update(TaskWorkerConstraint taskWorkerConstraint, String uuid) throws SQLException {
         taskWorkerConstraintRepository.update(taskWorkerConstraint, uuid);
     }
 
     private List<TaskWorkerConstraint> addTaskWorkerConstraintBudgetsToTaskWorkerConstraint(List<TaskWorkerConstraint> taskWorkerConstraints) {
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintsMap = new HashMap<>();
-        //Map<String, TaskWorkerConstraintBudget> taskWorkerConstraintBudgetsMap = new HashMap<>();;
+        //Map<String, TaskWorkerConstraint> taskWorkerConstraintsMap = new HashMap<>();
         for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints) {
-            taskWorkerConstraintsMap.put(taskWorkerConstraint.uuid, taskWorkerConstraint);
+            //taskWorkerConstraintsMap.put(taskWorkerConstraint.uuid, taskWorkerConstraint);
 
             for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : taskWorkerConstraintBudgetService.findByTaskUUIDAndUserUUID(taskWorkerConstraint.useruuid, taskWorkerConstraint.taskuuid)) {
-                //taskWorkerConstraintBudgetsMap.put(taskWorkerConstraintBudget.uuid, taskWorkerConstraintBudget);
                 taskWorkerConstraint.taskWorkerConstraintBudgets.add(taskWorkerConstraintBudget);
             }
         }
 
-        ArrayList<TaskWorkerConstraint> taskWorkerConstraintsResult = new ArrayList<>();
-        taskWorkerConstraintsResult.addAll(taskWorkerConstraintsMap.values());
+        //ArrayList<TaskWorkerConstraint> taskWorkerConstraintsResult = new ArrayList<>();
+        //taskWorkerConstraintsResult.addAll(taskWorkerConstraintsMap.values());
+        return taskWorkerConstraints;
+    }
+
+    private List<TaskWorkerConstraint> addUsersToTaskWorkerConstraint(List<TaskWorkerConstraint> taskWorkerConstraints) {
+        Map<String, User> usersMap = userService.findAll().stream().collect(Collectors.toMap(User::getUUID, Function.identity()));
+        for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints) {
+            taskWorkerConstraint.user = usersMap.get(taskWorkerConstraint.useruuid);
+        }
         return taskWorkerConstraints;
     }
 }

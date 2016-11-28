@@ -14,15 +14,18 @@ import dk.trustworks.timemanager.client.dto.Client;
 public class GetClientCommand extends HystrixCommand<Client> {
 
     private final String uuid;
+    private String jwtToken;
 
-    public GetClientCommand(String uuid) {
+    public GetClientCommand(String uuid, String jwtToken) {
         super(HystrixCommandGroupKey.Factory.asKey("Client"));
         this.uuid = uuid;
+        this.jwtToken = jwtToken;
     }
 
     public Client run() throws Exception {
         HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/clients/"+uuid)
                 .header("accept", "application/json")
+                .header("jwt-token", jwtToken)
                 .asJson();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());

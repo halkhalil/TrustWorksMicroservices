@@ -1,6 +1,8 @@
 package dk.trustworks.clientmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.trustworks.framework.network.CustomDateSerializer;
@@ -11,7 +13,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Project {
 
     public String uuid;
@@ -26,8 +28,10 @@ public class Project {
 
     public String clientdatauuid;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     public Date enddate;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     public Date startdate;
 
     @JsonIgnore

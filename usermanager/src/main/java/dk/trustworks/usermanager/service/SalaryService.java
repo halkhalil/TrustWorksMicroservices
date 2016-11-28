@@ -1,9 +1,9 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.usermanager.dto.Salary;
 import dk.trustworks.usermanager.persistence.SalaryRepository;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -22,10 +22,12 @@ public class SalaryService {
         salaryRepository = new SalaryRepository(ds);
     }
 
+    @RoleRight("tm.admin")
     public List<Salary> findActiveByDate(LocalDate date) {
         return salaryRepository.findActiveByDate(date);
     }
 
+    @RoleRight("tm.admin")
     public List<Salary> usersalarypermonthbyyear(LocalDate periodStart, LocalDate periodEnd) {
         List<Salary> salaries = new ArrayList<>();
 
@@ -42,6 +44,7 @@ public class SalaryService {
         return salaries;
     }
 
+    @RoleRight("tm.admin")
     public List<Salary> usersalarypermonthbyyearbyuser(String userUUID, LocalDate periodStart, LocalDate periodEnd) {
         List<Salary> salaries = new ArrayList<>();
 
@@ -58,10 +61,12 @@ public class SalaryService {
         return salaries;
     }
 
+    @RoleRight("tm.admin")
     public void create(JsonNode jsonNode) throws SQLException {
         salaryRepository.create(jsonNode);
     }
 
+    @RoleRight("tm.admin")
     public void update(JsonNode jsonNode, String uuid) throws SQLException {
         salaryRepository.update(jsonNode, uuid);
     }

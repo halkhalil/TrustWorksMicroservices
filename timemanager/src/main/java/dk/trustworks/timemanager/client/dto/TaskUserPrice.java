@@ -1,9 +1,11 @@
 package dk.trustworks.timemanager.client.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("taskuserprice")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TaskUserPrice {
 
     public String uuid;
@@ -13,6 +15,8 @@ public class TaskUserPrice {
     public String useruuid;
 
     public String taskuuid;
+
+    public User user;
 
     public TaskUserPrice() {
     }

@@ -61,7 +61,7 @@ public class TaskWorkerConstraintBudgetRepository {
     }
 
     public List<TaskWorkerConstraintBudget> findByTaskUUIDAndUserUUID(String taskUUID, String userUUID) {
-        log.debug("TaskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUID");
+        System.out.println("TaskWorkerConstraintBudgetRepository.findByTaskUUIDAndUserUUID");
         System.out.println("taskUUID = [" + taskUUID + "], userUUID = [" + userUUID + "]");
         try (Connection con = sql2o.open()) {
             List<TaskWorkerConstraintBudget> taskWorkerConstraintBudget = con.createQuery("" +
@@ -280,11 +280,13 @@ public class TaskWorkerConstraintBudgetRepository {
         log.debug("TaskWorkerConstraintBudgetRepository.create");
         taskWorkerConstraintBudget.uuid = UUID.randomUUID().toString();
         taskWorkerConstraintBudget.created = DateTime.now();
+        taskWorkerConstraintBudget.taskworkerconstraintuuid = UUID.randomUUID().toString();
         try (Connection con = sql2o.open()) {
-            con.createQuery("INSERT INTO taskworkerconstraintbudget (uuid, budget, month, year, useruuid, taskuuid, created) " +
-                    "VALUES (:uuid, :budget, :month, :year, :useruuid, :taskuuid, :created)")
+            con.createQuery("INSERT INTO taskworkerconstraintbudget (uuid, budget, month, year, taskworkerconstraintuuid, useruuid, taskuuid, created) " +
+                    "VALUES (:uuid, :budget, :month, :year, :taskworkerconstraintuuid, :useruuid, :taskuuid, :created)")
                     .bind(taskWorkerConstraintBudget)
                     .executeUpdate();
+            con.close();
         } catch (Exception e) {
             log.error("LOG00510:", e);
         }
@@ -292,7 +294,7 @@ public class TaskWorkerConstraintBudgetRepository {
     }
 
     public void update(TaskWorkerConstraintBudget taskWorkerConstraintBudget, String uuid) throws SQLException {
-        throw new Err(405);
+        create(taskWorkerConstraintBudget);
     }
 
     public void addUserTask(TaskWorkerConstraintBudget taskWorkerConstraintBudget) {

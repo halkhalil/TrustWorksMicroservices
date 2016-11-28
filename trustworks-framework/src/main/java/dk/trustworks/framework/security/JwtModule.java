@@ -17,35 +17,39 @@ public class JwtModule implements Jooby.Module {
 
     public static final String KEY = "2b393761-fd50-4c54-8d41-61bcb17cf173";
 
-    private boolean secureMode;
+    public static ThreadLocal<String> JWTTOKEN = new ThreadLocal<>();
+
+    public static Boolean SECUREMODE;
+
+    public static ThreadLocal<UserRoles> USERROLES = new ThreadLocal<>();
 
     public JwtModule() {
     }
 
     public JwtModule(boolean secureMode) {
-        this.secureMode = secureMode;
+        SECUREMODE = secureMode;
     }
 
     @Override
     public void configure(Env env, Config config, Binder binder) {
         Routes routes = env.routes();
         routes.before((req, rsp) -> {
-            req.set("secureMode", secureMode);
-            if(secureMode) {
+            //req.set("secureMode", secureMode);
+            if(SECUREMODE) {
                 Optional<String> jwtToken = req.header("jwt-token").toOptional();
-                if(!jwtToken.isPresent()) throw new Err(401);
-                System.out.println("jwtToken = " + jwtToken);
+                if(!jwtToken.isPresent()) {
+                    USERROLES.set(new UserRoles());
+                    return;
+                }
+                JWTTOKEN.set(jwtToken.get());
 
                 Jws<Claims> claims = Jwts.parser()
                         .setSigningKey(KEY)
                         .parseClaimsJws(jwtToken.get());
                 List<String> roles = claims.getBody().get("roles", List.class);
-                for (String role : roles) {
-                    System.out.println("role = " + role);
-                }
 
                 UserRoles userRoles = new UserRoles(roles);
-                req.set("roles", userRoles);
+                USERROLES.set(userRoles);
             }
         });
 

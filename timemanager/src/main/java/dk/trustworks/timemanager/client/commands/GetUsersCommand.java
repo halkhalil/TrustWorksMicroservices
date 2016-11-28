@@ -9,32 +9,33 @@ import com.mashape.unirest.http.Unirest;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import dk.trustworks.framework.network.Locator;
-import dk.trustworks.timemanager.client.dto.Budget;
+import dk.trustworks.timemanager.client.dto.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class GetBudgetCommand extends HystrixCommand<List<Budget>> {
+public class GetUsersCommand extends HystrixCommand<List<User>> {
 
-    private String userUUID;
-    private String taskUUID;
     private String jwtToken;
 
-    public GetBudgetCommand(String userUUID, String taskUUID, String jwtToken) {
-        super(HystrixCommandGroupKey.Factory.asKey("Budget"));
-        this.userUUID = userUUID;
-        this.taskUUID = taskUUID;
+    public GetUsersCommand(String jwtToken) {
+        super(HystrixCommandGroupKey.Factory.asKey("User"));
         this.jwtToken = jwtToken;
     }
 
-    public List<Budget> run() throws Exception {
-        HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/budget/search/findByTaskUUIDAndUserUUID")
-                .queryString("useruuid", userUUID)
-                .queryString("taskuuid", taskUUID)
+    public List<User> run() throws Exception {
+        HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
                 .header("accept", "application/json")
                 .header("jwt-token", jwtToken)
                 .asJson();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
-        return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Budget>>() {});
+        return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {});
+    }
+
+    @Override
+    protected List<User> getFallback() {
+        System.out.println("GetUsersCommand.getFallback");
+        return new ArrayList<>();
     }
 }

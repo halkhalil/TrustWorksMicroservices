@@ -1,12 +1,12 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.usermanager.dto.Availability;
 import dk.trustworks.usermanager.dto.Capacity;
 import dk.trustworks.usermanager.dto.User;
 import dk.trustworks.usermanager.persistence.RoleRepository;
 import dk.trustworks.usermanager.persistence.UserRepository;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -26,32 +26,38 @@ public class UserService {
         roleRepository = new RoleRepository(ds);
     }
 
+    public UserService getInstance(DataSource ds) {
+        return null;
+    }
+
+    @RoleRight("tm.user")
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
+    @RoleRight("tm.user")
     public User findByUUID(String uuid) {
         return userRepository.findByUUID(uuid);
     }
 
+    @RoleRight("tm.user")
     public List<User> findByActiveTrue() {
         return userRepository.findByActiveTrue();
     }
 
+    @RoleRight("tm.user")
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public List<User> findByActiveTrueOrderByFirstnameAsc(Map<String, Deque<String>> queryParameters) {
-        return userRepository.findByActiveTrueOrderByFirstnameAsc();
-    }
-
+    @RoleRight("tm.user")
     public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
         User credentials = userRepository.findByUsernameAndPasswordAndActiveTrue(username, password);
         System.out.println("credentials = " + credentials);
         return credentials;
     }
 
+    @RoleRight("tm.admin")
     public List<String> getUserRoles(String username, String password) {
         User user = findByUsernameAndPasswordAndActiveTrue(username, password);
         List<String> roles = roleRepository.findByUserUUID(user.getUUID());

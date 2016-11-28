@@ -1,8 +1,9 @@
-package dk.trustworks.clientmanager.service;
+package dk.trustworks.timemanager.service;
 
-import dk.trustworks.clientmanager.model.User;
-import dk.trustworks.clientmanager.service.commands.GetUsersCommand;
+
 import dk.trustworks.framework.security.JwtModule;
+import dk.trustworks.timemanager.client.commands.GetUsersCommand;
+import dk.trustworks.timemanager.client.dto.User;
 
 import java.util.List;
 
@@ -15,7 +16,6 @@ public class UserService {
     }
 
     public List<User> findAll() {
-        System.out.println("JwtModule.JWTTOKEN.get() = " + JwtModule.JWTTOKEN.get());
         return new GetUsersCommand(JwtModule.JWTTOKEN.get()).execute();
     }
 }

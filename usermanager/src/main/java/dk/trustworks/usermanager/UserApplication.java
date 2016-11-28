@@ -109,7 +109,7 @@ public class UserApplication extends Jooby {
                 .produces("json")
                 .consumes("json");
 
-        on("dev", () -> use(new JwtModule(false)))
+        on("dev", () -> use(new JwtModule(true)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/users")
@@ -222,12 +222,10 @@ public class UserApplication extends Jooby {
 
                     //final Timer timer = metricRegistry.timer(name("user", "search", "findByUsernameAndPasswordAndActiveTrue", "response"));
                     //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).findByUsernameAndPasswordAndActiveTrue(username, password));
-                    } finally {
-                        //context.stop();
-                    }
+
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(new UserService(db).findByUsernameAndPasswordAndActiveTrue(username, password));
+
                 }).attr("role", "tm.user")
 
                 .produces("json")

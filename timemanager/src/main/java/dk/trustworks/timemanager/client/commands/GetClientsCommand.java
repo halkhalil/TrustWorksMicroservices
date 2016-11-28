@@ -9,35 +9,36 @@ import com.mashape.unirest.http.Unirest;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import dk.trustworks.framework.network.Locator;
+import dk.trustworks.timemanager.client.dto.Client;
 import dk.trustworks.timemanager.client.dto.Project;
 
-public class GetProjectCommand extends HystrixCommand<Project> {
+import java.util.List;
 
-    private final String uuid;
-    private String jwtToken;
+public class GetClientsCommand extends HystrixCommand<List<Client>> {
+
     private String projection;
+    private String jwtToken;
 
-    public GetProjectCommand(String uuid, String jwtToken) {
+    public GetClientsCommand(String jwtToken) {
         super(HystrixCommandGroupKey.Factory.asKey("Project"));
-        this.uuid = uuid;
         this.jwtToken = jwtToken;
         projection = "";
     }
 
-    public GetProjectCommand(String uuid, String projection, String jwtToken) {
-        this(uuid, jwtToken);
+    public GetClientsCommand(String projection, String jwtToken) {
+        this(jwtToken);
         this.projection = projection;
     }
 
 
-    public Project run() throws Exception {
-        HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects/"+uuid)
+    public List<Client> run() throws Exception {
+        HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/clients")
                 .header("accept", "application/json")
                 .header("jwt-token", jwtToken)
                 .queryString("projection", projection)
                 .asJson();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
-        return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Project>() {});
+        return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Client>>() {});
     }
 }

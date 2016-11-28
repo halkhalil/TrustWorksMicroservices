@@ -15,15 +15,18 @@ import dk.trustworks.timemanager.client.dto.Task;
 public class GetTaskCommand extends HystrixCommand<Task> {
 
     private final String uuid;
+    private String jwtToken;
 
-    public GetTaskCommand(String uuid) {
+    public GetTaskCommand(String uuid, String jwtToken) {
         super(HystrixCommandGroupKey.Factory.asKey("Task"));
         this.uuid = uuid;
+        this.jwtToken = jwtToken;
     }
 
     public Task run() throws Exception {
         HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/tasks/"+uuid)
                 .header("accept", "application/json")
+                .header("jwt-token", jwtToken)
                 .asJson();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());

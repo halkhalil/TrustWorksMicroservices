@@ -4,6 +4,9 @@ import dk.trustworks.clientmanager.model.Task;
 import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
 import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintBudgetRepository;
+import dk.trustworks.framework.security.Authenticator;
+import dk.trustworks.framework.security.RoleRight;
+import net.sf.cglib.proxy.Enhancer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDate;
@@ -21,9 +24,18 @@ public class TaskWorkerConstraintBudgetService {
     private TaskWorkerConstraintBudgetRepository taskWorkerConstraintBudgetRepository;
     //private TaskWorkerConstraintService taskWorkerConstraintService;
 
+
+    public TaskWorkerConstraintBudgetService() {
+    }
+
     public TaskWorkerConstraintBudgetService(DataSource ds) {
         taskWorkerConstraintBudgetRepository = new TaskWorkerConstraintBudgetRepository(ds);
         //taskWorkerConstraintService = new TaskWorkerConstraintService(ds);
+    }
+
+    public static TaskWorkerConstraintBudgetService getInstance(DataSource ds) {
+        TaskWorkerConstraintBudgetService service = new TaskWorkerConstraintBudgetService(ds);
+        return (TaskWorkerConstraintBudgetService) Enhancer.create(service.getClass(), new Authenticator(service));
     }
 
     public List<TaskWorkerConstraintBudget> findByPeriod(LocalDate fromDate, LocalDate toDate, int ahead) {
@@ -39,18 +51,22 @@ public class TaskWorkerConstraintBudgetService {
     }
 
     @Deprecated
+    @RoleRight("tm.user")
     public List<TaskWorkerConstraintBudget> findByTaskUUID(String taskUUID) {
         return taskWorkerConstraintBudgetRepository.findByTaskUUID(taskUUID);
     }
 
+    @RoleRight("tm.user")
     public List<String> getUniqueUsersBudgetsPerTask(String taskUUID) {
         return taskWorkerConstraintBudgetRepository.getUniqueUsersBudgetsPerTask(taskUUID);
     }
 
+    @RoleRight("tm.user")
     public List<TaskWorkerConstraintBudget> findByTaskUUIDsWithHistory(List<Task> tasks) {
         return taskWorkerConstraintBudgetRepository.findByTaskUUIDsWithHistory(tasks);
     }
 
+    @RoleRight("tm.user")
     public List<TaskWorkerConstraintBudget> findByTaskUUIDAndUserUUID(String userUUID, String taskUUID) {
         return taskWorkerConstraintBudgetRepository.findByTaskUUIDAndUserUUID(taskUUID, userUUID);
     }
@@ -85,10 +101,13 @@ public class TaskWorkerConstraintBudgetService {
         return taskWorkerConstraintBudgetRepository.findByTaskWorkerConstraintUUIDAndMonthAndYearAndDate(taskworkerconstraintuuid, month, year, date);
     }
 */
+
+    @RoleRight("tm.editor")
     public void create(TaskWorkerConstraintBudget taskWorkerConstraintBudget) throws SQLException {
         taskWorkerConstraintBudgetRepository.create(taskWorkerConstraintBudget);
     }
 
+    @RoleRight("tm.editor")
     public void update(TaskWorkerConstraintBudget taskWorkerConstraintBudget, String uuid) throws SQLException {
         taskWorkerConstraintBudgetRepository.update(taskWorkerConstraintBudget, uuid);
     }

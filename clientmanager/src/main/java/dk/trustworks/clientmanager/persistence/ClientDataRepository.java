@@ -81,7 +81,7 @@ public class ClientDataRepository {
         return new ClientData();
     }
 
-    public void create(ClientData clientData) throws SQLException {
+    public ClientData create(ClientData clientData) throws SQLException {
         logger.debug("ClientDataRepository.create");
         clientData.uuid = UUID.randomUUID().toString();
 
@@ -94,6 +94,7 @@ public class ClientDataRepository {
         } catch (Exception e) {
             logger.error("LOG00290:", e);
         }
+        return clientData;
     }
 
     public void update(ClientData clientData, String uuid) throws SQLException {

@@ -21,6 +21,8 @@ public class TaskWorkerConstraint {
     @JsonProperty("taskworkerconstraintbudgets")
     public List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgets = new ArrayList<>();
 
+    public User user;
+
     public TaskWorkerConstraint() {
     }
 

@@ -11,25 +11,40 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import dk.trustworks.clientmanager.model.ProjectBudget;
 import dk.trustworks.clientmanager.model.Work;
 import dk.trustworks.framework.network.Locator;
+import dk.trustworks.framework.security.JwtModule;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GetWorkByProjectCommand extends HystrixCommand<List<Work>> {
 
     private final String projectUUID;
+    private String jwtToken;
 
-    public GetWorkByProjectCommand(String projectUUID) {
+    public GetWorkByProjectCommand(String projectUUID, String jwtToken) {
         super(HystrixCommandGroupKey.Factory.asKey("Work"));
         this.projectUUID = projectUUID;
+        this.jwtToken = jwtToken;
+        System.out.println("GetWorkByProjectCommand.GetWorkByProjectCommand");
+        System.out.println("projectUUID = [" + projectUUID + "]");
     }
 
     public List<Work> run() throws Exception {
+        System.out.println("GetWorkByProjectCommand.run");
         HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("timeservice") + "/api/works/search/findByProjectUUID")
                 .header("accept", "application/json")
+                .header("jwt-token", jwtToken)
                 .queryString("projectuuid", projectUUID)
                 .asJson();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
         return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {});
+    }
+
+    @Override
+    protected List<Work> getFallback() {
+        System.out.println("GetWorkByProjectCommand.getFallback");
+        System.out.println("projectUUID = " + projectUUID);
+        return new ArrayList<>();
     }
 }

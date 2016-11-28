@@ -4,6 +4,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.framework.security.JwtModule;
 import dk.trustworks.timemanager.dto.WeekItem;
 import dk.trustworks.timemanager.dto.Work;
+import dk.trustworks.timemanager.service.ReportService;
 import dk.trustworks.timemanager.service.WeekItemService;
 import dk.trustworks.timemanager.service.WeekService;
 import dk.trustworks.timemanager.service.WorkService;
@@ -13,6 +14,7 @@ import org.apache.curator.retry.RetryNTimes;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
+import org.joda.time.LocalDate;
 import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
@@ -63,7 +65,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
         get("/", () -> HOME);
 
-        on("dev", () -> use(new JwtModule(false)))
+        on("dev", () -> use(new JwtModule(true)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/weekitems")
@@ -251,6 +253,28 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
 
         use("/api/weeks")
+            .get("/", (req, resp) -> {
+                throw new Err(416);
+            }).attr("role", "tm.user")
+
+            .get("/:uuid", (req, resp) -> {
+                throw new Err(416);
+            }).attr("role", "tm.user")
+
+            .get("/search/findByWeekNumberAndYearAndUserUUID", (req, resp) -> {
+                JwtModule.authorize(req);
+                int weeknumber = req.param("weeknumber").intValue();
+                int year = req.param("year").intValue();
+                String userUUID = req.param("useruuid").value();
+
+                DataSource db = req.require(DataSource.class);
+                resp.send(new WeekService(db).findByWeekNumberAndYearAndUserUUID(weeknumber, year, userUUID));
+            }).attr("role", "tm.user")
+
+            .produces("json")
+            .consumes("json");
+
+        use("/api/reports")
                 .get("/", (req, resp) -> {
                     throw new Err(416);
                 }).attr("role", "tm.user")
@@ -259,14 +283,13 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                     throw new Err(416);
                 }).attr("role", "tm.user")
 
-                .get("/search/findByWeekNumberAndYearAndUserUUID", (req, resp) -> {
+                .get("/search/findByYearAndMonth", (req, resp) -> {
                     JwtModule.authorize(req);
-                    int weeknumber = req.param("weeknumber").intValue();
-                    int year = req.param("year").intValue();
-                    String userUUID = req.param("useruuid").value();
+                    int year = req.param("year").intValue(LocalDate.now().getYear());
+                    int month = req.param("month").intValue(LocalDate.now().getMonthOfYear()-1);
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new WeekService(db).findByWeekNumberAndYearAndUserUUID(weeknumber, year, userUUID));
+                    resp.send(new ReportService(db).findByYearAndMonth(year, month));
                 }).attr("role", "tm.user")
 
                 .produces("json")
