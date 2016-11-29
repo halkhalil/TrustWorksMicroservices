@@ -58,7 +58,7 @@ public class ClientApplication extends Jooby {
 
         get("/", () -> HOME);
 
-        on("dev", () -> use(new JwtModule(false)))
+        on("dev", () -> use(new JwtModule(true)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/clients")
@@ -134,7 +134,6 @@ public class ClientApplication extends Jooby {
                 })
 
                 .get("/:uuid/budget", (req, resp) -> {
-                    JwtModule.authorize(req);
                     String projectuuid = req.param("uuid").value();
                     DataSource db = req.require(DataSource.class);
                     resp.send(ProjectService.getInstance(db).getProjectBudget(projectuuid));

@@ -1,10 +1,13 @@
 package dk.trustworks.timemanager.service;
 
+import dk.trustworks.framework.security.Authenticator;
+import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.timemanager.client.commands.GetProjectCommand;
 import dk.trustworks.timemanager.client.dto.Project;
 import dk.trustworks.timemanager.client.dto.Task;
 import dk.trustworks.timemanager.dto.Work;
 import dk.trustworks.timemanager.persistence.WorkRepository;
+import net.sf.cglib.proxy.Enhancer;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -24,10 +27,20 @@ public class WorkService {
         workRepository = new WorkRepository(ds);
     }
 
+    public WorkService() {
+    }
+
+    public static WorkService getInstance(DataSource ds) {
+        WorkService service = new WorkService(ds);
+        return (WorkService) Enhancer.create(service.getClass(), new Authenticator(service));
+    }
+
+    @RoleRight("tm.user")
     public List<Work> findByTaskUUID(String taskUUID) {
         return workRepository.findByTaskUUID(taskUUID);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByProjectUUID(String projectUUID) {
         System.out.println("WorkService.findByProjectUUID");
         System.out.println("projectUUID = [" + projectUUID + "]");
@@ -40,46 +53,57 @@ public class WorkService {
         return workList;
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYear(int year) {
         return workRepository.findByYear(year);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndUserUUID(String userUUID, int year) {
         return workRepository.findByYearAndUserUUID(year, userUUID);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndMonth(int year, int month) {
         return workRepository.findByYearAndMonth(year, month);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndMonthAndTaskUUIDAndUserUUID(int year, int month, String taskUUID, String userUUID) {
         return workRepository.findByYearAndMonthAndTaskUUIDAndUserUUID(year, month, taskUUID, userUUID);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(int year, int month, int day, String taskUUID, String userUUID) {
         return workRepository.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(year, month, day, taskUUID, userUUID);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndMonthAndDay(int year, int month, int day) {
         return workRepository.findByYearAndMonthAndDay(year, month, day);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndMonthAndTaskUUID(int year, int month, String taskUUID) {
         return workRepository.findByYearAndMonthAndTaskUUID(year, month, taskUUID);
     }
 
+    @RoleRight("tm.user")
     public List<Work> findByYearAndTaskUUIDAndUserUUID(int year, String taskUUID, String userUUID) {
         return workRepository.findByYearAndTaskUUIDAndUserUUID(year, taskUUID, userUUID);
     }
 
+    @RoleRight("tm.user")
     public double calculateTaskUserTotalDuration(String taskUUID, String userUUID) {
         return workRepository.calculateTaskUserTotalDuration(taskUUID, userUUID);
     }
 
+    @RoleRight("tm.user")
     public void create(Work work) throws SQLException {
         workRepository.create(work);
     }
 
+    @RoleRight("tm.user")
     public void update(Work work, String uuid) throws SQLException {
         workRepository.update(work, uuid);
     }

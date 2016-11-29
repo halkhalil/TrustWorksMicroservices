@@ -1,9 +1,11 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.usermanager.dto.Salary;
 import dk.trustworks.usermanager.persistence.SalaryRepository;
+import net.sf.cglib.proxy.Enhancer;
 import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -18,8 +20,16 @@ public class SalaryService {
 
     private SalaryRepository salaryRepository;
 
+    public SalaryService() {
+    }
+
     public SalaryService(DataSource ds) {
         salaryRepository = new SalaryRepository(ds);
+    }
+
+    public static SalaryService getInstance(DataSource ds) {
+        SalaryService service = new SalaryService(ds);
+        return (SalaryService) Enhancer.create(service.getClass(), new Authenticator(service));
     }
 
     @RoleRight("tm.admin")

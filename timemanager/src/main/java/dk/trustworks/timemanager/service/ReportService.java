@@ -1,8 +1,11 @@
 package dk.trustworks.timemanager.service;
 
+import dk.trustworks.framework.security.Authenticator;
+import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.timemanager.client.dto.*;
 import dk.trustworks.timemanager.dto.Report;
 import dk.trustworks.timemanager.dto.Work;
+import net.sf.cglib.proxy.Enhancer;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -14,9 +17,12 @@ import java.util.stream.Collectors;
  */
 public class ReportService {
 
-    private final WorkService workService;
-    private final UserService userService;
-    private final ClientService clientService;
+    private WorkService workService;
+    private UserService userService;
+    private ClientService clientService;
+
+    public ReportService() {
+    }
 
     public ReportService(DataSource ds) {
         workService = new WorkService(ds);
@@ -24,6 +30,12 @@ public class ReportService {
         clientService = new ClientService();
     }
 
+    public static ReportService getInstance(DataSource ds) {
+        ReportService service = new ReportService(ds);
+        return (ReportService) Enhancer.create(service.getClass(), new Authenticator(service));
+    }
+
+    @RoleRight("tm.user")
     public ArrayList<Report> findByYearAndMonth(int year, int month) {
         ArrayList<Report> reportDTOs = new ArrayList<>();
         List<Client> clients =  clientService.findAll("project/task/taskworkerconstraint");//restDelegate.getAllClientsGraph();

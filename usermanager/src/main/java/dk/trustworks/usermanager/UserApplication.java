@@ -114,119 +114,60 @@ public class UserApplication extends Jooby {
 
         use("/api/users")
                 .get("/", (req, resp) -> {
-                    JwtModule.authorize(req);
-
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).findAll());
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.user")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).findAll());
+                })
 
                 .get("/:uuid", (req, resp) -> {
-                    JwtModule.authorize(req);
                     String uuid = req.param("uuid").value();
-
-                    //final Timer timer = metricRegistry.timer(name("user", "get", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).findByUUID(uuid));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.user")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).findByUUID(uuid));
+                })
 
                 .get("/{uuid}/capacities", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
-
-                    //final Timer timer = metricRegistry.timer(name("user", "capacity", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).capacitypermonthbyuser(userUUID, periodStart, periodEnd));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.admin")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).capacitypermonthbyuser(userUUID, periodStart, periodEnd));
+                })
 
                 .get("/{uuid}/availabilities", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
-
-                    //final Timer timer = metricRegistry.timer(name("user", "availability", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).useravailabilitypermonthbyyearbyuser(userUUID, periodStart, periodEnd));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.user")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).useravailabilitypermonthbyyearbyuser(userUUID, periodStart, periodEnd));
+                })
 
                 .get("/{uuid}/salaries", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
-
-                    //final Timer timer = metricRegistry.timer(name("users", "salary", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new SalaryService(db).usersalarypermonthbyyearbyuser(userUUID, periodStart, periodEnd));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.admin")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(SalaryService.getInstance(db).usersalarypermonthbyyearbyuser(userUUID, periodStart, periodEnd));
+                })
 
                 // Verified
                 .get("/search/findByActiveTrue", (req, resp) -> {
-                    JwtModule.authorize(req);
-                    //final Timer timer = metricRegistry.timer(name("user", "search", "findByActiveTrue", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).findByActiveTrue());
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.user")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).findByActiveTrue());
+                })
 
 
                 .get("/search/findByUsername", (req, resp) -> {
-                    JwtModule.authorize(req);
                     String username = req.param("username").value();
-
-                    //final Timer timer = metricRegistry.timer(name("user", "search", "findByActiveTrue", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).findByUsername(username));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.user")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).findByUsername(username));
+                })
 
                 .get("/search/findByUsernameAndPasswordAndActiveTrue", (req, resp) -> {
-                    JwtModule.authorize(req);
                     String username = req.param("username").value();
                     String password = req.param("password").value();
-
-                    //final Timer timer = metricRegistry.timer(name("user", "search", "findByUsernameAndPasswordAndActiveTrue", "response"));
-                    //final Timer.Context context = timer.time();
-
                     DataSource db = req.require(DataSource.class);
-                    resp.send(new UserService(db).findByUsernameAndPasswordAndActiveTrue(username, password));
+                    resp.send(UserService.getInstance(db).findByUsernameAndPasswordAndActiveTrue(username, password));
 
-                }).attr("role", "tm.user")
+                })
 
                 .produces("json")
                 .consumes("json");
@@ -237,33 +178,17 @@ public class UserApplication extends Jooby {
          */
         use("/api/salaries")
                 .get("/", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
-
-                    //final Timer timer = metricRegistry.timer(name("salary", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new SalaryService(db).usersalarypermonthbyyear(periodStart, periodEnd));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.admin")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(SalaryService.getInstance(db).usersalarypermonthbyyear(periodStart, periodEnd));
+                })
 
                 .get("/search/findActiveByDate", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate date = LocalDate.parse(req.param("date").value(), DateTimeFormat.forPattern("yyyy-MM-dd"));
-
-                    //final Timer timer = metricRegistry.timer(name("salary", "search", "findActiveByDate", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new SalaryService(db).findActiveByDate(date));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.admin")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(SalaryService.getInstance(db).findActiveByDate(date));
+                })
                 .produces("json")
                 .consumes("json");
 
@@ -273,37 +198,21 @@ public class UserApplication extends Jooby {
          */
         use("/api/capacities")
                 .get("/", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
-
-                    //final Timer timer = metricRegistry.timer(name("capacity", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).capacitypermonth(periodStart, periodEnd));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.admin")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).capacitypermonth(periodStart, periodEnd));
+                })
                 .produces("json")
                 .consumes("json");
 
         use("/api/availabilities")
                 .get("/", (req, resp) -> {
-                    JwtModule.authorize(req);
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
-
-                    //final Timer timer = metricRegistry.timer(name("availability", "response"));
-                    //final Timer.Context context = timer.time();
-                    try {
-                        DataSource db = req.require(DataSource.class);
-                        resp.send(new UserService(db).useravailabilitypermonthbyyear(periodStart, periodEnd));
-                    } finally {
-                        //context.stop();
-                    }
-                }).attr("role", "tm.user")
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).useravailabilitypermonthbyyear(periodStart, periodEnd));
+                })
                 .produces("json")
                 .consumes("json");
 /*

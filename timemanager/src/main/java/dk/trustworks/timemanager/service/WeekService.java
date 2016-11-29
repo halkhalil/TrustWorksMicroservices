@@ -1,10 +1,13 @@
 package dk.trustworks.timemanager.service;
 
+import dk.trustworks.framework.security.Authenticator;
+import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.timemanager.client.RestClient;
 import dk.trustworks.timemanager.client.dto.*;
 import dk.trustworks.timemanager.dto.WeekItem;
 import dk.trustworks.timemanager.dto.WeekRow;
 import dk.trustworks.timemanager.dto.Work;
+import net.sf.cglib.proxy.Enhancer;
 import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -16,9 +19,12 @@ import java.util.List;
  */
 public class WeekService {
 
-    private final WeekItemService weekItemService;
-    private final WorkService workService;
-    private final RestClient restClient;
+    private WeekItemService weekItemService;
+    private WorkService workService;
+    private RestClient restClient;
+
+    public WeekService() {
+    }
 
     public WeekService(DataSource ds) {
         weekItemService = new WeekItemService(ds);
@@ -26,6 +32,12 @@ public class WeekService {
         restClient = new RestClient();
     }
 
+    public static WeekService getInstance(DataSource ds) {
+        WeekService service = new WeekService(ds);
+        return (WeekService) Enhancer.create(service.getClass(), new Authenticator(service));
+    }
+
+    @RoleRight("tm.user")
     public List<WeekRow> findByWeekNumberAndYearAndUserUUID(int weekNumber, int year, String userUUID) {
         List<WeekItem> weekItems = weekItemService.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber, year, userUUID);
 
@@ -63,9 +75,5 @@ public class WeekService {
         }
 
         return weekRows;
-    }
-
-    public List<WeekItem> cloneWeek(int weekNumber, int year, String userUUID) {
-        return weekItemService.findByWeekNumberAndYearAndUserUUIDOrderBySortingAsc(weekNumber - 1, year, userUUID);
     }
 }

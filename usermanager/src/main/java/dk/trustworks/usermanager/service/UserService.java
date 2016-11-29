@@ -1,12 +1,14 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.usermanager.dto.Availability;
 import dk.trustworks.usermanager.dto.Capacity;
 import dk.trustworks.usermanager.dto.User;
 import dk.trustworks.usermanager.persistence.RoleRepository;
 import dk.trustworks.usermanager.persistence.UserRepository;
+import net.sf.cglib.proxy.Enhancer;
 import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -21,13 +23,17 @@ public class UserService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
 
+    public UserService() {
+    }
+
     public UserService(DataSource ds) {
         userRepository = new UserRepository(ds);
         roleRepository = new RoleRepository(ds);
     }
 
-    public UserService getInstance(DataSource ds) {
-        return null;
+    public static UserService getInstance(DataSource ds) {
+        UserService service = new UserService(ds);
+        return (UserService) Enhancer.create(service.getClass(), new Authenticator(service));
     }
 
     @RoleRight("tm.user")
@@ -80,6 +86,7 @@ public class UserService {
         return capacities;
     }
 
+    @RoleRight("tm.user")
     public List<Capacity> capacitypermonthbyuser(String userUUID, LocalDate periodStart, LocalDate periodEnd) {
         List<Capacity> capacities = new ArrayList<>();
 
@@ -95,6 +102,7 @@ public class UserService {
         return capacities;
     }
 
+    @RoleRight("tm.user")
     public List<Availability> useravailabilitypermonthbyyear(LocalDate periodStart, LocalDate periodEnd) {
         List<Availability> availabilities = new ArrayList<>();
 
@@ -111,6 +119,7 @@ public class UserService {
         return availabilities;
     }
 
+    @RoleRight("tm.user")
     public List<Availability> useravailabilitypermonthbyyearbyuser(String userUUID, LocalDate periodStart, LocalDate periodEnd) {
         List<Availability> availabilities = new ArrayList<>();
 
@@ -126,10 +135,12 @@ public class UserService {
         return availabilities;
     }
 
+    @RoleRight("tm.admin")
     public void create(User user) throws SQLException {
         userRepository.create(user);
     }
 
+    @RoleRight("tm.admin")
     public void update(JsonNode jsonNode, String uuid) throws SQLException {
         userRepository.update(jsonNode, uuid);
     }
