@@ -16,6 +16,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
+import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -334,6 +335,8 @@ public class ClientApplication extends Jooby {
 
                 .produces("json")
                 .consumes("json");
+
+        new SwaggerUI().install(this);
     }
 
     public static void main(final String[] args) throws Throwable {

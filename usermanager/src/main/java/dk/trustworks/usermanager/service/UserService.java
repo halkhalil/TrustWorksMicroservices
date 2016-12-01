@@ -70,6 +70,7 @@ public class UserService {
         return roles;
     }
 
+    @RoleRight("tm.user")
     public List<Capacity> capacitypermonth(LocalDate periodStart, LocalDate periodEnd) {
         List<Capacity> capacities = new ArrayList<>();
 

@@ -48,12 +48,13 @@
             <artifactId>jooby-raml</artifactId>
             <version>${jooby.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-swagger</artifactId>
             <version>${jooby.version}</version>
         </dependency>
-        -->
+
 
         <!-- Server -->
         <dependency>

@@ -26,15 +26,20 @@
     <orderEntry type="library" name="Maven: org.pac4j:pac4j-http:1.9.2" level="project" />
     <orderEntry type="library" name="Maven: io.swagger:swagger-parser:1.0.23" level="project" />
     <orderEntry type="library" name="Maven: io.swagger:swagger-core:1.5.10" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.2.1" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.4.5" level="project" />
-    <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.12" level="project" />
     <orderEntry type="library" name="Maven: io.swagger:swagger-models:1.5.10" level="project" />
     <orderEntry type="library" name="Maven: io.swagger:swagger-annotations:1.5.10" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-ext:1.6.3" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.cal10n:cal10n-api:0.7.4" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.jooby:jooby-swagger:1.0.0.CR8" level="project" />
+    <orderEntry type="library" name="Maven: org.jooby:jooby-spec:1.0.0.CR8" level="project" />
+    <orderEntry type="library" name="Maven: com.github.javaparser:javaparser-core:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.3" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.4" level="project" />
+    <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.15" level="project" />
+    <orderEntry type="library" name="Maven: org.webjars:swagger-ui:2.1.8-M1" level="project" />
     <orderEntry type="library" name="Maven: org.jooby:jooby-netty:1.0.0.CR8" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.1.5.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-codec:4.1.5.Final" level="project" />
@@ -61,7 +66,6 @@
     <orderEntry type="library" name="Maven: org.jooby:jooby-jackson:1.0.0.CR8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.3" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.3" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Maven: black.door:hate:v1r4t0" level="project" />
     <orderEntry type="library" name="Maven: black.door:blackdoor-lib:v4r3t0" level="project" />

@@ -19,6 +19,7 @@ import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.raml.Raml;
+import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
 
@@ -26,8 +27,6 @@ import javax.sql.DataSource;
  * Created by hans on 16/03/15.
  */
 public class TimeApplication  extends Jooby {// extends BaseApplication {
-
-    public static final String KEY = "2b393761-fd50-4c54-8d41-61bcb17cf173";
 
     private static Result HOME = Results
             .ok(
@@ -49,7 +48,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
             .type("html");
 
     {
-        new Raml().install(this);
+        //new Raml().install(this);
         use("*", new RequestLogger());
 
         //this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));
@@ -272,6 +271,8 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
                 .produces("json")
                 .consumes("json");
+
+        new SwaggerUI().install(this);
     }
 
     public static void main(final String[] args) throws Throwable {

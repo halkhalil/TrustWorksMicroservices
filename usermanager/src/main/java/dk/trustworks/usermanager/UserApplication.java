@@ -7,12 +7,15 @@ import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.framework.security.JwtModule;
 import dk.trustworks.framework.security.JwtToken;
+import dk.trustworks.usermanager.dto.User;
 import dk.trustworks.usermanager.service.SalaryService;
 import dk.trustworks.usermanager.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -29,6 +32,7 @@ import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.raml.Raml;
+import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -60,7 +64,7 @@ public class UserApplication extends Jooby {
             .type("html");
 
     {
-        new Raml().install(this);
+        //new Raml().install(this);
         use("*", new RequestLogger());
 
         //this.metricsMapper = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, true));
@@ -113,9 +117,16 @@ public class UserApplication extends Jooby {
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/users")
+                /**
+                 * @ApiImplicitParams({ @ApiImplicitParam(name = "methodArgumentName",
+                 * value = "Some info.",
+                 * dataType = "string",
+                 * paramType = "header") })
+                 */
                 .get("/", (req, resp) -> {
                     DataSource db = req.require(DataSource.class);
-                    resp.send(UserService.getInstance(db).findAll());
+                    List<User> users = UserService.getInstance(db).findAll();
+                    resp.send(users);
                 })
 
                 .get("/:uuid", (req, resp) -> {
@@ -194,7 +205,7 @@ public class UserApplication extends Jooby {
 
 
         /**
-         * Everything about the capacity
+         * Hourly capacity in TrustWorks by month
          */
         use("/api/capacities")
                 .get("/", (req, resp) -> {
@@ -232,18 +243,9 @@ public class UserApplication extends Jooby {
                 .metric("fs", new FileDescriptorRatioGauge())
         );
 
-        //new SwaggerUI().install(this);
-        /*
-        use(new Metrics()
-                .request()
-                .threadDump()
-                .ping()
-                .metric("memory", new MemoryUsageGaugeSet())
-                .metric("threads", new ThreadStatesGaugeSet())
-                .metric("gc", new GarbageCollectorMetricSet())
-                .metric("fs", new FileDescriptorRatioGauge())
-        );
-        */
+        new SwaggerUI().install(this);
+
+
     }
 
     public static void main(final String[] args) throws Throwable {
