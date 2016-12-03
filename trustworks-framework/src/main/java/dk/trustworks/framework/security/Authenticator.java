@@ -28,15 +28,16 @@ public class Authenticator implements MethodInterceptor {
             long start = System.nanoTime();
 
             Annotation[] annotations = method.getDeclaredAnnotations();
+            System.out.println("annotations.length = " + annotations.length);
             for(Annotation annotation : annotations){
                 if(annotation instanceof RoleRight){
                     RoleRight roleRight = (RoleRight) annotation;
-                    System.out.println("value: " + roleRight.value());
+                    System.out.println("RoleRight value: " + roleRight.value());
                     if(JwtModule.SECUREMODE) if(!(JwtModule.USERROLES.get()).hasRole(roleRight.value())) throw new Err(403);
                 }
                 if(annotation instanceof RoleRights){
                     for (RoleRight roleRight : ((RoleRights) annotation).value()) {
-                        System.out.println("value: " + roleRight.value());
+                        System.out.println("RoleRights value: " + roleRight.value());
                         if(JwtModule.SECUREMODE) if(!(JwtModule.USERROLES.get()).hasRole(roleRight.value())) throw new Err(403);
                     }
                 }
@@ -47,6 +48,7 @@ public class Authenticator implements MethodInterceptor {
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("unexpected invocation exception: " + e.getMessage());
         } finally {
             System.out.println("after method " + method.getName());

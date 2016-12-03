@@ -2,6 +2,7 @@ package dk.trustworks.clientmanager;
 
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.clientmanager.model.*;
+import dk.trustworks.clientmanager.numericsmodel.NumericsNumber;
 import dk.trustworks.clientmanager.service.*;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.JwtModule;
@@ -19,6 +20,7 @@ import org.jooby.json.Jackson;
 import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,7 +61,7 @@ public class ClientApplication extends Jooby {
 
         get("/", () -> HOME);
 
-        on("dev", () -> use(new JwtModule(true)))
+        on("dev", () -> use(new JwtModule(false)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/clients")
@@ -138,6 +140,39 @@ public class ClientApplication extends Jooby {
                     String projectuuid = req.param("uuid").value();
                     DataSource db = req.require(DataSource.class);
                     resp.send(ProjectService.getInstance(db).getProjectBudget(projectuuid));
+                })
+
+                .get("/:uuid/revenues/days", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2016-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-01-31");
+                    String projectUUID = req.param("uuid").value();
+
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(RevenueService.getInstance(db).revenuePerDayPerProject(periodStartDate, periodEndDate, projectUUID));
+                })
+
+                .get("/:uuid/revenues/months", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2016-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-06-31");
+                    String projectUUID = req.param("uuid").value();
+
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(RevenueService.getInstance(db).revenuePerMonthPerProject(periodStartDate, periodEndDate, projectUUID));
+                })
+
+                .get("/:uuid/revenues/years", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2014-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-01-31");
+                    String projectUUID = req.param("uuid").value();
+
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(RevenueService.getInstance(db).revenuePerYearPerProject(periodStartDate, periodEndDate, projectUUID));
                 })
 
                 .get("/search/findByActiveTrue", (req, resp) -> {
@@ -331,6 +366,71 @@ public class ClientApplication extends Jooby {
                     DataSource db = req.require(DataSource.class);
                     ClientDataService.getInstance(db).update(clientData, uuid);
                     resp.send(Status.OK);
+                })
+
+                .produces("json")
+                .consumes("json");
+
+        use("/api/revenues")
+                .get("/", (req, resp) -> {
+                    resp.send(new Err(403));
+                })
+
+                /**
+                 * Return the total revenue per day.
+                 * @param periodStart The starting date for the calculation. <br />This day is included in the list.
+                 * @param periodEnd The ending date for the calculation. <br />This day is included in the list.
+                 * @requireToken JSON Token
+                 */
+                .get("/days", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2016-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-01-31");
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    DataSource db = req.require(DataSource.class);
+                    Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerDay(periodStartDate, periodEndDate);
+                    resp.send(revenues);
+                })
+
+                /**
+                 * Return the total revenue per month.
+                 * @param periodStart The starting date for the calculation. <br />This date is reset to the first date of the month. <br />This month is included in the list.
+                 * @param periodEnd The ending date for the calculation. <br />This date is reset to the first date of the month. <br />This month is included in the list.
+                 * @requiretoken
+                 */
+                .get("/months", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2016-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-12-31");
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    periodStartDate = periodStartDate.withDayOfMonth(1);
+                    periodEndDate = periodEndDate.withDayOfMonth(1);
+
+                    DataSource db = req.require(DataSource.class);
+                    Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerMonth(periodStartDate, periodEndDate);
+                    resp.send(revenues);
+                })
+
+                /**
+                 * Return the total revenue per year.
+                 * @param periodStart The starting date for the calculation. <br />This date is reset to the first date of the year. <br />This month is included in the list.
+                 * @param periodEnd The ending date for the calculation. <br />This date is reset to the first date of the year. <br />This month is included in the list.
+                 * @requiretoken
+                 */
+                .get("/years", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2014-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-01-01");
+
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    periodStartDate = periodStartDate.withDayOfYear(periodStartDate.dayOfYear().getMinimumValue());
+                    periodEndDate = periodEndDate.withDayOfYear(periodEndDate.dayOfYear().getMaximumValue());
+
+                    DataSource db = req.require(DataSource.class);
+                    Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerYear(periodStartDate, periodEndDate);
+                    resp.send(revenues);
                 })
 
                 .produces("json")

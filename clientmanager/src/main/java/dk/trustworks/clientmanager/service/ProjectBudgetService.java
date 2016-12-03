@@ -38,7 +38,7 @@ public class ProjectBudgetService extends DefaultLocalService {
     }
 
     public List<Map<String, Object>> findByYear(Map<String, Deque<String>> queryParameters) {
-        log.debug("ProjectBudgetService.findByYear");
+        log.debug("ProjectBudgetService.findByPeriod");
         log.debug("queryParameters = [" + queryParameters + "]");
         long allTimer = System.currentTimeMillis();
         int year = Integer.parseInt(queryParameters.get("year").getFirst());
@@ -99,7 +99,7 @@ public class ProjectBudgetService extends DefaultLocalService {
 
     @Deprecated
     public List<Map<String, Object>> findByUserAndYear(Map<String, Deque<String>> queryParameters) {
-        log.debug("ProjectBudgetService.findByYear");
+        log.debug("ProjectBudgetService.findByPeriod");
         log.debug("queryParameters = [" + queryParameters + "]");
         final int year = Integer.parseInt(queryParameters.get("year").getFirst());
         final String userUUID = queryParameters.get("useruuid").getFirst();
@@ -113,7 +113,7 @@ public class ProjectBudgetService extends DefaultLocalService {
 
     @Deprecated
     public List<Map<String, Object>> findByUserAndYearAndHours(Map<String, Deque<String>> queryParameters) {
-        log.debug("ProjectBudgetService.findByYear");
+        log.debug("ProjectBudgetService.findByPeriod");
         log.debug("queryParameters = [" + queryParameters + "]");
         final int year = Integer.parseInt(queryParameters.get("year").getFirst());
         final String userUUID = queryParameters.get("useruuid").getFirst();

@@ -104,7 +104,7 @@ public class ProjectService {
         }
 
         HashMap<String, TaskWorkerConstraint> taskWorkerConstraints = new HashMap();
-        for (Work work : new WorkService().findByProjectUUID(projectUUID)) {
+        for (Work work : WorkService.getInstance().findByProjectUUID(projectUUID)) {
             TaskWorkerConstraint taskWorkerConstraint = (taskWorkerConstraints.containsKey(work.useruuid+work.taskuuid))?taskWorkerConstraints.get(work.useruuid+work.taskuuid):taskWorkerConstraintService.findByTaskUUIDAndUserUUID(work.taskuuid, work.useruuid, "");
             projectBudget.usedBudget -= (work.workduration * taskWorkerConstraint.price);
             taskWorkerConstraints.put(work.useruuid+work.taskuuid, taskWorkerConstraint);

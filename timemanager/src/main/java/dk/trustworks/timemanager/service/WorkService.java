@@ -8,13 +8,12 @@ import dk.trustworks.timemanager.client.dto.Task;
 import dk.trustworks.timemanager.dto.Work;
 import dk.trustworks.timemanager.persistence.WorkRepository;
 import net.sf.cglib.proxy.Enhancer;
+import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hans on 17/03/15.
@@ -51,6 +50,16 @@ public class WorkService {
         }
         System.out.println("workList.size() = " + workList.size());
         return workList;
+    }
+
+    @RoleRight("tm.user")
+    public List<Work> findByPeriod(LocalDate periodStart, LocalDate periodEnd) {
+        return workRepository.findByPeriod(periodStart, periodEnd);
+    }
+
+    @RoleRight("tm.user")
+    public List<Work> findByPeriodAndTaskUUID(LocalDate periodStart, LocalDate periodEnd, String taskUUID) {
+        return workRepository.findByPeriodAndTaskUUID(periodStart, periodEnd, taskUUID);
     }
 
     @RoleRight("tm.user")

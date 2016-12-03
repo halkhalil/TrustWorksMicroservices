@@ -168,8 +168,8 @@ public class TaskWorkerConstraintBudgetRepository {
         return new ArrayList<>();
     }
 
-    public List<TaskWorkerConstraintBudget> findByYear(int year) {
-        log.debug("TaskWorkerConstraintBudgetRepository.findByYear");
+    public List<TaskWorkerConstraintBudget> findByPeriod(int year) {
+        log.debug("TaskWorkerConstraintBudgetRepository.findByPeriod");
         log.debug("year = [" + year + "]");
         try (Connection con = sql2o.open()) {
             return con.createQuery("" +
@@ -189,7 +189,7 @@ public class TaskWorkerConstraintBudgetRepository {
     }
 */
     public List<TaskWorkerConstraintBudget> findByYearAndUser(int year, String userUUID) {
-        log.debug("TaskWorkerConstraintBudgetRepository.findByYear");
+        log.debug("TaskWorkerConstraintBudgetRepository.findByPeriod");
         log.debug("year = [" + year + "]");
         log.debug("userUUID = [" + userUUID + "]");
         try (Connection con = sql2o.open()) {

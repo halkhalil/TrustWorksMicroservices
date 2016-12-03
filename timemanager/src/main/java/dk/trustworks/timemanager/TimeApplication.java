@@ -15,6 +15,7 @@ import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
@@ -22,6 +23,8 @@ import org.jooby.raml.Raml;
 import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hans on 16/03/15.
@@ -64,7 +67,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
         get("/", () -> HOME);
 
-        on("dev", () -> use(new JwtModule(true)))
+        on("dev", () -> use(new JwtModule(false)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/weekitems")
@@ -140,11 +143,31 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                     resp.send(WorkService.getInstance(db).findByProjectUUID(projectUUID));
                 })
 
+                .get("/search/findByPeriod", (req, resp) -> {
+                    LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    DataSource db = req.require(DataSource.class);
+                    List<Work> workList = WorkService.getInstance(db).findByPeriod(periodStart, periodEnd);
+                    resp.send(workList);
+                })
+
+                .get("/search/findByPeriodAndTaskUUID", (req, resp) -> {
+                    LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    String taskUUID = req.param("taskuuid").value();
+
+                    DataSource db = req.require(DataSource.class);
+                    List<Work> workList = WorkService.getInstance(db).findByPeriodAndTaskUUID(periodStart, periodEnd, taskUUID);
+                    resp.send(workList);
+                })
+
                 .get("/search/findByYear", (req, resp) -> {
                     int year = req.param("year").intValue();
 
                     DataSource db = req.require(DataSource.class);
-                    resp.send(WorkService.getInstance(db).findByYear(year));
+                    List<Work> workList = WorkService.getInstance(db).findByYear(year);
+                    resp.send(workList);
                 })
 
                 .get("/search/findByYearAndUserUUID", (req, resp) -> {

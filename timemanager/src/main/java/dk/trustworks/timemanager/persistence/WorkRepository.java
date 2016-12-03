@@ -43,12 +43,41 @@ public class WorkRepository {
     }
 
     public List<Work> findByPeriod(LocalDate periodStart, LocalDate periodEnd) {
-        int startYear = periodStart.getYear();
-        int startMonth = periodStart.getMonthOfYear();
-        int startDay = periodStart.getDayOfMonth();
-        int endYear = periodEnd.getYear();
-        int endMonth = periodEnd.getMonthOfYear();
-        int endDay = periodEnd.getDayOfMonth();
+        System.out.println("WorkRepository.findByPeriod");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+                    "from work yt inner join ( " +
+                    "select uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
+                    "from work WHERE ((year*10000)+((month+1)*100)+day) between :periodstart and :periodend " +
+                    "group by day, month, year, taskuuid, useruuid " +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
+                    .addParameter("periodstart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodend", periodEnd.toString("yyyyMMdd"))
+                    .executeAndFetch(Work.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Work> findByPeriodAndTaskUUID(LocalDate periodStart, LocalDate periodEnd, String taskUUID) {
+        System.out.println("WorkRepository.findByPeriod");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+                    "from work yt inner join ( " +
+                    "select uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
+                    "from work WHERE ((year*10000)+((month+1)*100)+day) between :periodstart and :periodend AND taskuuid LIKE :taskuuid " +
+                    "group by day, month, year, taskuuid, useruuid " +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
+                    .addParameter("periodstart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodend", periodEnd.toString("yyyyMMdd"))
+                    .addParameter("taskuuid", taskUUID)
+                    .executeAndFetch(Work.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new ArrayList<>();
     }
 

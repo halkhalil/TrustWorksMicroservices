@@ -77,8 +77,8 @@ public class TaskWorkerConstraintBudgetService {
     }
 
 
-    public List<TaskWorkerConstraintBudget> findByYear(int year, int ahead) {
-        logger.debug("TaskWorkerConstraintBudgetService.findByYear");
+    public List<TaskWorkerConstraintBudget> findByPeriod(int year, int ahead) {
+        logger.debug("TaskWorkerConstraintBudgetService.findByPeriod");
         //if(ahead.isPresent()) {
             List<TaskWorkerConstraintBudget> result = new ArrayList<>();
             for (int month = 1; month < 13; month++) {
@@ -88,11 +88,11 @@ public class TaskWorkerConstraintBudgetService {
             System.out.println("result.size() = " + result.size());
             return result;
         //}
-        //return taskWorkerConstraintBudgetRepository.findByYear(year);
+        //return taskWorkerConstraintBudgetRepository.findByPeriod(year);
     }
 
     public List<TaskWorkerConstraintBudget> findByYearAndUser(int year, String userUUID) {
-        logger.debug("TaskWorkerConstraintBudgetService.findByYear");
+        logger.debug("TaskWorkerConstraintBudgetService.findByPeriod");
         return taskWorkerConstraintBudgetRepository.findByYearAndUser(year, userUUID);
     }
 

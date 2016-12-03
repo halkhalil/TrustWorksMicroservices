@@ -1,5 +1,6 @@
 package dk.trustworks.timemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ public class Work {
     public String useruuid;
     public String taskuuid;
     public double workduration;
-    public DateTime created;
+    @JsonIgnore public DateTime created;
 
     @Override
     public String toString() {
