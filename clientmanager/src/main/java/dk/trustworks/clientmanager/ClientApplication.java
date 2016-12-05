@@ -1,10 +1,8 @@
 package dk.trustworks.clientmanager;
 
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import dk.trustworks.clientmanager.model.*;
-import dk.trustworks.clientmanager.numericsmodel.NumericsNumber;
 import dk.trustworks.clientmanager.service.*;
-import dk.trustworks.framework.security.Authenticator;
+import dk.trustworks.framework.model.*;
 import dk.trustworks.framework.security.JwtModule;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -374,6 +372,28 @@ public class ClientApplication extends Jooby {
         use("/api/revenues")
                 .get("/", (req, resp) -> {
                     resp.send(new Err(403));
+                })
+
+                .get("/users", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2016-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-01-31");
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    DataSource db = req.require(DataSource.class);
+                    Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerUser(periodStartDate, periodEndDate);
+                    resp.send(revenues);
+                })
+
+                .get("/projects", (req, resp) -> {
+                    String periodStart = req.param("periodStart").value("2016-01-01");
+                    String periodEnd = req.param("periodEnd").value("2016-01-31");
+                    LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    DataSource db = req.require(DataSource.class);
+                    Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerProject(periodStartDate, periodEndDate);
+                    resp.send(revenues);
                 })
 
                 /**

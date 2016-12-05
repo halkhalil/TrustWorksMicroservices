@@ -196,7 +196,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void billablehourspercentageperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal") != null) && exchange.getQueryParameters().get("fiscal").getFirst().equals("true");
 
         try {
             exchange.getResponseSender().send(new ObjectMapper().writeValueAsString(statisticService.billablehourspercentageperuser(year, fiscal)));
@@ -491,7 +491,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal") != null) && exchange.getQueryParameters().get("fiscal").getFirst().equals("true");
 
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restDelegate.getAllWork(year));
@@ -531,7 +531,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void billablehoursperuser(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal") != null) && exchange.getQueryParameters().get("fiscal").getFirst().equals("true");
 
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restDelegate.getAllWork(year));
@@ -588,7 +588,7 @@ public class StatisticHandler extends DefaultHandler {
 
     public void revenueperproject(HttpServerExchange exchange, String[] params) {
         int year = Integer.parseInt(exchange.getQueryParameters().get("year").getFirst());
-        boolean fiscal = (exchange.getQueryParameters().get("fiscal")!=null)? exchange.getQueryParameters().get("fiscal").getFirst().equals("true") : false;
+        boolean fiscal = (exchange.getQueryParameters().get("fiscal") != null) && exchange.getQueryParameters().get("fiscal").getFirst().equals("true");
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restDelegate.getAllWork(year));
         if(fiscal) allWork.addAll(restDelegate.getAllWork(year-1));

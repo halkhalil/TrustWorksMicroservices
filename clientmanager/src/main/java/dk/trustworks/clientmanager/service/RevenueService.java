@@ -1,11 +1,8 @@
 package dk.trustworks.clientmanager.service;
 
-import dk.trustworks.clientmanager.model.Revenue;
-import dk.trustworks.clientmanager.model.Task;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
-import dk.trustworks.clientmanager.model.Work;
 import dk.trustworks.clientmanager.numericsmodel.NumericsData;
 import dk.trustworks.clientmanager.numericsmodel.NumericsNumber;
+import dk.trustworks.framework.model.*;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
 import net.sf.cglib.proxy.Enhancer;
@@ -21,7 +18,9 @@ import java.util.*;
 public class RevenueService {
 
     private WorkService workService;
+    private ProjectService projectService;
     private TaskService taskService;
+    private UserService userService;
     private TaskWorkerConstraintService taskWorkerConstraintService;
 
     public RevenueService() {
@@ -29,7 +28,9 @@ public class RevenueService {
 
     public RevenueService(DataSource ds) {
         this.workService = WorkService.getInstance();
+        projectService = ProjectService.getInstance(ds);
         taskService = TaskService.getInstance(ds);
+        userService = UserService.getInstance();
         taskWorkerConstraintService = TaskWorkerConstraintService.getInstance(ds);
     }
 
@@ -50,6 +51,67 @@ public class RevenueService {
     }
 
     @RoleRight("tm.admin")
+    public Collection<Revenue> revenuePerUser(LocalDate periodStart, LocalDate periodEnd) {
+        List<User> usersList = userService.findAll();
+        //Map<String, User> usersMap = usersList.stream().collect(Collectors.toMap(User::getUUID, Function.identity()));
+
+        List<Work> workList = new ArrayList<>();
+        Map<String, Revenue> revenues = new HashMap<>();
+
+        for (User user : usersList) {
+            workList.addAll(workService.findByPeriodAndUserUUID(periodStart, periodEnd, user.UUID));
+            revenues.put(user.UUID, new Revenue(periodEnd, 0.0, user.UUID, user.firstname+" "+user.lastname));
+        }
+        List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
+
+        for (Work work : workList) {
+            for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints) {
+                if(work.taskuuid.equals(taskWorkerConstraint.taskuuid) && work.useruuid.equals(taskWorkerConstraint.useruuid)) {
+                    revenues.get(work.useruuid).revenue += (work.workduration * taskWorkerConstraint.price);
+                }
+            }
+        }
+
+        return revenues.values();
+    }
+
+    @RoleRight("tm.admin")
+    public Collection<Revenue> revenuePerProject(LocalDate periodStart, LocalDate periodEnd) {
+        List<Project> projects = projectService.findAll("task");
+
+        Map<String, Project> taskProjectMap = new HashMap<>();
+
+        Map<String, Revenue> revenueMap = new HashMap<>();
+
+        List<Work> workList = new ArrayList<>();
+        for (Project project : projects) {
+            for (Task task : project.tasks) {
+                taskProjectMap.put(task.uuid, project);
+                workList.addAll(workService.findByPeriodAndTaskUUID(periodStart, periodEnd, task.uuid));
+            }
+            revenueMap.put(project.uuid, new Revenue(periodEnd, 0.0, project.uuid, project.name));
+        }
+
+        List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
+
+        for (Work work : workList) {
+            for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints) {
+                if(work.taskuuid.equals(taskWorkerConstraint.taskuuid) && work.useruuid.equals(taskWorkerConstraint.useruuid)) {
+                    if(revenueMap.get(taskProjectMap.get(work.taskuuid).uuid)==null) {
+                        System.out.println("work.taskuuid = " + work.taskuuid);
+                        continue;
+                    }
+                    revenueMap.get(taskProjectMap.get(work.taskuuid).uuid).revenue += (work.workduration * taskWorkerConstraint.price);
+                }
+            }
+        }
+
+        revenueMap.values().removeIf(s -> s.revenue == 0.0);
+
+        return revenueMap.values();
+    }
+
+    @RoleRight("tm.admin")
     public Collection<Revenue> revenuePerDayPerProject(LocalDate periodStart, LocalDate periodEnd, String projectUUID) {
         List<Task> tasks = taskService.findByProjectUUID(projectUUID, "");
         List<Work> workList = new ArrayList<>();
@@ -67,6 +129,21 @@ public class RevenueService {
     @RoleRight("tm.admin")
     public Collection<Revenue> revenuePerMonth(LocalDate periodStart, LocalDate periodEnd) {
         List<Work> workList = workService.findByPeriod(periodStart, periodEnd);
+        List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
+
+        ArrayList<Revenue> revenues = new ArrayList<>();
+        revenues.addAll(getStringRevenueMap(periodStart, periodEnd, workList, taskWorkerConstraints, "yyyyMM", Period.months(1)).values());
+        Collections.sort(revenues);
+        return revenues;
+    }
+
+    @RoleRight("tm.admin")
+    public Collection<Revenue> revenuePerMonthPerUser(LocalDate periodStart, LocalDate periodEnd, String userUUID) {
+        List<User> users = userService.findAll();
+        List<Work> workList = new ArrayList<>();
+        for (User user : users) {
+            workList.addAll(workService.findByPeriodAndUserUUID(periodStart, periodEnd, user.getUUID()));
+        }
         List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
 
         ArrayList<Revenue> revenues = new ArrayList<>();

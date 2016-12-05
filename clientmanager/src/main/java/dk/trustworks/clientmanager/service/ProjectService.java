@@ -1,7 +1,7 @@
 package dk.trustworks.clientmanager.service;
 
-import dk.trustworks.clientmanager.model.*;
 import dk.trustworks.clientmanager.persistence.ProjectRepository;
+import dk.trustworks.framework.model.*;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
 import net.sf.cglib.proxy.Enhancer;
@@ -133,7 +133,7 @@ public class ProjectService {
             projectsMap.put(project.uuid, project);
         }
 
-        Map<String, Task> tasksMap = new HashMap<>();;
+        Map<String, Task> tasksMap = new HashMap<>();
         for (Task task : taskService.findAllByProjectUUIDs(projects, projection)) {
             tasksMap.put(task.uuid, task);
             projectsMap.get(task.projectuuid).tasks.add(task);

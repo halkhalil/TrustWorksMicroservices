@@ -1,9 +1,9 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.framework.model.Salary;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
-import dk.trustworks.usermanager.dto.Salary;
 import dk.trustworks.usermanager.persistence.SalaryRepository;
 import net.sf.cglib.proxy.Enhancer;
 import org.joda.time.LocalDate;

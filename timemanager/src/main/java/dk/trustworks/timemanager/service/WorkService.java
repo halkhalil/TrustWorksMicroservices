@@ -1,11 +1,11 @@
 package dk.trustworks.timemanager.service;
 
+import dk.trustworks.framework.model.Project;
+import dk.trustworks.framework.model.Task;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
-import dk.trustworks.timemanager.client.commands.GetProjectCommand;
-import dk.trustworks.timemanager.client.dto.Project;
-import dk.trustworks.timemanager.client.dto.Task;
-import dk.trustworks.timemanager.dto.Work;
+import dk.trustworks.timemanager.service.commands.GetProjectCommand;
+import dk.trustworks.framework.model.Work;
 import dk.trustworks.timemanager.persistence.WorkRepository;
 import net.sf.cglib.proxy.Enhancer;
 import org.joda.time.LocalDate;
@@ -60,6 +60,11 @@ public class WorkService {
     @RoleRight("tm.user")
     public List<Work> findByPeriodAndTaskUUID(LocalDate periodStart, LocalDate periodEnd, String taskUUID) {
         return workRepository.findByPeriodAndTaskUUID(periodStart, periodEnd, taskUUID);
+    }
+
+    @RoleRight("tm.user")
+    public List<Work> findByPeriodAndUserUUID(LocalDate periodStart, LocalDate periodEnd, String userUUID) {
+        return workRepository.findByPeriodAndUserUUID(periodStart, periodEnd, userUUID);
     }
 
     @RoleRight("tm.user")

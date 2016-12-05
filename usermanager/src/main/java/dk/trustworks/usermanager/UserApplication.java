@@ -5,17 +5,17 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import dk.trustworks.framework.model.Revenue;
+import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.security.JwtModule;
 import dk.trustworks.framework.security.JwtToken;
-import dk.trustworks.usermanager.dto.User;
+import dk.trustworks.usermanager.service.RevenueService;
 import dk.trustworks.usermanager.service.SalaryService;
 import dk.trustworks.usermanager.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -31,10 +31,10 @@ import org.jooby.Results;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
-import org.jooby.raml.Raml;
 import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -113,7 +113,7 @@ public class UserApplication extends Jooby {
                 .produces("json")
                 .consumes("json");
 
-        on("dev", () -> use(new JwtModule(true)))
+        on("dev", () -> use(new JwtModule(false)))
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/users")
@@ -157,6 +157,28 @@ public class UserApplication extends Jooby {
                     String userUUID = req.param("uuid").value();
                     DataSource db = req.require(DataSource.class);
                     resp.send(SalaryService.getInstance(db).usersalarypermonthbyyearbyuser(userUUID, periodStart, periodEnd));
+                })
+
+                .get("/{uuid}/revenues", (req, resp) -> {
+                    LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+
+                    String userUUID = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    Revenue revenue = RevenueService.getInstance(db).revenuePerUser(periodStart, periodEnd, userUUID);
+                    resp.send(revenue);
+                })
+
+                .get("/{uuid}/revenues/months", (req, resp) -> {
+                    LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    periodStart = periodStart.withDayOfMonth(1);
+                    periodEnd = periodEnd.withDayOfMonth(1);
+
+                    String userUUID = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerMonthPerUser(periodStart, periodEnd, userUUID);
+                    resp.send(revenues);
                 })
 
                 // Verified

@@ -1,7 +1,7 @@
 package dk.trustworks.clientmanager.persistence;
 
-import dk.trustworks.clientmanager.model.Client;
-import dk.trustworks.clientmanager.model.Project;
+import dk.trustworks.framework.model.Client;
+import dk.trustworks.framework.model.Project;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;

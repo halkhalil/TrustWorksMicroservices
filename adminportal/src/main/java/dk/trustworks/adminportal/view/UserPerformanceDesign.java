@@ -11,7 +11,7 @@ import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.domain.AmountPerItem;
 import dk.trustworks.adminportal.domain.Capacity;
 import dk.trustworks.adminportal.domain.DataAccess;
-import dk.trustworks.adminportal.domain.User;
+import dk.trustworks.framework.model.User;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -56,7 +56,7 @@ public class UserPerformanceDesign extends CssLayout {
         ListSelect userSelect = new ListSelect("Select an option");
         for (User user : users) {
             userSelect.addItem(user);
-            userSelect.setItemCaption(user, user.getUsername());
+            userSelect.setItemCaption(user, user.username);
         }
 
         userSelect.setRows(6);
@@ -115,11 +115,11 @@ public class UserPerformanceDesign extends CssLayout {
 
             getConfiguration().getxAxis().setTickWidth(0);
             getConfiguration().getyAxis().setTitle("");
-            getConfiguration().getLegend().setEnabled((users.size()>1?true:false));
+            getConfiguration().getLegend().setEnabled((users.size() > 1));
 
             for (User user : users) {
                 Double[] daysPerMonth = dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid());
-                DataSeries sickdaysList = new DataSeries(user.getUsername());
+                DataSeries sickdaysList = new DataSeries(user.username);
 
                 String[] categories = new String[daysPerMonth.length];
 
@@ -151,11 +151,11 @@ public class UserPerformanceDesign extends CssLayout {
 
             getConfiguration().getxAxis().setTickWidth(0);
             getConfiguration().getyAxis().setTitle("");
-            getConfiguration().getLegend().setEnabled((users.size()>1?true:false));
+            getConfiguration().getLegend().setEnabled((users.size() > 1));
 
             for (User user : users) {
                 Double[] daysPerMonth = dataAccess.getSickDaysPerMonthPerUser(year, user.getUseruuid());
-                DataSeries sickdaysList = new DataSeries(user.getUsername());
+                DataSeries sickdaysList = new DataSeries(user.username);
 
                 String[] categories = new String[daysPerMonth.length];
 
@@ -176,6 +176,9 @@ public class UserPerformanceDesign extends CssLayout {
     public class TopGrossingProjectsChart extends Chart {
 
         public TopGrossingProjectsChart(int year) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -189,7 +192,7 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> amountPerItemList = dataAccess.getProjectRevenue(year, false);
+            List<AmountPerItem> amountPerItemList = dataAccess.getProjectRevenue(periodStart, periodEnd);
             Collections.sort(amountPerItemList);
             String[] categories = new String[amountPerItemList.size()];
             DataSeries listSeries = new DataSeries("Revenue");
@@ -223,6 +226,9 @@ public class UserPerformanceDesign extends CssLayout {
     public class RevenuePerMonthChart extends Chart {
 
         public RevenuePerMonthChart(int year, Set<User> users) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");
             setHeight("280px");
 
@@ -237,7 +243,7 @@ public class UserPerformanceDesign extends CssLayout {
             if(users.size() == 1) {
                 getConfiguration().getChart().setType(ChartType.AREASPLINE);
                 User user = (User) users.toArray()[0];
-                Long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(year, user.getUseruuid());
+                long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(periodStart, periodEnd, user.getUseruuid());
 
                 double sumRevenue = 0.0;
                 for (Long amountPerItem : revenuePerMonth) {
@@ -259,7 +265,7 @@ public class UserPerformanceDesign extends CssLayout {
                     avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
                 }
 
-                Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, user.getUuid());
+                Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, user.UUID);
                 DataSeries budgetSeries = new DataSeries("Budget");
                 for (int i = 0; i < 12; i++) {
                     budgetSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), budgetPerMonth[i]));
@@ -272,9 +278,9 @@ public class UserPerformanceDesign extends CssLayout {
                 getConfiguration().getChart().setType(ChartType.COLUMN);
                 getConfiguration().getLegend().setEnabled(true);
                 for (User user : users) {
-                    Long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(year, user.getUseruuid());
+                    long[] revenuePerMonth = dataAccess.getRevenuePerMonthPerUser(periodStart, periodEnd, user.getUseruuid());
 
-                    DataSeries revenueSeries = new DataSeries(user.getUsername());
+                    DataSeries revenueSeries = new DataSeries(user.username);
                     for (int i = 0; i < 12; i++) {
                         revenueSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
                     }
@@ -327,8 +333,8 @@ public class UserPerformanceDesign extends CssLayout {
                 avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
             }
 
-            //int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonthByYear(year);
-            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonthByYear(periodStart, periodEnd);
+            //int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonth(year);
+            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
             int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
             int j = 0;
             for (Capacity capacity : capacityPerMonthByYearList) {
@@ -373,12 +379,12 @@ public class UserPerformanceDesign extends CssLayout {
 
             getConfiguration().getxAxis().setTickWidth(0);
             getConfiguration().getyAxis().setTitle("");
-            getConfiguration().getLegend().setEnabled((users.size()>1?true:false));
+            getConfiguration().getLegend().setEnabled((users.size() > 1));
 
             for (User user : users) {
-                double[] amountPerItemList = dataAccess.getBillableHoursPerUserPerDay(year, user.getUuid());
+                double[] amountPerItemList = dataAccess.getBillableHoursPerUserPerDay(year, user.getUUID());
 
-                DataSeries revenueList = new DataSeries(user.getUsername());
+                DataSeries revenueList = new DataSeries(user.username);
 
                 String[] categories = new String[amountPerItemList.length];
                 int i = 0;

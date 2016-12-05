@@ -2,8 +2,8 @@ package dk.trustworks.timemanager;
 
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import dk.trustworks.framework.security.JwtModule;
-import dk.trustworks.timemanager.dto.WeekItem;
-import dk.trustworks.timemanager.dto.Work;
+import dk.trustworks.framework.model.WeekItem;
+import dk.trustworks.framework.model.Work;
 import dk.trustworks.timemanager.service.ReportService;
 import dk.trustworks.timemanager.service.WeekItemService;
 import dk.trustworks.timemanager.service.WeekService;
@@ -19,11 +19,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
-import org.jooby.raml.Raml;
 import org.jooby.swagger.SwaggerUI;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -159,6 +157,16 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
 
                     DataSource db = req.require(DataSource.class);
                     List<Work> workList = WorkService.getInstance(db).findByPeriodAndTaskUUID(periodStart, periodEnd, taskUUID);
+                    resp.send(workList);
+                })
+
+                .get("/search/findByPeriodAndUserUUID", (req, resp) -> {
+                    LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
+                    String userUUID = req.param("useruuid").value();
+
+                    DataSource db = req.require(DataSource.class);
+                    List<Work> workList = WorkService.getInstance(db).findByPeriodAndUserUUID(periodStart, periodEnd, userUUID);
                     resp.send(workList);
                 })
 

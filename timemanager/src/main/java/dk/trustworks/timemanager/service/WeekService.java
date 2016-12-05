@@ -1,12 +1,9 @@
 package dk.trustworks.timemanager.service;
 
+import dk.trustworks.framework.model.*;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
 import dk.trustworks.timemanager.client.RestClient;
-import dk.trustworks.timemanager.client.dto.*;
-import dk.trustworks.timemanager.dto.WeekItem;
-import dk.trustworks.timemanager.dto.WeekRow;
-import dk.trustworks.timemanager.dto.Work;
 import net.sf.cglib.proxy.Enhancer;
 import org.joda.time.LocalDate;
 

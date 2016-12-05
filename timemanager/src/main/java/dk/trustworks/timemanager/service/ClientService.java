@@ -1,9 +1,9 @@
 package dk.trustworks.timemanager.service;
 
 
+import dk.trustworks.framework.model.Client;
 import dk.trustworks.framework.security.JwtModule;
-import dk.trustworks.timemanager.client.commands.GetClientsCommand;
-import dk.trustworks.timemanager.client.dto.Client;
+import dk.trustworks.timemanager.service.commands.GetClientsCommand;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package dk.trustworks.clientmanager.service;
 
-import dk.trustworks.clientmanager.model.Client;
-import dk.trustworks.clientmanager.model.Project;
+import dk.trustworks.framework.model.Client;
+import dk.trustworks.framework.model.Project;
 import dk.trustworks.clientmanager.persistence.ClientRepository;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;

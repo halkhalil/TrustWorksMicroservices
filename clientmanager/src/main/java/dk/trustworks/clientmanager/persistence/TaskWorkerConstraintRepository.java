@@ -1,7 +1,7 @@
 package dk.trustworks.clientmanager.persistence;
 
-import dk.trustworks.clientmanager.model.Task;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
+import dk.trustworks.framework.model.Task;
+import dk.trustworks.framework.model.TaskWorkerConstraint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sql2o.Connection;

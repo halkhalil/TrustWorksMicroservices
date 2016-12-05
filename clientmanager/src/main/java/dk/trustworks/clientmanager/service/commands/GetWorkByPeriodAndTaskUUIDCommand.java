@@ -8,7 +8,7 @@ import com.mashape.unirest.http.Unirest;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandProperties;
-import dk.trustworks.clientmanager.model.Work;
+import dk.trustworks.framework.model.Work;
 import dk.trustworks.framework.network.Locator;
 import org.joda.time.LocalDate;
 

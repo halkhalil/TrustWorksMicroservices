@@ -1,9 +1,7 @@
 package dk.trustworks.clientmanager.service;
 
-import dk.trustworks.clientmanager.model.Work;
-import dk.trustworks.clientmanager.service.commands.GetWorkByPeriodAndTaskUUIDCommand;
-import dk.trustworks.clientmanager.service.commands.GetWorkByProjectCommand;
-import dk.trustworks.clientmanager.service.commands.GetWorkByPeriodCommand;
+import dk.trustworks.clientmanager.service.commands.*;
+import dk.trustworks.framework.model.Work;
 import dk.trustworks.framework.security.JwtModule;
 import org.joda.time.LocalDate;
 
@@ -35,6 +33,11 @@ public class WorkService {
 
     public List<Work> findByPeriodAndTaskUUID(LocalDate periodStart, LocalDate periodEnd, String taskUUID) {
         List<Work> budget = new GetWorkByPeriodAndTaskUUIDCommand(periodStart, periodEnd, taskUUID, JwtModule.JWTTOKEN.get()).execute();
+        return budget;
+    }
+
+    public List<Work> findByPeriodAndUserUUID(LocalDate periodStart, LocalDate periodEnd, String userUUID) {
+        List<Work> budget = new GetWorkByPeriodAndUserUUIDCommand(periodStart, periodEnd, userUUID, JwtModule.JWTTOKEN.get()).execute();
         return budget;
     }
 }

@@ -1,8 +1,6 @@
 package dk.trustworks.timemanager.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.timemanager.dto.Work;
-import org.apache.tomcat.jni.Local;
+import dk.trustworks.framework.model.Work;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.sql2o.Connection;
@@ -10,8 +8,6 @@ import org.sql2o.Sql2o;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -63,7 +59,7 @@ public class WorkRepository {
 
     public List<Work> findByPeriodAndTaskUUID(LocalDate periodStart, LocalDate periodEnd, String taskUUID) {
         System.out.println("WorkRepository.findByPeriod");
-        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "], taskUUID = [" + taskUUID + "]");
         try (Connection con = sql2o.open()) {
             return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
                     "from work yt inner join ( " +
@@ -74,6 +70,26 @@ public class WorkRepository {
                     .addParameter("periodstart", periodStart.toString("yyyyMMdd"))
                     .addParameter("periodend", periodEnd.toString("yyyyMMdd"))
                     .addParameter("taskuuid", taskUUID)
+                    .executeAndFetch(Work.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Work> findByPeriodAndUserUUID(LocalDate periodStart, LocalDate periodEnd, String userUUID) {
+        System.out.println("WorkRepository.findByPeriodAndUserUUID");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "], userUUID = [" + userUUID + "]");
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("select yt.month, yt.year, yt.day, yt.created, yt.workduration, yt.taskuuid, yt.useruuid " +
+                    "from work yt inner join ( " +
+                    "select uuid, month, year, day, workduration, taskuuid, useruuid, max(created) created " +
+                    "from work WHERE ((year*10000)+((month+1)*100)+day) between :periodstart and :periodend AND useruuid LIKE :useruuid " +
+                    "group by day, month, year, taskuuid, useruuid " +
+                    ") ss on yt.month = ss.month and yt.year = ss.year and yt.day = ss.day and yt.created = ss.created and yt.taskuuid = ss.taskuuid and yt.useruuid = ss.useruuid;")
+                    .addParameter("periodstart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodend", periodEnd.toString("yyyyMMdd"))
+                    .addParameter("useruuid", userUUID)
                     .executeAndFetch(Work.class);
         } catch (Exception e) {
             e.printStackTrace();

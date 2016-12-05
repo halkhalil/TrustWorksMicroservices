@@ -1,13 +1,11 @@
 package dk.trustworks.clientmanager.persistence;
 
-import dk.trustworks.clientmanager.model.Project;
-import dk.trustworks.clientmanager.model.Task;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
+import dk.trustworks.framework.model.Task;
+import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.jooby.Err;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 

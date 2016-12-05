@@ -1,10 +1,8 @@
 package dk.trustworks.timemanager.service;
 
+import dk.trustworks.framework.model.*;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
-import dk.trustworks.timemanager.client.dto.*;
-import dk.trustworks.timemanager.dto.Report;
-import dk.trustworks.timemanager.dto.Work;
 import net.sf.cglib.proxy.Enhancer;
 
 import javax.sql.DataSource;
@@ -81,7 +79,7 @@ public class ReportService {
             for (Project project : client.projects) {
                 for (Task task : project.tasks) {
                     if(task.uuid.equals(taskUUID)) {
-                        for (TaskUserPrice taskWorkerConstraint : task.taskworkerconstraints) {
+                        for (TaskWorkerConstraint taskWorkerConstraint : task.taskworkerconstraints) {
                             if(taskWorkerConstraint.useruuid.equals(userUUID)) {
                                 result.put("taskname", task.name);
                                 result.put("projectname", project.name);

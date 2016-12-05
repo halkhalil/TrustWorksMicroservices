@@ -42,12 +42,14 @@ public class MyUI extends UI {
                 DefaultVerticalLoginForm loginForm = new DefaultVerticalLoginForm();
                 loginForm.addLoginListener((LoginForm.LoginListener) event -> {
                     try {
+                        /*
                         JwtToken jwtToken = new DataAccess().getJwtToken(event.getUserName(), event.getPassword());
                         byte[] decode = Base64.getDecoder().decode(jwtToken.jwtToken.split("\\.")[1]);
                         ObjectMapper mapper = new ObjectMapper();
                         Map<String, Object> map = mapper.readValue(decode, new TypeReference<Map<String, Object>>(){});
                         if(!map.get("sub").equals(event.getUserName())) throw new Exception("Could not log in");
                         VaadinSession.getCurrent().setAttribute("jwtToken", jwtToken.jwtToken);
+                        */
                         MyUI.this.setContent(new MenuDesign());
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -1,10 +1,7 @@
 package dk.trustworks.clientmanager.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.clientmanager.model.Client;
-import dk.trustworks.clientmanager.model.Project;
-import dk.trustworks.clientmanager.model.Task;
-import dk.trustworks.framework.persistence.GenericRepository;
+import dk.trustworks.framework.model.Project;
+import dk.trustworks.framework.model.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sql2o.Connection;
@@ -14,7 +11,6 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**

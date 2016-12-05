@@ -1,12 +1,12 @@
 package dk.trustworks.clientmanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.clientmanager.model.*;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintRepository;
-import dk.trustworks.framework.persistence.GenericRepository;
+import dk.trustworks.framework.model.Task;
+import dk.trustworks.framework.model.TaskWorkerConstraint;
+import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
+import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
-import dk.trustworks.framework.service.DefaultLocalService;
 import net.sf.cglib.proxy.Enhancer;
 
 import javax.sql.DataSource;
@@ -30,7 +30,7 @@ public class TaskWorkerConstraintService {
     public TaskWorkerConstraintService(DataSource ds) {
         taskWorkerConstraintRepository = new TaskWorkerConstraintRepository(ds);
         taskWorkerConstraintBudgetService = new TaskWorkerConstraintBudgetService(ds);
-        userService = new UserService();
+        userService = UserService.getInstance();
     }
 
     public static TaskWorkerConstraintService getInstance(DataSource ds) {

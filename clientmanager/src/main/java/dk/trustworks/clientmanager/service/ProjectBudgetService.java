@@ -1,18 +1,17 @@
 package dk.trustworks.clientmanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
+import dk.trustworks.framework.model.TaskWorkerConstraint;
+import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.persistence.ProjectRepository;
 import dk.trustworks.clientmanager.persistence.TaskRepository;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintBudgetRepository;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintRepository;
-import dk.trustworks.clientmanager.model.Project;
+import dk.trustworks.framework.model.Project;
 import dk.trustworks.framework.persistence.GenericRepository;
 import dk.trustworks.framework.service.DefaultLocalService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.LocalDate;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -83,7 +82,7 @@ public class ProjectBudgetService extends DefaultLocalService {
                                 System.out.println("budgets.get(\"budget\") = " + budgets.get(0).budget);
                             }
                             if (budgets.size() > 0)
-                                ((double[]) budgetSummary.get("amount"))[month] += (double) budgets.get(0).budget;
+                                ((double[]) budgetSummary.get("amount"))[month] += budgets.get(0).budget;
                         }
                     }
                 }

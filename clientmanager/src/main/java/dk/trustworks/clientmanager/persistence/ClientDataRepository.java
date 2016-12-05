@@ -1,6 +1,6 @@
 package dk.trustworks.clientmanager.persistence;
 
-import dk.trustworks.clientmanager.model.ClientData;
+import dk.trustworks.framework.model.ClientData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sql2o.Connection;

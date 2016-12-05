@@ -1,8 +1,8 @@
 package dk.trustworks.timemanager.client;
 
+import dk.trustworks.framework.model.*;
 import dk.trustworks.framework.security.JwtModule;
-import dk.trustworks.timemanager.client.commands.*;
-import dk.trustworks.timemanager.client.dto.*;
+import dk.trustworks.timemanager.service.commands.*;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class RestClient {
         return new GetTaskCommand(uuid, JwtModule.JWTTOKEN.get()).execute();
     }
 
-    public TaskUserPrice getTaskUserPrice(String taskUUID, String userUUID) {
+    public TaskWorkerConstraint getTaskUserPrice(String taskUUID, String userUUID) {
         return new GetTaskUserPriceCommand(userUUID, taskUUID, JwtModule.JWTTOKEN.get()).execute();
     }
 

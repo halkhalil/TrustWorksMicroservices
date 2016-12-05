@@ -1,23 +1,14 @@
 package dk.trustworks.usermanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import dk.trustworks.usermanager.dto.Role;
-import dk.trustworks.usermanager.dto.User;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import dk.trustworks.framework.model.Role;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by hans on 17/03/15.

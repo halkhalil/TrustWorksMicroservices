@@ -12,8 +12,8 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
 import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.domain.DataAccess;
-import dk.trustworks.adminportal.domain.User;
 import dk.trustworks.adminportal.domain.UserStatusEnum;
+import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.network.Locator;
 
 import java.util.ArrayList;
@@ -74,9 +74,9 @@ public class UserDesign extends VerticalLayout {
                         (Date) item.getItemProperty("created").getValue(),
                         (boolean) item.getItemProperty("active").getValue(),
                         item.getItemProperty("useruuid").getValue().toString(),
-                        (UserStatusEnum) item.getItemProperty("status").getValue(),
-                        (Date) item.getItemProperty("statusdate").getValue(),
-                        (int) item.getItemProperty("allocation").getValue());
+                        item.getItemProperty("status").getValue().toString(),
+                        item.getItemProperty("statusdate").getValue().toString(),
+                        (long) item.getItemProperty("allocation").getValue());
                 try {
                     Unirest.post(Locator.getInstance().resolveURL("userservice") + "/api/users/"+item.getItemProperty("uuid").getValue().toString())
                             .header("accept", "application/json")

@@ -1,7 +1,7 @@
 package dk.trustworks.usermanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.usermanager.dto.Salary;
+import dk.trustworks.framework.model.Salary;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.sql2o.Connection;

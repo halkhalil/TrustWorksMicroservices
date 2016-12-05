@@ -10,6 +10,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.component.SparklineChart;
 import dk.trustworks.adminportal.domain.*;
+import dk.trustworks.framework.model.User;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
@@ -18,7 +19,6 @@ import java.text.DateFormatSymbols;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.*;
-import java.util.Calendar;
 
 
 @DesignRoot
@@ -26,9 +26,9 @@ import java.util.Calendar;
 @SuppressWarnings("serial")
 public class DashboardDesign extends CssLayout {
     private final DataAccess dataAccess = new DataAccess();
-    private final Slider slider = new Slider();;
+    private final Slider slider = new Slider();
 
-	protected CssLayout dashboard_item5;
+    protected CssLayout dashboard_item5;
 	protected CssLayout dashboard_item26;
 	protected CssLayout dashboard_item27;
     protected CssLayout dashboard_item28;
@@ -156,6 +156,9 @@ public class DashboardDesign extends CssLayout {
     public class TopGrossingEmployeesChart extends Chart {
 
         public TopGrossingEmployeesChart(int year) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");
             setHeight("280px");
 
@@ -169,7 +172,7 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> amountPerItemList = dataAccess.getUserRevenue(year, true);
+            List<AmountPerItem> amountPerItemList = dataAccess.getUserRevenue(periodStart, periodEnd);
             double sumRevenue = 0.0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 sumRevenue += amountPerItem.amount;
@@ -207,6 +210,9 @@ public class DashboardDesign extends CssLayout {
     public class TopGrossingProjectsChart extends Chart {
 
         public TopGrossingProjectsChart(int year) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -220,7 +226,7 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> amountPerItemList = dataAccess.getProjectRevenue(year, true);
+            List<AmountPerItem> amountPerItemList = dataAccess.getProjectRevenue(periodStart, periodEnd);
             Collections.sort(amountPerItemList);
             String[] categories = new String[amountPerItemList.size()];
             DataSeries listSeries = new DataSeries("Revenue");
@@ -254,6 +260,9 @@ public class DashboardDesign extends CssLayout {
     public class RevenuePerMonthChart extends Chart {
 
         public RevenuePerMonthChart(int year, int ahead) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -267,15 +276,17 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(year);
-            Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonth(year-1);
+            Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(periodStart, periodEnd);
+            //Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonth(year-1);
 
+            /*
             for (int i = 0; i < 6; i++) {
                 revenuePerMonth[i+6] = revenuePerMonth[i];
             }
             for (int i = 0; i < 6; i++) {
                 revenuePerMonth[i] = revenuePerMonthPrevYear[i+6];
             }
+            */
 
             Long[] allExpenses = dataAccess.getExpensesByYear(year);
             Long[] allExpensesPrevYear = dataAccess.getExpensesByYear(year-1);
@@ -287,16 +298,16 @@ public class DashboardDesign extends CssLayout {
                 allExpenses[i] = allExpensesPrevYear[i+6];
             }
 
-            Long[] budgetPerMonth = dataAccess.getBudgetPerMonth(year, ahead);
-            Long[] budgetPerMonthPrevYear = dataAccess.getBudgetPerMonth(year-1, ahead);
-
+            long[] budgetPerMonth = dataAccess.getBudgetPerMonth(periodStart, periodEnd, ahead);
+            //Long[] budgetPerMonthPrevYear = dataAccess.getBudgetPerMonth(year-1, ahead);
+/*
             for (int i = 0; i < 6; i++) {
                 budgetPerMonth[i+6] = budgetPerMonth[i];
             }
             for (int i = 0; i < 6; i++) {
                 budgetPerMonth[i] = budgetPerMonthPrevYear[i+6];
             }
-
+*/
             DataSeries expensesList = new DataSeries("Expenses");
             PlotOptionsAreaspline options3 = new PlotOptionsAreaspline();
             options3.setColor(SolidColor.RED);
@@ -340,6 +351,9 @@ public class DashboardDesign extends CssLayout {
     public class CumulativeRevenuePerMonthChart extends Chart {
 
         public CumulativeRevenuePerMonthChart(int year) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -354,15 +368,17 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(year);
-            Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonth(year-1);
+            Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(periodStart, periodEnd);
+            //Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonth(year-1);
 
+            /*
             for (int i = 0; i < 6; i++) {
                 revenuePerMonth[i+6] = revenuePerMonth[i];
             }
             for (int i = 0; i < 6; i++) {
                 revenuePerMonth[i] = revenuePerMonthPrevYear[i+6];
             }
+            */
 
             Long[] allExpenses = dataAccess.getExpensesByYear(year);
             Long[] allExpensesPrevYear = dataAccess.getExpensesByYear(year-1);
@@ -387,10 +403,13 @@ public class DashboardDesign extends CssLayout {
             String[] categories = new String[12];
             for (int i = 0; i < 12; i++) {
                 revenueSeries.add(new DataSeriesItem(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i] + cumulativeRevenuePerMonth));
-                expensesList.add(new DataSeriesItem("Expense for "+Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i] + cumulativeExpensesPerMonth));
+
+                // TODO: Skal indføres igen.
+                //expensesList.add(new DataSeriesItem("Expense for "+Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), allExpenses[i] + cumulativeExpensesPerMonth));
                 categories[i] = Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
                 cumulativeRevenuePerMonth += revenuePerMonth[i];
-                cumulativeExpensesPerMonth += allExpenses[i];
+                // TODO: Skal indføres igen.
+                //cumulativeExpensesPerMonth += allExpenses[i];
                 month++;
                 if(month>12) month = 1;
             }
@@ -457,15 +476,23 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("Revenue");
             getConfiguration().getLegend().setEnabled(false);
 
-            Long[] revenuePerMonth = dataAccess.getRevenuePerMonthByCapacity(year);
-            Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonthByCapacity(year-1);
+            Long[] revenuePerMonth = dataAccess.getRevenuePerMonth(periodStart, periodEnd);//.getRevenuePerMonthByCapacity(year);
+            List<Capacity> capacityPerMonth = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
 
+            for (int i = 0; i < revenuePerMonth.length; i++) {
+                revenuePerMonth[i] = revenuePerMonth[i] / capacityPerMonth.get(i).capacity;
+            }
+
+
+            //Long[] revenuePerMonthPrevYear = dataAccess.getRevenuePerMonthByCapacity(year-1);
+            /*
             for (int i = 0; i < 6; i++) {
                 revenuePerMonth[i+6] = revenuePerMonth[i];
             }
             for (int i = 0; i < 6; i++) {
                 revenuePerMonth[i] = revenuePerMonthPrevYear[i+6];
             }
+            */
 
             double sumRevenue = 0.0;
             for (Long amountPerItem : revenuePerMonth) {
@@ -517,14 +544,14 @@ public class DashboardDesign extends CssLayout {
                 if(month>12) month = 1;
             }
 
-            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonthByYear(periodStart, periodEnd);
+            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
             int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
             int j = 0;
             for (Capacity capacity : capacityPerMonthByYearList) {
                 capacityPerMonthByYear[j++] = capacity.capacity;
             }
 
-            //int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+            //int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonth(year-1);
 /*
             for (int i = 0; i < 6; i++) {
                 capacityPerMonthByYear[i+6] = capacityPerMonthByYear[i];
@@ -716,13 +743,13 @@ public class DashboardDesign extends CssLayout {
                 userAvailabilityPerMonthByYear.get(availability.useruuid)[Months.monthsBetween(periodStart, availability.activeDate).getMonths()] = 1;
             }
 
-            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonthByYear(periodStart, periodEnd);
+            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
             int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
             int j = 0;
             for (Capacity capacity : capacityPerMonthByYearList) {
                 capacityPerMonthByYear[j++] = capacity.capacity;
             }
-            //int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonthByYear(year-1);
+            //int[] capacityPerMonthByYearPrevYear = dataAccess.getCapacityPerMonth(year-1);
             /*
             for (int i = 0; i < 6; i++) {
                 capacityPerMonthByYear[i+6] = capacityPerMonthByYear[i];
@@ -733,7 +760,7 @@ public class DashboardDesign extends CssLayout {
             */
             Map<String, User> userMap = new HashMap<>();
             for (User user : dataAccess.getUsers()) {
-                userMap.put(user.getUuid(), user);
+                userMap.put(user.getUUID(), user);
             }
 
             DataSeries netIncomeList = new DataSeries("Net Income");
@@ -754,15 +781,16 @@ public class DashboardDesign extends CssLayout {
 
                 double netIncome = 0.0;
 
-                Long[] revenuePerMonthPerUser = dataAccess.getRevenuePerMonthPerUser(year, userUUID);
-                Long[] revenuePerMonthPerUserPrevYear = dataAccess.getRevenuePerMonthPerUser(year-1, userUUID);
+                long[] revenuePerMonthPerUser = dataAccess.getRevenuePerMonthPerUser(periodStart, periodEnd, userUUID);
+                //Long[] revenuePerMonthPerUserPrevYear = dataAccess.getRevenuePerMonthPerUser(year-1, userUUID);
+                /*
                 for (int i = 0; i < 6; i++) {
                     revenuePerMonthPerUser[i+6] = revenuePerMonthPerUser[i];
                 }
                 for (int i = 0; i < 6; i++) {
                     revenuePerMonthPerUser[i] = revenuePerMonthPerUserPrevYear[i+6];
                 }
-
+                */
                 int[] salaries = userSalaryPerMonthByYear.get(userUUID);
                 if(debug) {
                     for (int salary : salaries) {
@@ -788,10 +816,11 @@ public class DashboardDesign extends CssLayout {
                         netIncome += revenuePerMonthPerUser[i] * 1000;
                         if(debug) System.out.println("netIncome = " + netIncome + " + " + salaries[i]);
                         netIncome -= salaries[i];
-                        if(debug) System.out.println("expensesByYear = " + expensesByYear[i]*1000);
+                        //if(debug) System.out.println("expensesByYear = " + expensesByYear[i]*1000);
                         if(debug) System.out.println("capacityPerMonthByYear = " + capacityPerMonthByYear[i]);
-                        if(debug) System.out.println("netIncome = " + netIncome + " + " + ((expensesByYear[i]*1000) + capacityPerMonthByYear[i]));
-                        netIncome -= (expensesByYear[i]*1000);// / capacityPerMonthByYear[i];
+                        //if(debug) System.out.println("netIncome = " + netIncome + " + " + ((expensesByYear[i]*1000) + capacityPerMonthByYear[i]));
+                        // TODO: MUST WORK
+                        //netIncome -= (expensesByYear[i]*1000);// / capacityPerMonthByYear[i];
                     }
 
                 }
@@ -799,7 +828,7 @@ public class DashboardDesign extends CssLayout {
                     StringBuilder shortname = new StringBuilder();
                     String name = userUUID;
                     if (userMap.get(userUUID) != null)
-                        name = (userMap.get(userUUID).getFirstname() + " " + userMap.get(userUUID).getLastname());
+                        name = (userMap.get(userUUID).firstname + " " + userMap.get(userUUID).lastname);
 
                     for (String s : name.split(" ")) {
                         shortname.append(s.charAt(0));
@@ -942,6 +971,11 @@ public class DashboardDesign extends CssLayout {
     public class ProjectDetailChart extends Chart {
 
         public ProjectDetailChart() {
+            int year = 2017;
+
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 6, 30);
+
             setWidth("100%");
             setHeight("280px");
 
@@ -982,7 +1016,7 @@ public class DashboardDesign extends CssLayout {
             plotOptionsColumn.setColorByPoint(true);
             series.setPlotOptions(plotOptionsColumn);
 
-            for (AmountPerItem projectRevenue : dataAccess.getProjectRevenue(2015, false)) {
+            for (AmountPerItem projectRevenue : dataAccess.getProjectRevenue(periodStart, periodEnd)) {
                 DataSeriesItem item = new DataSeriesItem(projectRevenue.description, projectRevenue.amount);
                 DataSeries drillSeries = new DataSeries(projectRevenue.description);
                 PlotOptionsColumn plotOptions = new PlotOptionsColumn();

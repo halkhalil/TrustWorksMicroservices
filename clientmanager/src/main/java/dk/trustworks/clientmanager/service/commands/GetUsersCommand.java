@@ -8,7 +8,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
-import dk.trustworks.clientmanager.model.User;
+import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.network.Locator;
 import dk.trustworks.framework.security.JwtModule;
 import dk.trustworks.framework.security.JwtToken;

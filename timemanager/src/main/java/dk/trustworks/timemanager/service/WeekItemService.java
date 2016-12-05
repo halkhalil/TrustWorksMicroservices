@@ -3,7 +3,7 @@ package dk.trustworks.timemanager.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
-import dk.trustworks.timemanager.dto.WeekItem;
+import dk.trustworks.framework.model.WeekItem;
 import dk.trustworks.timemanager.persistence.WeekItemRepository;
 import net.sf.cglib.proxy.Enhancer;
 

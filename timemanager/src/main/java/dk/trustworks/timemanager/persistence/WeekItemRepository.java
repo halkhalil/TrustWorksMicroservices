@@ -1,7 +1,7 @@
 package dk.trustworks.timemanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dk.trustworks.timemanager.dto.WeekItem;
+import dk.trustworks.framework.model.WeekItem;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 

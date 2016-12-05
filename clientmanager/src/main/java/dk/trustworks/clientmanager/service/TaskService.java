@@ -1,8 +1,8 @@
 package dk.trustworks.clientmanager.service;
 
-import dk.trustworks.clientmanager.model.Project;
-import dk.trustworks.clientmanager.model.Task;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
+import dk.trustworks.framework.model.Project;
+import dk.trustworks.framework.model.Task;
+import dk.trustworks.framework.model.TaskWorkerConstraint;
 import dk.trustworks.clientmanager.persistence.TaskRepository;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
@@ -83,7 +83,7 @@ public class TaskService {
             tasksMap.put(task.uuid, task);
         }
 
-        Map<String, TaskWorkerConstraint> taskWorkerConstraintsMap = new HashMap<>();;
+        Map<String, TaskWorkerConstraint> taskWorkerConstraintsMap = new HashMap<>();
         for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraintService.findAllByTaskUUIDs(tasks, projection)) {
             taskWorkerConstraintsMap.put(taskWorkerConstraint.uuid, taskWorkerConstraint);
             tasksMap.get(taskWorkerConstraint.taskuuid).taskworkerconstraints.add(taskWorkerConstraint);

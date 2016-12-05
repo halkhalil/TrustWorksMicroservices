@@ -1,14 +1,11 @@
 package dk.trustworks.clientmanager.service;
 
-import dk.trustworks.clientmanager.model.Task;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraint;
-import dk.trustworks.clientmanager.model.TaskWorkerConstraintBudget;
+import dk.trustworks.framework.model.Task;
+import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintBudgetRepository;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
 import net.sf.cglib.proxy.Enhancer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -45,7 +42,7 @@ public class TaskWorkerConstraintBudgetService {
         while(currentDate.isBefore(toDate)) {
             LocalDate entryDate = (ahead > 0)?currentDate.minusMonths(ahead):LocalDate.now();
             result.addAll(taskWorkerConstraintBudgetRepository.findByMonthAndYearAndDate(currentDate.getMonthOfYear()-1, currentDate.getYear(), entryDate));
-            currentDate.plusMonths(1);
+            currentDate = currentDate.plusMonths(1);
         }
         return result;
     }

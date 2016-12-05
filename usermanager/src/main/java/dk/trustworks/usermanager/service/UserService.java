@@ -1,11 +1,11 @@
 package dk.trustworks.usermanager.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dk.trustworks.framework.model.Availability;
+import dk.trustworks.framework.model.Capacity;
+import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.security.Authenticator;
 import dk.trustworks.framework.security.RoleRight;
-import dk.trustworks.usermanager.dto.Availability;
-import dk.trustworks.usermanager.dto.Capacity;
-import dk.trustworks.usermanager.dto.User;
 import dk.trustworks.usermanager.persistence.RoleRepository;
 import dk.trustworks.usermanager.persistence.UserRepository;
 import net.sf.cglib.proxy.Enhancer;
