@@ -143,9 +143,6 @@ public class DataAccess implements Serializable {
 
             for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : taskWorkerConstraintBudgetList) {
                 LocalDate localDate = new LocalDate(taskWorkerConstraintBudget.year, taskWorkerConstraintBudget.month+1, 1);
-                System.out.println("localDate = " + localDate);
-                System.out.println("periodStart = " + periodStart);
-                System.out.println("taskWorkerConstraintBudget = " + taskWorkerConstraintBudget);
                 budgetPerMonth[new Period(periodStart, localDate, PeriodType.months()).getMonths()] += taskWorkerConstraintBudget.budget;
             }
 
@@ -347,7 +344,7 @@ public class DataAccess implements Serializable {
         return new Long[12];
     }
 
-    public long[] getExpensesByPeriod(LocalDate periodStart, LocalDate periodEnd, ExpenseType expenseType) {
+    public List<Expense> getExpensesByPeriod(LocalDate periodStart, LocalDate periodEnd) {
         System.out.println("DataAccess.getExpensesByPeriod");
         System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
@@ -361,20 +358,10 @@ public class DataAccess implements Serializable {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JodaModule());
             List<Expense> expenses = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {});
-
-            long[] expensesPerMonth = new long[12];
-
-            for (Expense expense : expenses) {
-                if(expenseType != null && expenseType != expense.getType()) continue;
-                LocalDate localDate = new LocalDate(expense.getYear(), expense.getMonth()+1, 1);
-                expensesPerMonth[new Period(periodStart, localDate, PeriodType.months()).getMonths()] += expense.getExpense();
-            }
-
-            return expensesPerMonth;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new long[12];
+        return new ArrayList<>();
     }
 
     public List<Capacity> getCapacityPerMonth(LocalDate periodStart, LocalDate periodEnd) {
