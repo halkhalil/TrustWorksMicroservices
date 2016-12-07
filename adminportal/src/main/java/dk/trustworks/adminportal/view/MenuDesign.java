@@ -28,7 +28,8 @@ public class MenuDesign extends VerticalLayout {
         Design.read(this);
         DashboardDesign dashboardDesign = new DashboardDesign();
         UserPerformanceDesign userPerformanceDesign = new UserPerformanceDesign();
-        UserDesign userDesign = new UserDesign();
+        // TODO: make this work
+        //UserDesign userDesign = new UserDesign();
         ExpenseView expenseView = new ExpenseView();
         MicroServicesDesign microServicesDesign = new MicroServicesDesign();
 
@@ -58,8 +59,8 @@ public class MenuDesign extends VerticalLayout {
             menuButton2.removeStyleName("selected");
             menuButton4.removeStyleName("selected");
             menuButton5.removeStyleName("selected");
-
-            scroll_panel.setContent(userDesign);
+            // TODO: make this work
+            //scroll_panel.setContent(userDesign);
         });
 
         menuButton4.addClickListener((Button.ClickListener) event -> {

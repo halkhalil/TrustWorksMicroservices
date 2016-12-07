@@ -424,8 +424,8 @@ public class ClientApplication extends Jooby {
                     String periodEnd = req.param("periodEnd").value("2016-12-31");
                     LocalDate periodStartDate = LocalDate.parse(periodStart, DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEndDate = LocalDate.parse(periodEnd, DateTimeFormat.forPattern("yyyy-MM-dd"));
-                    periodStartDate = periodStartDate.withDayOfMonth(1);
-                    periodEndDate = periodEndDate.withDayOfMonth(1);
+                    periodStartDate = periodStartDate.withDayOfMonth(periodEndDate.dayOfMonth().getMinimumValue());
+                    periodEndDate = periodEndDate.withDayOfMonth(periodEndDate.dayOfMonth().getMaximumValue());
 
                     DataSource db = req.require(DataSource.class);
                     Collection<Revenue> revenues = RevenueService.getInstance(db).revenuePerMonth(periodStartDate, periodEndDate);

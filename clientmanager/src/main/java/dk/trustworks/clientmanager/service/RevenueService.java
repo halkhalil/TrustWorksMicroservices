@@ -128,6 +128,8 @@ public class RevenueService {
 
     @RoleRight("tm.admin")
     public Collection<Revenue> revenuePerMonth(LocalDate periodStart, LocalDate periodEnd) {
+        System.out.println("RevenueService.revenuePerMonth");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         List<Work> workList = workService.findByPeriod(periodStart, periodEnd);
         List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
 

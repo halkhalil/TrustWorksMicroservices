@@ -36,4 +36,14 @@ public class AmountPerItem implements  Comparable<AmountPerItem> {
     public int compareTo(AmountPerItem o) {
         return Double.compare(o.amount, this.amount);
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AmountPerItem{");
+        sb.append("uuid='").append(uuid).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", amount=").append(amount);
+        sb.append('}');
+        return sb.toString();
+    }
 }

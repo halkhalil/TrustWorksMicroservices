@@ -16,6 +16,8 @@ import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
 import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.network.Locator;
 import org.joda.time.LocalDate;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -66,7 +68,7 @@ public class DataAccess implements Serializable {
             List<Revenue> revenueList = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Revenue>>() {});
             ArrayList<Double> list = new ArrayList<>();
             for (Revenue revenue : revenueList) {
-                list.add(revenue.revenue / 1000);
+                list.add(revenue.revenue);
             }
             return list.toArray(new Double[31]);
         } catch (Exception e) {
@@ -75,7 +77,7 @@ public class DataAccess implements Serializable {
         return new Double[0];
     }
 
-    public Long[] getRevenuePerMonth(LocalDate periodStart, LocalDate periodEnd) {
+    public long[] getRevenuePerMonth(LocalDate periodStart, LocalDate periodEnd) {
         System.out.println("DataAccess.getRevenuePerMonth");
         System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
@@ -89,11 +91,20 @@ public class DataAccess implements Serializable {
             mapper.registerModule(new JodaModule());
             List<Revenue> revenueList = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Revenue>>() {});
 
-            Long[] result = new Long[12];
-            for (Revenue revenue : revenueList) {
-                result[revenue.date.getMonthOfYear()-1] = Math.round(revenue.revenue);
+            System.out.println("*********************");
+
+            long[] result = new long[12];
+            for (int i = 0; i < 12; i++) {
+                result[i] = Math.round(revenueList.get(i).revenue);
             }
-            System.out.println("result.length = " + result.length);
+
+            for (int i = 0; i < 12; i++) {
+                System.out.println("revenueList = " + revenueList.get(i).revenue);
+                System.out.println("result = " + result[i]);
+                System.out.println("---");
+            }
+            System.out.println("*********************");
+
             return result;
 /*
             ArrayList<Long> list = new ArrayList<>();
@@ -105,7 +116,7 @@ public class DataAccess implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Long[12];
+        return new long[12];
     }
 
     public long[] getBudgetPerMonth(LocalDate periodStart, LocalDate periodEnd, int ahead) {
@@ -126,12 +137,23 @@ public class DataAccess implements Serializable {
 
             List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgetList = mapper.readValue(next, new TypeReference<List<TaskWorkerConstraintBudget>>() {});
 
+            System.out.println("taskWorkerConstraintBudgetList.size() = " + taskWorkerConstraintBudgetList.size());
+
             long[] budgetPerMonth = new long[12];
 
             for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : taskWorkerConstraintBudgetList) {
-                budgetPerMonth[taskWorkerConstraintBudget.month] += Math.round(taskWorkerConstraintBudget.budget);
+                LocalDate localDate = new LocalDate(taskWorkerConstraintBudget.year, taskWorkerConstraintBudget.month+1, 1);
+                System.out.println("localDate = " + localDate);
+                System.out.println("periodStart = " + periodStart);
+                System.out.println("taskWorkerConstraintBudget = " + taskWorkerConstraintBudget);
+                budgetPerMonth[new Period(periodStart, localDate, PeriodType.months()).getMonths()] += taskWorkerConstraintBudget.budget;
             }
 
+/*
+            for (int i = 0; i < 12; i++) {
+                budgetPerMonth[i] += Math.round(taskWorkerConstraintBudgetList.get(i).budget);
+            }
+*/
             return budgetPerMonth;
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,7 +181,7 @@ public class DataAccess implements Serializable {
     public List<AmountPerItem> getBillableHoursPercentagePerUser(int year, boolean fiscal) {
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/billablehourspercentageperuser")
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/statistics/billablehourspercentageperuser")
                     .queryString("year", year)
                     .queryString("fiscal", fiscal)
                     .header("accept", "application/json")
@@ -203,7 +225,7 @@ public class DataAccess implements Serializable {
 
             long[] result = new long[12];
             for (int i = 0; i < result.length; i++) {
-                result[i] = Math.round(revenues.get(1).revenue / 1000.0);
+                result[i] = Math.round(revenues.get(1).revenue);
             }
 
             return result;
@@ -271,7 +293,7 @@ public class DataAccess implements Serializable {
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
-                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
+                    list.add(Math.round(jsonArray.getDouble(i)));
                 }
             }
             return list.toArray(new Long[12]);
@@ -293,7 +315,7 @@ public class DataAccess implements Serializable {
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
-                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
+                    list.add(Math.round(jsonArray.getDouble(i)));
                 }
             }
             return list.toArray(new Long[12]);
@@ -315,7 +337,7 @@ public class DataAccess implements Serializable {
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
-                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
+                    list.add(Math.round(jsonArray.getDouble(i)));
                 }
             }
             return list.toArray(new Long[12]);
@@ -325,35 +347,43 @@ public class DataAccess implements Serializable {
         return new Long[12];
     }
 
-    public Long[] getExpensesByYear(int year) {
+    public long[] getExpensesByPeriod(LocalDate periodStart, LocalDate periodEnd, ExpenseType expenseType) {
+        System.out.println("DataAccess.getExpensesByPeriod");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
-            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/expensepermonth")
-                    .queryString("year", year)
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
                     .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .asJson();
-            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("expensepermonth");
-            ArrayList<Long> list = new ArrayList<>();
-            if (jsonArray != null) {
-                int len = jsonArray.length();
-                for (int i = 0; i < len; i++) {
-                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
-                }
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JodaModule());
+            List<Expense> expenses = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Expense>>() {});
+
+            long[] expensesPerMonth = new long[12];
+
+            for (Expense expense : expenses) {
+                if(expenseType != null && expenseType != expense.getType()) continue;
+                LocalDate localDate = new LocalDate(expense.getYear(), expense.getMonth()+1, 1);
+                expensesPerMonth[new Period(periodStart, localDate, PeriodType.months()).getMonths()] += expense.getExpense();
             }
-            return list.toArray(new Long[12]);
+
+            return expensesPerMonth;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Long[12];
+        return new long[12];
     }
 
     public List<Capacity> getCapacityPerMonth(LocalDate periodStart, LocalDate periodEnd) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/capacities")
-                    .queryString("periodStart", periodStart)
-                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
                     .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -439,7 +469,7 @@ public class DataAccess implements Serializable {
             if (jsonArray != null) {
                 int len = jsonArray.length();
                 for (int i = 0; i < len; i++) {
-                    list.add(Math.round(jsonArray.getDouble(i) / 1000.0));
+                    list.add(Math.round(jsonArray.getDouble(i)));
                 }
             }
             return list.toArray(new Long[12]);
@@ -464,7 +494,7 @@ public class DataAccess implements Serializable {
 
             List<AmountPerItem> result = new ArrayList<>();
             for (Revenue revenue : revenues) {
-                new AmountPerItem(revenue.parentUUID, revenue.description, revenue.revenue);
+                result.add(new AmountPerItem(revenue.parentUUID, revenue.description, revenue.revenue));
             }
             return result;
         } catch (Exception e) {
@@ -473,26 +503,30 @@ public class DataAccess implements Serializable {
     }
 
     public List<AmountPerItem> getUserRevenue(LocalDate periodStart, LocalDate periodEnd) {
+        System.out.println("DataAccess.getUserRevenue");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/revenues/users")
                     .header("accept", "application/json")
                     .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
-                    .queryString("periodStart", periodStart)
-                    .queryString("periodEnd", periodEnd)
+                    .queryString("periodStart", periodStart.toString("yyyy-MM-dd"))
+                    .queryString("periodEnd", periodEnd.toString("yyyy-MM-dd"))
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JodaModule());
             List<Revenue> revenues = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Revenue>>() {});
+            System.out.println("revenues.size() = " + revenues.size());
 
             List<AmountPerItem> result = new ArrayList<>();
             for (Revenue revenue : revenues) {
-                new AmountPerItem(revenue.parentUUID, revenue.description, revenue.revenue);
+                result.add(new AmountPerItem(revenue.parentUUID, revenue.description, revenue.revenue));
             }
             return result;
         } catch (Exception e) {
-            throw new RuntimeException("Kunne ikke loade: AmountPerItem ", e);
+            e.printStackTrace();
         }
+        return new ArrayList<>();
     }
 
     public List<AmountPerItem> getWorkRegistrationDelay(int year) {

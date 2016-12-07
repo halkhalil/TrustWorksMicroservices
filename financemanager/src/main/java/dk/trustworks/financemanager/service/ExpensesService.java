@@ -2,6 +2,7 @@ package dk.trustworks.financemanager.service;
 
 import com.google.inject.Inject;
 import dk.trustworks.financemanager.model.Expense;
+import org.joda.time.LocalDate;
 import org.jooby.mvc.*;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
@@ -24,9 +25,13 @@ public class ExpensesService {
     }
 
     @GET
-    public List<Expense> root() {
+    public List<Expense> root(LocalDate periodStart, LocalDate periodEnd) {
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM expenses").executeAndFetch(Expense.class);
+            return con.createQuery("SELECT * FROM expenses " +
+                    "WHERE  ((year*10000)+((month+1)*100)+1) between :periodstart and :periodend")
+                    .addParameter("periodstart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodend", periodEnd.toString("yyyyMMdd"))
+                    .executeAndFetch(Expense.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,6 +65,8 @@ public class ExpensesService {
         }
         return new ArrayList<>();
     }
+
+    //  ((year*10000)+((month+1)*100)+day) between :periodstart and :periodend
 
     @POST
     @Consumes("application/json")
