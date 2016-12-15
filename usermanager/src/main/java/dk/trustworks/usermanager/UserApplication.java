@@ -5,6 +5,7 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import dk.trustworks.framework.model.Capacity;
 import dk.trustworks.framework.model.Revenue;
 import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.security.JwtModule;
@@ -136,11 +137,14 @@ public class UserApplication extends Jooby {
                 })
 
                 .get("/{uuid}/capacities", (req, resp) -> {
+                    long l = System.currentTimeMillis();
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     String userUUID = req.param("uuid").value();
                     DataSource db = req.require(DataSource.class);
-                    resp.send(UserService.getInstance(db).capacitypermonthbyuser(userUUID, periodStart, periodEnd));
+                    List<Capacity> capacitypermonthbyuser = UserService.getInstance(db).capacitypermonthbyuser(userUUID, periodStart, periodEnd);
+                    System.out.println("capaity time: "+(System.currentTimeMillis()-l));
+                    resp.send(capacitypermonthbyuser);
                 })
 
                 .get("/{uuid}/availabilities", (req, resp) -> {
@@ -231,10 +235,13 @@ public class UserApplication extends Jooby {
          */
         use("/api/capacities")
                 .get("/", (req, resp) -> {
+                    long l = System.currentTimeMillis();
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     LocalDate periodEnd = LocalDate.parse(req.param("periodEnd").value("2016-12-31"), DateTimeFormat.forPattern("yyyy-MM-dd"));
                     DataSource db = req.require(DataSource.class);
-                    resp.send(UserService.getInstance(db).capacitypermonth(periodStart, periodEnd));
+                    List<Capacity> capacitypermonth = UserService.getInstance(db).capacitypermonth(periodStart, periodEnd);
+                    System.out.println("capaity time: "+(System.currentTimeMillis()-l));
+                    resp.send(capacitypermonth);
                 })
                 .produces("json")
                 .consumes("json");

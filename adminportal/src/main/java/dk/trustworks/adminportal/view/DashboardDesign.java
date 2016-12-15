@@ -175,12 +175,10 @@ public class DashboardDesign extends CssLayout {
 
             List<AmountPerItem> amountPerItemList = dataContainer.getUserRevenue();
             double sumRevenue = 0.0;
-            System.out.println("*************************");
             for (AmountPerItem amountPerItem : amountPerItemList) {
-                System.out.println("amountPerItem = " + amountPerItem);
+                //System.out.println("amountPerItem = " + amountPerItem);
                 sumRevenue += amountPerItem.amount;
             }
-            System.out.println("*************************");
             double avgRevenue = sumRevenue / amountPerItemList.size();
 
             Collections.sort(amountPerItemList);
@@ -815,7 +813,7 @@ public class DashboardDesign extends CssLayout {
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
                 boolean debug = false;
                 if(userUUID.equals("7948c5e8-162c-4053-b905-0f59a21d7746")) debug = true;
-                if(debug) System.out.println("Hans...");
+                //if(debug) System.out.println("Hans...");
 
                 double netIncome = 0.0;
 
@@ -830,16 +828,7 @@ public class DashboardDesign extends CssLayout {
                 }
                 */
                 int[] salaries = userSalaryPerMonthByYear.get(userUUID);
-                if(debug) {
-                    for (int salary : salaries) {
-                        System.out.println("salary = " + salary);
-                    }
-                    for (Long revenue : revenuePerMonthPerUser) {
-                        System.out.println("revenue = " + revenue);
-                    }
 
-
-                }
                 int monthLimit = 0;
 
                 int period = new Period(periodStart, LocalDate.now(), PeriodType.months()).getMonths();
@@ -855,12 +844,12 @@ public class DashboardDesign extends CssLayout {
 
                 for (int i = 0; i < monthLimit; i++) {
                     if(salaries[i] > 0.0 && userAvailabilityPerMonthByYear.get(userUUID) != null && userAvailabilityPerMonthByYear.get(userUUID)[i] == 1) {
-                        if(debug) System.out.println("netIncome = " + netIncome + " + " + (revenuePerMonthPerUser[i]));
+                        //if(debug) System.out.println("netIncome = " + netIncome + " + " + (revenuePerMonthPerUser[i]));
                         netIncome += revenuePerMonthPerUser[i];
-                        if(debug) System.out.println("netIncome = " + netIncome + " + " + salaries[i]);
+                        //if(debug) System.out.println("netIncome = " + netIncome + " + " + salaries[i]);
                         netIncome -= salaries[i];
                         //if(debug) System.out.println("expensesByYear = " + expensesByYear[i]*1000);
-                        if(debug) System.out.println("capacityPerMonthByYear = " + capacityPerMonthByYear[i]);
+                        //if(debug) System.out.println("capacityPerMonthByYear = " + capacityPerMonthByYear[i]);
                         //if(debug) System.out.println("netIncome = " + netIncome + " + " + ((expensesByYear[i]*1000) + capacityPerMonthByYear[i]));
                         netIncome -= (allExpenses[i]);// / capacityPerMonthByYear[i];
                     }

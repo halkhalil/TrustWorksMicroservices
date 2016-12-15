@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <resourceExtensions />
-    <wildcardResourcePatterns>
-      <entry name="!?*.java" />
-      <entry name="!?*.form" />
-      <entry name="!?*.class" />
-      <entry name="!?*.groovy" />
-      <entry name="!?*.scala" />
-      <entry name="!?*.flex" />
-      <entry name="!?*.kt" />
-      <entry name="!?*.clj" />
-      <entry name="!?*.aj" />
-    </wildcardResourcePatterns>
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+      <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
         <module name="adminportal" />
         <module name="bimanager" />
         <module name="clientmanager" />
@@ -39,11 +23,11 @@
       <module name="adminportal" target="1.8" />
       <module name="bimanager" target="1.8" />
       <module name="clientmanager" target="1.8" />
-      <module name="cronmanager" target="1.5" />
-      <module name="employeemanager" target="1.5" />
+      <module name="cronmanager" target="1.8" />
+      <module name="employeemanager" target="1.8" />
       <module name="financemanager" target="1.8" />
-      <module name="personalassistant" target="1.5" />
-      <module name="servicemanager" target="1.5" />
+      <module name="personalassistant" target="1.8" />
+      <module name="servicemanager" target="1.8" />
       <module name="timemanager" target="1.8" />
       <module name="trustworks-framework" target="1.8" />
       <module name="usermanager" target="1.8" />

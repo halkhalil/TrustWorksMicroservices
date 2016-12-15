@@ -78,8 +78,6 @@ public class DataAccess implements Serializable {
     }
 
     public long[] getRevenuePerMonth(LocalDate periodStart, LocalDate periodEnd) {
-        System.out.println("DataAccess.getRevenuePerMonth");
-        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/revenues/months")
                     .header("accept", "application/json")
@@ -91,20 +89,10 @@ public class DataAccess implements Serializable {
             mapper.registerModule(new JodaModule());
             List<Revenue> revenueList = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Revenue>>() {});
 
-            System.out.println("*********************");
-
             long[] result = new long[12];
             for (int i = 0; i < 12; i++) {
                 result[i] = Math.round(revenueList.get(i).revenue);
             }
-
-            for (int i = 0; i < 12; i++) {
-                System.out.println("revenueList = " + revenueList.get(i).revenue);
-                System.out.println("result = " + result[i]);
-                System.out.println("---");
-            }
-            System.out.println("*********************");
-
             return result;
 /*
             ArrayList<Long> list = new ArrayList<>();
@@ -120,8 +108,6 @@ public class DataAccess implements Serializable {
     }
 
     public long[] getBudgetPerMonth(LocalDate periodStart, LocalDate periodEnd, int ahead) {
-        System.out.println("DataAccess.getBudgetPerMonth");
-        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "], ahead = [" + ahead + "]");
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/budget/search/findByPeriod")
                     .header("accept", "application/json")
@@ -133,11 +119,8 @@ public class DataAccess implements Serializable {
             ObjectMapper mapper = new ObjectMapper();
 
             String next = new Scanner(jsonResponse.getRawBody(), "utf-8").useDelimiter("\\Z").next();
-            System.out.println("next = " + next);
 
             List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgetList = mapper.readValue(next, new TypeReference<List<TaskWorkerConstraintBudget>>() {});
-
-            System.out.println("taskWorkerConstraintBudgetList.size() = " + taskWorkerConstraintBudgetList.size());
 
             long[] budgetPerMonth = new long[12];
 
@@ -345,8 +328,6 @@ public class DataAccess implements Serializable {
     }
 
     public List<Expense> getExpensesByPeriod(LocalDate periodStart, LocalDate periodEnd) {
-        System.out.println("DataAccess.getExpensesByPeriod");
-        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
@@ -373,18 +354,12 @@ public class DataAccess implements Serializable {
                     .queryString("periodEnd", periodEnd)
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            //mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             JodaModule module = new JodaModule();
-            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+            //mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
             mapper.registerModule(module);
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
-        } catch (UnirestException e) {
-            e.printStackTrace();
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new ArrayList<>();
@@ -490,8 +465,6 @@ public class DataAccess implements Serializable {
     }
 
     public List<AmountPerItem> getUserRevenue(LocalDate periodStart, LocalDate periodEnd) {
-        System.out.println("DataAccess.getUserRevenue");
-        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/revenues/users")
@@ -503,7 +476,6 @@ public class DataAccess implements Serializable {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JodaModule());
             List<Revenue> revenues = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Revenue>>() {});
-            System.out.println("revenues.size() = " + revenues.size());
 
             List<AmountPerItem> result = new ArrayList<>();
             for (Revenue revenue : revenues) {
@@ -625,16 +597,6 @@ public class DataAccess implements Serializable {
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return ((Map<String, double[]>)mapper.readValue(jsonResponse.getRawBody(), new TypeReference<Map<String, double[]>>() {})).get("income");
-            /*
-            JSONArray jsonArray = jsonResponse.getBody().getObject().getJSONArray("income");
-            double[] result = new double[12];
-            if (jsonArray != null) {
-                int len = jsonArray.length();
-                for (int i = 0; i < len; i++) {
-                    result[i] = jsonArray.getDouble(i);
-                }
-            }
-            */
         } catch (Exception e) {
             e.printStackTrace();
         }

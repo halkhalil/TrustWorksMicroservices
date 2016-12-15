@@ -9,8 +9,8 @@
 	<name>adminportal</name>
 
 	<properties>
-		<vaadin.version>7.6.6</vaadin.version><!--7.5.10-->
-		<vaadin.charts.version>3.1.0</vaadin.charts.version>
+		<vaadin.version>7.7.6</vaadin.version><!--7.5.10-->
+		<vaadin.charts.version>3.2.0</vaadin.charts.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
@@ -142,6 +142,23 @@
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>loginform</artifactId>
 			<version>0.6.2</version>
+		</dependency>
+
+		<!-- database -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>2.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sql2o</groupId>
+			<artifactId>sql2o</artifactId>
+			<version>1.5.4</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.37</version>
 		</dependency>
 
 		<!-- security -->

@@ -6,6 +6,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,16 +34,43 @@ public class DataContainer {
         this.periodStart = periodStart;
         this.periodEnd = periodEnd;
         dataAccess = new DataAccess();
+        long time = System.currentTimeMillis();
         userSalaryPerMonthList = dataAccess.getUserSalaryPerMonthByYear(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("userSalaryPerMonthList = " + time);
+        time = System.currentTimeMillis();
         capacityPerMonth = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("capacityPerMonth = " + time);
+        time = System.currentTimeMillis();
         expensesByMonth = dataAccess.getExpensesByPeriod(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("expensesByMonth = " + time);
+        time = System.currentTimeMillis();
         userAvailabilityPerMonthList = dataAccess.getUserAvailabilityPerMonthByYear(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("userAvailabilityPerMonthList = " + time);
+        time = System.currentTimeMillis();
         users = dataAccess.getUsers();
-        workRegistrationDelay = dataAccess.getWorkRegistrationDelay(2016);
-        revenueRate = dataAccess.getRevenueRate();
+        time = System.currentTimeMillis() - time;
+        System.out.println("users = " + time);
+        time = System.currentTimeMillis();
+        workRegistrationDelay = new ArrayList<>(); //dataAccess.getWorkRegistrationDelay(2016);
+        time = System.currentTimeMillis() - time;
+        System.out.println("workRegistrationDelay = " + time);
+        revenueRate = 0; //dataAccess.getRevenueRate();
+        time = System.currentTimeMillis();
         revenuePerMonth = dataAccess.getRevenuePerMonth(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("revenuePerMonth = " + time);
+        time = System.currentTimeMillis();
         projectRevenue = dataAccess.getProjectRevenue(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("projectRevenue = " + time);
+        time = System.currentTimeMillis();
         userRevenue = dataAccess.getUserRevenue(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("userRevenue = " + time);
     }
 
     public List<Salary> getUserSalaryPerMonthList() {
