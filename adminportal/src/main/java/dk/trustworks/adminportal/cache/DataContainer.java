@@ -19,7 +19,7 @@ public class DataContainer {
 
     private final DataAccess dataAccess;
     private final List<Salary> userSalaryPerMonthList;
-    private final List<Capacity> capacityPerMonth;
+    private final long[] capacityPerMonth;
     private final List<Expense> expensesByMonth;
     private final List<Availability> userAvailabilityPerMonthList;
     private final List<User> users;
@@ -58,7 +58,7 @@ public class DataContainer {
         workRegistrationDelay = new ArrayList<>(); //dataAccess.getWorkRegistrationDelay(2016);
         time = System.currentTimeMillis() - time;
         System.out.println("workRegistrationDelay = " + time);
-        revenueRate = 0; //dataAccess.getRevenueRate();
+        revenueRate = dataAccess.getRevenueRate();
         time = System.currentTimeMillis();
         revenuePerMonth = dataAccess.getRevenuePerMonth(periodStart, periodEnd);
         time = System.currentTimeMillis() - time;
@@ -77,7 +77,7 @@ public class DataContainer {
         return userSalaryPerMonthList;
     }
 
-    public List<Capacity> getCapacityPerMonth() {
+    public long[] getCapacityPerMonth() {
         return capacityPerMonth;
     }
 

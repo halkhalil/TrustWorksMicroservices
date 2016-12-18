@@ -186,6 +186,7 @@ public class UserRepository {
                     .addParameter("toDate", toDate)
                     .executeScalar(Integer.class);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return 0;
     }

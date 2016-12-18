@@ -38,8 +38,7 @@ public class UserPerformanceDesign extends CssLayout {
         Design.read(this);
         Double[] revenuePerDay = dataAccess.getRevenuePerDay();
         final int[] intArray = new int[revenuePerDay.length];
-        for (int i=0; i<intArray.length; ++i)
-            intArray[i] = revenuePerDay[i].intValue();
+        for (int i=0; i<intArray.length; ++i) intArray[i] = revenuePerDay[i].intValue();
 
         List<User> users = dataAccess.getUsers();
 
@@ -315,7 +314,7 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("Revenue");
             getConfiguration().getLegend().setEnabled(false);
 
-            Long[] revenuePerMonth = dataAccess.getRevenuePerMonthByCapacity(year);
+            long[] revenuePerMonth = dataAccess.getRevenuePerMonthByCapacity(periodStart, periodEnd);
             double sumRevenue = 0.0;
             for (Long amountPerItem : revenuePerMonth) {
                 sumRevenue += amountPerItem;
@@ -334,11 +333,11 @@ public class UserPerformanceDesign extends CssLayout {
             }
 
             //int[] capacityPerMonthByYear = dataAccess.getCapacityPerMonth(year);
-            List<Capacity> capacityPerMonthByYearList = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
-            int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.size()];
+            long[] capacityPerMonthByYearList = dataAccess.getCapacityPerMonth(periodStart, periodEnd);
+            int[] capacityPerMonthByYear = new int[capacityPerMonthByYearList.length];
             int j = 0;
-            for (Capacity capacity : capacityPerMonthByYearList) {
-                capacityPerMonthByYear[j++] = capacity.capacity;
+            for (long capacity : capacityPerMonthByYearList) {
+                capacityPerMonthByYear[j++] = (int)capacity;
             }
             ListSeries series2 = new ListSeries("Capacity");
 
