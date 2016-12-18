@@ -21,13 +21,14 @@ public class DataContainer {
     private final List<Salary> userSalaryPerMonthList;
     private final long[] capacityPerMonth;
     private final List<Expense> expensesByMonth;
-    private final List<Availability> userAvailabilityPerMonthList;
+    private final List<AmountPerItem> userAvailabilityPerMonthList;
     private final List<User> users;
     private final List<AmountPerItem> workRegistrationDelay;
     private final double revenueRate;
     private final List<AmountPerItem> projectRevenue;
     private final long[] revenuePerMonth;
     private final List<AmountPerItem> userRevenue;
+    private final List<AmountPerItem> billableHoursPerUser;
 
 
     public DataContainer(LocalDate periodStart, LocalDate periodEnd) {
@@ -71,6 +72,9 @@ public class DataContainer {
         userRevenue = dataAccess.getUserRevenue(periodStart, periodEnd);
         time = System.currentTimeMillis() - time;
         System.out.println("userRevenue = " + time);
+        billableHoursPerUser = dataAccess.getBillableHoursPerUser(periodStart, periodEnd);
+        time = System.currentTimeMillis() - time;
+        System.out.println("billableHoursPerUser = " + time);
     }
 
     public List<Salary> getUserSalaryPerMonthList() {
@@ -93,8 +97,12 @@ public class DataContainer {
         return expensesPerMonth;
     }
 
-    public List<Availability> getUserAvailabilityPerMonthList() {
+    public List<AmountPerItem> getUserAvailabilityPerMonthList() {
         return userAvailabilityPerMonthList;
+    }
+
+    public List<AmountPerItem> getUserAvailabilityPerMonthList(LocalDate periodStart, LocalDate periodEnd) {
+        return dataAccess.getUserAvailabilityPerMonthByYear(periodStart, periodEnd);
     }
 
     public List<User> getUsers() {
@@ -127,5 +135,21 @@ public class DataContainer {
 
     public List<AmountPerItem> getUserRevenue() {
         return userRevenue;
+    }
+
+    public List<AmountPerItem> getBillableHoursPerUser() {
+        return billableHoursPerUser;
+    }
+
+    public List<AmountPerItem> getBillableHoursPerUser(LocalDate periodStart, LocalDate periodEnd) {
+        return dataAccess.getBillableHoursPerUser(periodStart, periodEnd);
+    }
+
+    public List<AmountPerItem> getFreeDaysPerMonthPerUser(LocalDate periodStart, LocalDate periodEnd) {
+        return dataAccess.getFreeDaysPerMonthPerUser(periodStart, periodEnd);
+    }
+
+    public List<AmountPerItem> getSickDaysPerMonthPerUser(LocalDate periodStart, LocalDate periodEnd) {
+        return dataAccess.getSickDaysPerMonthPerUser(periodStart, periodEnd);
     }
 }

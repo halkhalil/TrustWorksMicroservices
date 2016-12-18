@@ -117,7 +117,7 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled((users.size() > 1));
 
             for (User user : users) {
-                Double[] daysPerMonth = dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid());
+                Double[] daysPerMonth = new Double[12];//dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid());
                 DataSeries sickdaysList = new DataSeries(user.username);
 
                 String[] categories = new String[daysPerMonth.length];
@@ -153,7 +153,7 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled((users.size() > 1));
 
             for (User user : users) {
-                Double[] daysPerMonth = dataAccess.getSickDaysPerMonthPerUser(year, user.getUseruuid());
+                Double[] daysPerMonth = new Double[12]; //dataAccess.getSickDaysPerMonthPerUser(year, user.getUseruuid());
                 DataSeries sickdaysList = new DataSeries(user.username);
 
                 String[] categories = new String[daysPerMonth.length];

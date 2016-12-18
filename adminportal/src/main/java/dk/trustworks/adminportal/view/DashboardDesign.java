@@ -12,6 +12,7 @@ import dk.trustworks.adminportal.cache.DataContainer;
 import dk.trustworks.adminportal.component.SparklineChart;
 import dk.trustworks.adminportal.domain.*;
 import dk.trustworks.framework.model.User;
+import net.sf.cglib.core.Local;
 import org.joda.time.*;
 
 import java.text.DateFormatSymbols;
@@ -139,9 +140,9 @@ public class DashboardDesign extends CssLayout {
         dashboard_item28.removeAllComponents();
         dashboard_item28.addComponent(revenuePerMonthByCapacityChart);
 
-        //BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year);
+        BillableHoursPerEmployeesChart billableHoursPerEmployeesChart = new BillableHoursPerEmployeesChart(year, dataContainer);
         dashboard_item29.removeAllComponents();
-        //dashboard_item29.addComponent(billableHoursPerEmployeesChart);
+        dashboard_item29.addComponent(billableHoursPerEmployeesChart);
 
         RevenueRateChart revenueRateChart = new RevenueRateChart(year, dataContainer);
         dashboard_item31.removeAllComponents();
@@ -397,6 +398,8 @@ public class DashboardDesign extends CssLayout {
             long[] expensesByMonth = dataContainer.getExpensesByMonth(null);
 
             for (int i = 0; i < income.length; i++) {
+                System.out.println("revenuePerMonth = " + revenuePerMonth[i]);
+                System.out.println("expensesByMonth = " + expensesByMonth[i]);
                 income[i] = revenuePerMonth[i] - expensesByMonth[i];
             }
 
@@ -440,12 +443,14 @@ public class DashboardDesign extends CssLayout {
             long[] revenuePerMonth = dataContainer.getRevenuePerMonth();
             long[] capacityPerMonth = dataContainer.getCapacityPerMonth();
 
+            long[] revenueByCapacity = new long[revenuePerMonth.length];
+
             for (int i = 0; i < revenuePerMonth.length; i++) {
-                revenuePerMonth[i] = Math.round(revenuePerMonth[i] / (capacityPerMonth[i]/37.0f));
+                revenueByCapacity[i] = Math.round(revenuePerMonth[i] / (capacityPerMonth[i]/37.0f));
             }
 
             double sumRevenue = 0.0;
-            for (Long amountPerItem : revenuePerMonth) {
+            for (Long amountPerItem : revenueByCapacity) {
                 sumRevenue += amountPerItem;
             }
             double avgRevenue;
@@ -476,7 +481,7 @@ public class DashboardDesign extends CssLayout {
             DataSeries revenueSeries = new DataSeries("Revenue");
             for (int i = 0; i < 12; i++) {
                 int month = periodStart.plusMonths(i).getMonthOfYear();
-                revenueSeries.add(new DataSeriesItem(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenuePerMonth[i]));
+                revenueSeries.add(new DataSeriesItem(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), revenueByCapacity[i]));
                 avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));// for "+Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), avgRevenue));
                 expensesList.add(new DataSeriesItem("Expense for "+Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), expensesByCapacity[i]));
 
@@ -513,7 +518,10 @@ public class DashboardDesign extends CssLayout {
 
     public class BillableHoursPerEmployeesChart extends Chart {
 
-        public BillableHoursPerEmployeesChart(int year) {
+        public BillableHoursPerEmployeesChart(int year, DataContainer dataContainer) {
+            LocalDate periodStart = new LocalDate(year-1, 7, 01);
+            LocalDate periodEnd = new LocalDate(year, 7, 01);
+
             setWidth("100%");  // 100% by default
             setHeight("280px"); // 400px by default
             //setSizeFull();
@@ -528,15 +536,37 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getyAxis().setTitle("");
             getConfiguration().getLegend().setEnabled(false);
 
-            List<AmountPerItem> billableHoursPerUserList = null; //dataAccess.getBillableHoursPerUser(year, true);
-            List<AmountPerItem> billableHoursPercentagePerUserList = null; //dataAccess.getBillableHoursPercentagePerUser(year, true);
+            List<AmountPerItem> billableHoursPerUserList = dataContainer.getBillableHoursPerUser();
+            List<AmountPerItem> billableHoursPercentagePerUserList = new ArrayList<>(); //dataAccess.getBillableHoursPercentagePerUser(year, true);
+
+            List<AmountPerItem> userAvailabilityPerMonthByYear = dataContainer.getUserAvailabilityPerMonthList(periodStart, LocalDate.now().plusMonths(1).withDayOfMonth(1));
+            /*
+
+            for (AmountPerItem availability : userAvailabilityPerMonthByYear) {
+                userAvailability.putIfAbsent(availability.uuid, 0.0);
+                userAvailability.put(availability.uuid, userAvailability.get(availability.uuid) + availability.amount);
+            }*/
+            for (AmountPerItem availability : userAvailabilityPerMonthByYear) {
+                int months = new Period(periodStart, periodEnd, PeriodType.months()).getMonths();
+                availability.amount /= months; // average per week
+                availability.amount /= 5; // average per day
+                double weekDays = countWeekDays(periodStart, periodEnd);
+                weekDays -= (months / 12f) * 9f;
+                Optional<AmountPerItem> amountPerItem = dataContainer.getFreeDaysPerMonthPerUser(periodStart, LocalDate.now()).stream().filter(p -> p.uuid.equals(availability.uuid)).findFirst();
+                if(amountPerItem.isPresent()) weekDays -= amountPerItem.get().amount;
+                availability.amount *= weekDays; // total hours in period excl. weekends
+                Optional<AmountPerItem> userBillableHours = billableHoursPerUserList.stream().filter(p -> p.uuid.equals(availability.uuid)).findFirst();
+                if(amountPerItem.isPresent()) billableHoursPercentagePerUserList.add(new AmountPerItem(availability.uuid, availability.description, (userBillableHours.get().amount / availability.amount)* 100.0));
+                System.out.println("useruuid = " + availability.description);
+                System.out.println("userAvailability = " + availability.amount);
+            }
+
 /*
-            Map<String, int[]> userAvailabilityPerMonthByYear = dataAccess.getUserAvailabilityPerMonthByYear(year);
 
             Map<String, Integer> userVacation = new HashMap<>();
-            for (User user : dataAccess.getUsers()) {
+            for (User user : dataContainer.getUsers()) {
                 int vacationDays = 0;
-                for (Double days : dataAccess.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
+                for (Double days : dataContainer.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
                     vacationDays += days;
                 }
                 for (int i = 0; i < 12; i++) {
@@ -548,8 +578,8 @@ public class DashboardDesign extends CssLayout {
                     }
                 }
                 userVacation.put(user.getUseruuid(), vacationDays);
-            }*/
-
+            }
+*/
             double sumHours = 0.0;
             for (AmountPerItem amountPerItem : billableHoursPerUserList) {
                 sumHours += amountPerItem.amount;
@@ -590,6 +620,7 @@ public class DashboardDesign extends CssLayout {
             billableHoursPercentage.setPlotOptions(options3);
 
             Map<String, Double> userBillableHoursPercentageMap = new HashMap<>();
+
             for (AmountPerItem amountPerItem : billableHoursPercentagePerUserList) {
                 userBillableHoursPercentageMap.put(amountPerItem.uuid, amountPerItem.amount);
             }
@@ -618,6 +649,26 @@ public class DashboardDesign extends CssLayout {
             Credits c = new Credits("");
             getConfiguration().setCredits(c);
         }
+    }
+
+    public int countWeekDays(LocalDate periodStart, LocalDate periodEnd) {
+        LocalDate weekday = periodStart;
+
+        if (periodStart.getDayOfWeek() == DateTimeConstants.SATURDAY ||
+                periodStart.getDayOfWeek() == DateTimeConstants.SUNDAY) {
+            weekday = weekday.plusWeeks(1).withDayOfWeek(DateTimeConstants.MONDAY);
+        }
+
+        int count = 0;
+        while (weekday.isBefore(periodEnd)) {
+            System.out.println(weekday);
+            count++;
+            if (weekday.getDayOfWeek() == DateTimeConstants.FRIDAY)
+                weekday = weekday.plusDays(3);
+            else
+                weekday = weekday.plusDays(1);
+        }
+        return count;
     }
 
     public class NetProfitPerEmployeesChart extends Chart {
@@ -650,7 +701,7 @@ public class DashboardDesign extends CssLayout {
             List<Salary> userSalaryPerMonthList = dataContainer.getUserSalaryPerMonthList();//dataAccess.getUserSalaryPerMonthByYear(periodStart, periodEnd);
             long[] capacityPerMonth = dataContainer.getCapacityPerMonth(); // dataAccess.getCapacityPerMonth(periodStart, periodEnd);
             long[] expensesByMonth = dataContainer.getExpensesByMonth(ExpenseType.EXPENSE); //dataAccess.getExpensesByPeriod(periodStart, periodEnd, ExpenseType.EXPENSE);
-            List<Availability> userAvailabilityPerMonthList = dataContainer.getUserAvailabilityPerMonthList(); //dataAccess.getUserAvailabilityPerMonthByYear(periodStart, periodEnd);
+            //List<Availability> userAvailabilityPerMonthList = dataContainer.getUserAvailabilityPerMonthList(); //dataAccess.getUserAvailabilityPerMonthByYear(periodStart, periodEnd);
 
             long[] allExpenses = new long[12];
             for (int i = 0; i < 12; i++) {
@@ -667,14 +718,14 @@ public class DashboardDesign extends CssLayout {
                 expensesByYear[i] = expensesByYearPrevYear[i+6];
             }
             */
-
+/*
             Map<String, int[]> userAvailabilityPerMonthByYear = new HashMap<>();
             for (Availability availability: userAvailabilityPerMonthList) {
                 if(!userAvailabilityPerMonthByYear.containsKey(availability.useruuid))
                     userAvailabilityPerMonthByYear.put(availability.useruuid, new int[12]);
                 userAvailabilityPerMonthByYear.get(availability.useruuid)[Months.monthsBetween(periodStart, availability.activeDate).getMonths()] = 1;
             }
-
+*/
             int[] capacityPerMonthByYear = new int[capacityPerMonth.length];
             int j = 0;
             for (long capacity : capacityPerMonth) {
@@ -736,7 +787,7 @@ public class DashboardDesign extends CssLayout {
                 if(debug) System.out.println("monthLimit = " + monthLimit);
                 */
                 //if(DateTime.now().getYear() > year) monthLimit = 12;
-
+/*
                 for (int i = 0; i < monthLimit; i++) {
                     if(salaries[i] > 0.0 && userAvailabilityPerMonthByYear.get(userUUID) != null && userAvailabilityPerMonthByYear.get(userUUID)[i] == 1) {
                         //if(debug) System.out.println("netIncome = " + netIncome + " + " + (revenuePerMonthPerUser[i]));
@@ -750,6 +801,7 @@ public class DashboardDesign extends CssLayout {
                     }
 
                 }
+                */
                 if(netIncome > 0) {
                     StringBuilder shortname = new StringBuilder();
                     String name = userUUID;

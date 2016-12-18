@@ -23,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
-import org.sql2o.data.Row;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -221,17 +220,28 @@ public class DataAccess implements Serializable {
         return new long[12];
     }
 
-    public List<AmountPerItem> getBillableHoursPerUser(int year, boolean fiscal) {
-        try {
-            HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/billablehoursperuser")
-                    .queryString("year", year)
-                    .queryString("fiscal", fiscal)
-                    .header("accept", "application/json")
-                    .header("jwt-token", (String) VaadinSession.getCurrent().getAttribute("jwtToken"))
-                    .asJson();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<AmountPerItem>>() {});
+    public List<AmountPerItem> getBillableHoursPerUser(LocalDate periodStart, LocalDate periodEnd) {
+        System.out.println("DataAccess.getBillableHoursPerUser");
+        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
+        Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+
+        List<AmountPerItem> hoursPerUser;
+        try (Connection con = sql2o.open()) {
+            hoursPerUser = con.createQuery("SELECT concat(u.firstname, ' ', u.lastname) description, u.uuid uuid, SUM(w.workduration) amount " +
+                    "FROM timemanager.work_latest w " +
+                    "INNER JOIN usermanager.user u ON w.useruuid = u.uuid " +
+                    "INNER JOIN clientmanager.task t ON w.taskuuid = t.uuid " +
+                    "INNER JOIN clientmanager.project p ON t.projectuuid = p.uuid " +
+                    "INNER JOIN clientmanager.client c ON p.clientuuid = c.uuid " +
+                    "WHERE c.uuid NOT LIKE '40c93307-1dfa-405a-8211-37cbda75318b' AND " +
+                    "((w.year*10000)+((w.month+1)*100)+w.day) between :periodStart AND :periodEnd " +
+                    "GROUP BY u.uuid " +
+                    "ORDER BY amount DESC;")
+                    .addParameter("periodStart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodEnd", periodEnd.toString("yyyyMMdd"))
+                    .executeAndFetch(AmountPerItem.class);
+            con.close();
+            return hoursPerUser;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -295,7 +305,29 @@ public class DataAccess implements Serializable {
         return new long[12];
     }
 
-    public Double[] getSickDaysPerMonthPerUser(int year, String useruuid) {
+    public List<AmountPerItem> getSickDaysPerMonthPerUser(LocalDate periodStart, LocalDate periodEnd) {
+        Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+
+        try (Connection con = sql2o.open()) {
+            List<AmountPerItem> hoursPerUser = con.createQuery("SELECT useruuid uuid, SUM(vacation) amount, description FROM ( " +
+                    "SELECT w.useruuid useruuid, CONCAT(u.firstname, ' ', u.lastname) description, IF(w.workduration > 0, 1, 0) vacation " +
+                    "FROM timemanager.work_latest w " +
+                    "INNER JOIN user u ON u.uuid = w.useruuid " +
+                    "WHERE w.taskuuid LIKE '02bf71c5-f588-46cf-9695-5864020eb1c4' AND " +
+                    "((w.year*10000)+((w.month+1)*100)+w.day) between :periodStart AND :periodEnd " +
+                    "GROUP BY w.useruuid, w.year, w.month, w.day) m2 GROUP BY uuid;")
+                    .addParameter("periodStart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodEnd", periodEnd.toString("yyyyMMdd"))
+                    .executeAndFetch(AmountPerItem.class);
+            return hoursPerUser;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Deprecated
+    public Double[] getSickDaysPerMonthPerUserRest(int year, String useruuid) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/sickdayspermonthperuser")
                     .queryString("year", year)
@@ -318,7 +350,29 @@ public class DataAccess implements Serializable {
         return new Double[12];
     }
 
-    public Double[] getFreeDaysPerMonthPerUser(int year, String useruuid) {
+    public List<AmountPerItem> getFreeDaysPerMonthPerUser(LocalDate periodStart, LocalDate periodEnd) {
+        Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+
+        try (Connection con = sql2o.open()) {
+            List<AmountPerItem> hoursPerUser = con.createQuery("SELECT useruuid uuid, SUM(vacation) amount, description FROM ( " +
+                    "SELECT w.useruuid useruuid, CONCAT(u.firstname, ' ', u.lastname) description, IF(w.workduration > 0, 1, 0) vacation " +
+                    "FROM timemanager.work_latest w " +
+                    "INNER JOIN user u ON u.uuid = w.useruuid " +
+                    "WHERE w.taskuuid LIKE 'f585f46f-19c1-4a3a-9ebd-1a4f21007282' AND " +
+                    "((w.year*10000)+((w.month+1)*100)+w.day) between :periodStart AND :periodEnd " +
+                    "GROUP BY w.useruuid, w.year, w.month, w.day) m2 GROUP BY uuid;")
+                    .addParameter("periodStart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodEnd", periodEnd.toString("yyyyMMdd"))
+                    .executeAndFetch(AmountPerItem.class);
+            return hoursPerUser;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Deprecated
+    public Double[] getFreeDaysPerMonthPerUserRest(int year, String useruuid) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("biservice") + "/api/statistics/freedayspermonthperuser")
                     .queryString("year", year)
@@ -422,6 +476,22 @@ public class DataAccess implements Serializable {
     }
 
     public List<Expense> getExpensesByPeriod(LocalDate periodStart, LocalDate periodEnd) {
+        Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+
+        try (Connection con = sql2o.open()) {
+            return con.createQuery("SELECT * FROM financemanager.expenses " +
+                    "WHERE ((year*10000)+((month+1)*100)+1) between :periodstart and :periodend;")
+                    .addParameter("periodstart", periodStart.toString("yyyyMMdd"))
+                    .addParameter("periodend", periodEnd.toString("yyyyMMdd"))
+                    .executeAndFetch(Expense.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Deprecated
+    public List<Expense> getExpensesByPeriodRest(LocalDate periodStart, LocalDate periodEnd) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("financeservice") + "/api/expenses")
                     .header("accept", "application/json")
@@ -494,7 +564,36 @@ public class DataAccess implements Serializable {
         return new ArrayList<>();
     }
 
-    public List<Availability> getUserAvailabilityPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
+    public List<AmountPerItem> getUserAvailabilityPerMonthByYear(LocalDate periodStart, LocalDate periodEnd) {
+        Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+
+        String sql = "SELECT uuid, SUM(amount) amount, description FROM ( ";
+        LocalDate localDate = periodStart;
+        do {
+            System.out.println("localDate = " + localDate);
+            sql += "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount FROM user u RIGHT JOIN ( " +
+                    "SELECT t.useruuid, t.status, t.statusdate, t.allocation from userstatus t inner join ( " +
+                    "SELECT useruuid, status, max(statusdate) as MaxDate from userstatus WHERE statusdate <= '"+localDate.toString("yyyy-MM-dd")+"' group by useruuid ) tm " +
+                    "ON t.useruuid = tm.useruuid AND t.statusdate = tm.MaxDate ) usi " +
+                    "ON u.uuid = usi.useruuid GROUP BY uuid";
+            localDate = localDate.plusMonths(1);
+            if(!localDate.isEqual(periodEnd)) sql += " UNION ALL ";
+        } while (!localDate.isEqual(periodEnd));
+        sql += ") m2 GROUP BY uuid;";
+
+        List<AmountPerItem> longs;
+        try(Connection con = sql2o.open()) {
+            longs = con.createQuery(sql).executeAndFetch(AmountPerItem.class);
+            con.close();
+            return longs;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Deprecated
+    public List<Availability> getUserAvailabilityPerMonthByYearRest(LocalDate periodStart, LocalDate periodEnd) {
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/availabilities")
                     .queryString("periodStart", periodStart)

@@ -27,11 +27,11 @@ public class MenuDesign extends VerticalLayout {
     public MenuDesign() {
         Design.read(this);
         DashboardDesign dashboardDesign = new DashboardDesign();
-        UserPerformanceDesign userPerformanceDesign = new UserPerformanceDesign();
+        UserPerformanceDesign userPerformanceDesign = null;//new UserPerformanceDesign();
         // TODO: make this work
         //UserDesign userDesign = new UserDesign();
-        ExpenseView expenseView = new ExpenseView();
-        MicroServicesDesign microServicesDesign = new MicroServicesDesign();
+        ExpenseView expenseView = null;//new ExpenseView();
+        MicroServicesDesign microServicesDesign = null;//new MicroServicesDesign();
 
         menuButton1.addClickListener((Button.ClickListener) event -> {
             menuButton1.addStyleName("selected");
