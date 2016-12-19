@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/employeemanager/employeemanager.iml" filepath="$PROJECT_DIR$/employeemanager/employeemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/financemanager/financemanager.iml" filepath="$PROJECT_DIR$/financemanager/financemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/personalassistant/personalassistant.iml" filepath="$PROJECT_DIR$/personalassistant/personalassistant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/salesmanager/salesmanager.iml" filepath="$PROJECT_DIR$/salesmanager/salesmanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/servicemanager/servicemanager.iml" filepath="$PROJECT_DIR$/servicemanager/servicemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/timemanager/timemanager.iml" filepath="$PROJECT_DIR$/timemanager/timemanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/trustworks-framework/trustworks-framework.iml" filepath="$PROJECT_DIR$/trustworks-framework/trustworks-framework.iml" />

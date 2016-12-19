@@ -221,8 +221,6 @@ public class DataAccess implements Serializable {
     }
 
     public List<AmountPerItem> getBillableHoursPerUser(LocalDate periodStart, LocalDate periodEnd) {
-        System.out.println("DataAccess.getBillableHoursPerUser");
-        System.out.println("periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
 
         List<AmountPerItem> hoursPerUser;
@@ -312,7 +310,7 @@ public class DataAccess implements Serializable {
             List<AmountPerItem> hoursPerUser = con.createQuery("SELECT useruuid uuid, SUM(vacation) amount, description FROM ( " +
                     "SELECT w.useruuid useruuid, CONCAT(u.firstname, ' ', u.lastname) description, IF(w.workduration > 0, 1, 0) vacation " +
                     "FROM timemanager.work_latest w " +
-                    "INNER JOIN user u ON u.uuid = w.useruuid " +
+                    "INNER JOIN usermanager.user u ON u.uuid = w.useruuid " +
                     "WHERE w.taskuuid LIKE '02bf71c5-f588-46cf-9695-5864020eb1c4' AND " +
                     "((w.year*10000)+((w.month+1)*100)+w.day) between :periodStart AND :periodEnd " +
                     "GROUP BY w.useruuid, w.year, w.month, w.day) m2 GROUP BY uuid;")
@@ -357,7 +355,7 @@ public class DataAccess implements Serializable {
             List<AmountPerItem> hoursPerUser = con.createQuery("SELECT useruuid uuid, SUM(vacation) amount, description FROM ( " +
                     "SELECT w.useruuid useruuid, CONCAT(u.firstname, ' ', u.lastname) description, IF(w.workduration > 0, 1, 0) vacation " +
                     "FROM timemanager.work_latest w " +
-                    "INNER JOIN user u ON u.uuid = w.useruuid " +
+                    "INNER JOIN usermanager.user u ON u.uuid = w.useruuid " +
                     "WHERE w.taskuuid LIKE 'f585f46f-19c1-4a3a-9ebd-1a4f21007282' AND " +
                     "((w.year*10000)+((w.month+1)*100)+w.day) between :periodStart AND :periodEnd " +
                     "GROUP BY w.useruuid, w.year, w.month, w.day) m2 GROUP BY uuid;")
@@ -515,12 +513,12 @@ public class DataAccess implements Serializable {
         String sql = "SELECT * FROM (";
         LocalDate localDate = periodStart;
         do {
-            sql += "SELECT SUM(allocation) alle FROM user u RIGHT JOIN ( " +
+            sql += "SELECT SUM(allocation) alle FROM usermanager.user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
                     "select useruuid, status, max(statusdate) as MaxDate " +
-                    "from userstatus " +
+                    "from usermanager.userstatus " +
                     "WHERE statusdate <= '"+localDate.toString("yyyy-MM-dd")+"' " +
                     "group by useruuid " +
                     ") tm " +
@@ -570,10 +568,9 @@ public class DataAccess implements Serializable {
         String sql = "SELECT uuid, SUM(amount) amount, description FROM ( ";
         LocalDate localDate = periodStart;
         do {
-            System.out.println("localDate = " + localDate);
-            sql += "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount FROM user u RIGHT JOIN ( " +
-                    "SELECT t.useruuid, t.status, t.statusdate, t.allocation from userstatus t inner join ( " +
-                    "SELECT useruuid, status, max(statusdate) as MaxDate from userstatus WHERE statusdate <= '"+localDate.toString("yyyy-MM-dd")+"' group by useruuid ) tm " +
+            sql += "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount FROM usermanager.user u RIGHT JOIN ( " +
+                    "SELECT t.useruuid, t.status, t.statusdate, t.allocation from usermanager.userstatus t inner join ( " +
+                    "SELECT useruuid, status, max(statusdate) as MaxDate from usermanager.userstatus WHERE statusdate <= '"+localDate.toString("yyyy-MM-dd")+"' group by useruuid ) tm " +
                     "ON t.useruuid = tm.useruuid AND t.statusdate = tm.MaxDate ) usi " +
                     "ON u.uuid = usi.useruuid GROUP BY uuid";
             localDate = localDate.plusMonths(1);
@@ -871,11 +868,7 @@ public class DataAccess implements Serializable {
 
     public double getRevenueRate() {
         long[] thisMonthRevenue = getRevenuePerMonthByCapacity(LocalDate.now().minusMonths(1), LocalDate.now());
-        System.out.println("thisMonthRevenue = " + thisMonthRevenue.length);
-        System.out.println("thisMonthRevenue[0] = " + thisMonthRevenue[0]);
         long[] lastYearMonthRevenue = getRevenuePerMonthByCapacity(LocalDate.now().minusYears(1).minusMonths(1), LocalDate.now().minusYears(1));
-        System.out.println("lastYearMonthRevenue = " + lastYearMonthRevenue.length);
-        System.out.println("lastYearMonthRevenue[0] = " + lastYearMonthRevenue[0]);
         return (((float)thisMonthRevenue[0])/((float)lastYearMonthRevenue[0]));
     }
 

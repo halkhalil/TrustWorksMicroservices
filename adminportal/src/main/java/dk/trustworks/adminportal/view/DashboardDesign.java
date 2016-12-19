@@ -43,9 +43,6 @@ public class DashboardDesign extends CssLayout {
         int year = 2016;
         double weeks = 46.14285714285714;
         if(year == new DateTime().getYear()) weeks = (new DateTime().getDayOfYear() / 7.80769230769217f);
-        System.out.println("new DateTime().getDayOfYear() = " + new DateTime().getDayOfYear());
-        System.out.println("weeks = " + weeks);
-        System.out.println(Math.round((215 / weeks) * 100.0) / 100.0);
     }
 
 	public DashboardDesign() {
@@ -150,9 +147,9 @@ public class DashboardDesign extends CssLayout {
 
         //ProjectDetailChart projectDetailChart = new ProjectDetailChart();
 
-        NetProfitPerEmployeesChart netProfitPerEmployeesChart = new NetProfitPerEmployeesChart(periodStart, periodEnd, dataContainer);
+        //NetProfitPerEmployeesChart netProfitPerEmployeesChart = new NetProfitPerEmployeesChart(periodStart, periodEnd, dataContainer);
         dashboard_item32.removeAllComponents();
-        dashboard_item32.addComponent(netProfitPerEmployeesChart);
+        //dashboard_item32.addComponent(netProfitPerEmployeesChart);
 
         CumulativeFiscalYearIncomeChart cumulativeFiscalYearIncomeChart = new CumulativeFiscalYearIncomeChart(year, dataContainer);
         dashboard_item34.removeAllComponents();
@@ -178,7 +175,6 @@ public class DashboardDesign extends CssLayout {
             List<AmountPerItem> amountPerItemList = dataContainer.getUserRevenue();
             double sumRevenue = 0.0;
             for (AmountPerItem amountPerItem : amountPerItemList) {
-                //System.out.println("amountPerItem = " + amountPerItem);
                 sumRevenue += amountPerItem.amount;
             }
             double avgRevenue = sumRevenue / amountPerItemList.size();
@@ -398,8 +394,6 @@ public class DashboardDesign extends CssLayout {
             long[] expensesByMonth = dataContainer.getExpensesByMonth(null);
 
             for (int i = 0; i < income.length; i++) {
-                System.out.println("revenuePerMonth = " + revenuePerMonth[i]);
-                System.out.println("expensesByMonth = " + expensesByMonth[i]);
                 income[i] = revenuePerMonth[i] - expensesByMonth[i];
             }
 
@@ -540,12 +534,7 @@ public class DashboardDesign extends CssLayout {
             List<AmountPerItem> billableHoursPercentagePerUserList = new ArrayList<>(); //dataAccess.getBillableHoursPercentagePerUser(year, true);
 
             List<AmountPerItem> userAvailabilityPerMonthByYear = dataContainer.getUserAvailabilityPerMonthList(periodStart, LocalDate.now().plusMonths(1).withDayOfMonth(1));
-            /*
 
-            for (AmountPerItem availability : userAvailabilityPerMonthByYear) {
-                userAvailability.putIfAbsent(availability.uuid, 0.0);
-                userAvailability.put(availability.uuid, userAvailability.get(availability.uuid) + availability.amount);
-            }*/
             for (AmountPerItem availability : userAvailabilityPerMonthByYear) {
                 int months = new Period(periodStart, periodEnd, PeriodType.months()).getMonths();
                 availability.amount /= months; // average per week
@@ -557,29 +546,8 @@ public class DashboardDesign extends CssLayout {
                 availability.amount *= weekDays; // total hours in period excl. weekends
                 Optional<AmountPerItem> userBillableHours = billableHoursPerUserList.stream().filter(p -> p.uuid.equals(availability.uuid)).findFirst();
                 if(amountPerItem.isPresent()) billableHoursPercentagePerUserList.add(new AmountPerItem(availability.uuid, availability.description, (userBillableHours.get().amount / availability.amount)* 100.0));
-                System.out.println("useruuid = " + availability.description);
-                System.out.println("userAvailability = " + availability.amount);
             }
 
-/*
-
-            Map<String, Integer> userVacation = new HashMap<>();
-            for (User user : dataContainer.getUsers()) {
-                int vacationDays = 0;
-                for (Double days : dataContainer.getFreeDaysPerMonthPerUser(year, user.getUseruuid())) {
-                    vacationDays += days;
-                }
-                for (int i = 0; i < 12; i++) {
-                    int[] availabilityPerMonth = userAvailabilityPerMonthByYear.get(user.getUseruuid());
-                    int available = 0;
-                    if(availabilityPerMonth!=null) available = availabilityPerMonth[i];
-                    if(available==0) {
-                        vacationDays += new DateTime(year, i+1, 1, 1, 1).dayOfMonth().getMaximumValue();
-                    }
-                }
-                userVacation.put(user.getUseruuid(), vacationDays);
-            }
-*/
             double sumHours = 0.0;
             for (AmountPerItem amountPerItem : billableHoursPerUserList) {
                 sumHours += amountPerItem.amount;
@@ -594,19 +562,7 @@ public class DashboardDesign extends CssLayout {
             options2.setColor(SolidColor.BLACK);
             options2.setMarker(new Marker(false));
             avgRevenueList.setPlotOptions(options2);
-/*
-            DataSeries avgPerWeek = new DataSeries("Billable Hours Percentage");
 
-            YAxis yaxis = new YAxis();
-            yaxis.setTitle("Billable Hours Percentage");
-            yaxis.setOpposite(true);
-            yaxis.setMin(0);
-            getConfiguration().addyAxis(yaxis);
-
-            PlotOptionsLine options3 = new PlotOptionsLine();
-            options3.setColor(SolidColor.RED);
-            avgPerWeek.setPlotOptions(options3);
-*/
             DataSeries billableHoursPercentage = new DataSeries("Billable Hours Percentage");
 
             YAxis yaxis = new YAxis();
@@ -629,9 +585,6 @@ public class DashboardDesign extends CssLayout {
             for (AmountPerItem amountPerItem : billableHoursPerUserList) {
                 revenueList.add(new DataSeriesItem(amountPerItem.description, amountPerItem.amount));
                 billableHoursPercentage.add(new DataSeriesItem(amountPerItem.description, userBillableHoursPercentageMap.get(amountPerItem.uuid)));
-                //double weeks = 52;
-                //if(year == new DateTime().getYear()) weeks = ((new DateTime().getDayOfYear() - userVacation.get(amountPerItem.uuid)) / 7.0);
-                //avgPerWeek.add(new DataSeriesItem(amountPerItem.description, (Math.round(((amountPerItem.amount / weeks) * 1) * 100.0) / 100.0)));
                 avgRevenueList.add(new DataSeriesItem("Average hours", avgRevenue));
                 StringBuilder shortname = new StringBuilder();
                 for (String s : amountPerItem.description.split(" ")) {
@@ -643,7 +596,6 @@ public class DashboardDesign extends CssLayout {
             getConfiguration().getxAxis().setCategories(categories);
             getConfiguration().addSeries(revenueList);
             getConfiguration().addSeries(avgRevenueList);
-            //getConfiguration().addSeries(avgPerWeek);
             getConfiguration().addSeries(billableHoursPercentage);
             billableHoursPercentage.setyAxis(yaxis);
             Credits c = new Credits("");
@@ -661,7 +613,6 @@ public class DashboardDesign extends CssLayout {
 
         int count = 0;
         while (weekday.isBefore(periodEnd)) {
-            System.out.println(weekday);
             count++;
             if (weekday.getDayOfWeek() == DateTimeConstants.FRIDAY)
                 weekday = weekday.plusDays(3);
@@ -759,7 +710,6 @@ public class DashboardDesign extends CssLayout {
             for (String userUUID : userSalaryPerMonthByYear.keySet()) {
                 boolean debug = false;
                 if(userUUID.equals("7948c5e8-162c-4053-b905-0f59a21d7746")) debug = true;
-                //if(debug) System.out.println("Hans...");
 
                 double netIncome = 0.0;
 

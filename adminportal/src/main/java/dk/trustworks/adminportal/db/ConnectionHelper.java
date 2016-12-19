@@ -3,6 +3,8 @@ package dk.trustworks.adminportal.db;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.util.Properties;
+
 /**
  * Created by hans on 15/12/2016.
  */
@@ -14,10 +16,17 @@ public class ConnectionHelper {
 
     private ConnectionHelper() {
         //jdbc:mysql://trustworksdb.cm3iylt6ulsl.eu-west-1.rds.amazonaws.com:3306/
+
+        Properties props = System.getProperties();
+        //props.setProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+        //props.setProperty("dataSource.user", "test");
+        //props.setProperty("dataSource.password", "test");
+        //props.setProperty("dataSource.databaseName", "mydb");
+
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/usermanager");
-        config.setUsername("financeuser");
-        config.setPassword("Nostromo2014");
+        config.setJdbcUrl(props.getProperty("db.url"));
+        config.setUsername(props.getProperty("db.user"));
+        config.setPassword(props.getProperty("db.password"));
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");

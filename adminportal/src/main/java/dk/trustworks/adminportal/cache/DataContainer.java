@@ -36,7 +36,7 @@ public class DataContainer {
         this.periodEnd = periodEnd;
         dataAccess = new DataAccess();
         long time = System.currentTimeMillis();
-        userSalaryPerMonthList = dataAccess.getUserSalaryPerMonthByYear(periodStart, periodEnd);
+        userSalaryPerMonthList = null;//dataAccess.getUserSalaryPerMonthByYear(periodStart, periodEnd);
         time = System.currentTimeMillis() - time;
         System.out.println("userSalaryPerMonthList = " + time);
         time = System.currentTimeMillis();
