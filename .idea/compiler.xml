@@ -27,6 +27,7 @@
       <module name="employeemanager" target="1.8" />
       <module name="financemanager" target="1.8" />
       <module name="personalassistant" target="1.8" />
+      <module name="salesmanager" target="1.5" />
       <module name="servicemanager" target="1.8" />
       <module name="timemanager" target="1.8" />
       <module name="trustworks-framework" target="1.8" />
