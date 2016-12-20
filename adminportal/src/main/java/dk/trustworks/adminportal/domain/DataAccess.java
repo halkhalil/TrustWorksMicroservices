@@ -513,18 +513,7 @@ public class DataAccess implements Serializable {
         String sql = "SELECT * FROM (";
         LocalDate localDate = periodStart;
         do {
-            sql += "SELECT SUM(allocation) alle FROM usermanager.user u RIGHT JOIN ( " +
-                    "select t.useruuid, t.status, t.statusdate, t.allocation " +
-                    "from userstatus t " +
-                    "inner join ( " +
-                    "select useruuid, status, max(statusdate) as MaxDate " +
-                    "from usermanager.userstatus " +
-                    "WHERE statusdate <= '"+localDate.toString("yyyy-MM-dd")+"' " +
-                    "group by useruuid " +
-                    ") tm " +
-                    "on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
-                    ") usi " +
-                    "ON u.uuid = usi.useruuid";
+            sql += "SELECT SUM(allocation) alle FROM usermanager.user u RIGHT JOIN ( select t.useruuid, t.status, t.statusdate, t.allocation from userstatus t inner join ( select useruuid, status, max(statusdate) as MaxDate from usermanager.userstatus WHERE statusdate <= '"+localDate.toString("yyyy-MM-dd")+"' group by useruuid ) tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate ) usi ON u.uuid = usi.useruuid";
             localDate = localDate.plusMonths(1);
             if(!localDate.isEqual(periodEnd)) sql += " UNION ALL ";
         } while (!localDate.isEqual(periodEnd));
