@@ -42,6 +42,7 @@ public class MyUI extends UI {
                 DefaultVerticalLoginForm loginForm = new DefaultVerticalLoginForm();
                 loginForm.addLoginListener((LoginForm.LoginListener) event -> {
                     try {
+                        if(!event.getUserName().equals("admin") && !event.getPassword().equals("volenti")) throw new Exception("Could not log in");
                         /*
                         JwtToken jwtToken = new DataAccess().getJwtToken(event.getUserName(), event.getPassword());
                         byte[] decode = Base64.getDecoder().decode(jwtToken.jwtToken.split("\\.")[1]);

@@ -58,6 +58,7 @@ public class ServiceApplication {
         ClientProxyZookeeper adminPortalProxy = new ClientProxyZookeeper("adminportal");
         ClientProxyZookeeper financeProxy = new ClientProxyZookeeper("financeservice");
         ClientProxyZookeeper motherProxy = new ClientProxyZookeeper("motherservice");
+        ClientProxyZookeeper salesPortalProxy = new ClientProxyZookeeper("salesportal");
 
         /*
         final Map<String, char[]> users = new HashMap<>(2);
@@ -82,6 +83,7 @@ public class ServiceApplication {
                         .addPrefixPath("/financeservice", new ProxyHandler(financeProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/motherservice", new ProxyHandler(motherProxy, 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/version", new VersionHandler())
+                        .addPrefixPath("/availability", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9098")), 30000, ResponseCodeHandler.HANDLE_404))
                         .addPrefixPath("/", new ProxyHandler(new SimpleProxyClientProvider(new URI("http://localhost:9099")), 30000, ResponseCodeHandler.HANDLE_404))
                 )
                 .build();
