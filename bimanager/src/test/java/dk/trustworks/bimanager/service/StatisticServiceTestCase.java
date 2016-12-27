@@ -120,9 +120,9 @@ public class StatisticServiceTestCase {
 
 
         Work work61 = new Work(UUID.randomUUID().toString(), 10, 6, 2016, 52, user1UUID, task1UUID, new Date());
-        //Work work62 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 138, user3UUID, task1UUID, new Date());
-        //Work work63 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
-        //Work work64 = new Work(UUID.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
+        //Work work62 = new Work(uuid.randomUUID().toString(), 14, 6, 2016, 138, user3UUID, task1UUID, new Date());
+        //Work work63 = new Work(uuid.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
+        //Work work64 = new Work(uuid.randomUUID().toString(), 14, 6, 2016, 10, user3UUID, task1UUID, new Date());
         allWorkThisYear.add(work61);
 
         List<Work> allWorkLastYear = new ArrayList<>();

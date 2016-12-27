@@ -53,14 +53,14 @@ public class RevenueService {
     @RoleRight("tm.admin")
     public Collection<Revenue> revenuePerUser(LocalDate periodStart, LocalDate periodEnd) {
         List<User> usersList = userService.findAll();
-        //Map<String, User> usersMap = usersList.stream().collect(Collectors.toMap(User::getUUID, Function.identity()));
+        //Map<String, User> usersMap = usersList.stream().collect(Collectors.toMap(User::getUuid, Function.identity()));
 
         List<Work> workList = new ArrayList<>();
         Map<String, Revenue> revenues = new HashMap<>();
 
         for (User user : usersList) {
-            workList.addAll(workService.findByPeriodAndUserUUID(periodStart, periodEnd, user.UUID));
-            revenues.put(user.UUID, new Revenue(periodEnd, 0.0, user.UUID, user.firstname+" "+user.lastname));
+            workList.addAll(workService.findByPeriodAndUserUUID(periodStart, periodEnd, user.uuid));
+            revenues.put(user.uuid, new Revenue(periodEnd, 0.0, user.uuid, user.firstname+" "+user.lastname));
         }
         List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
 
@@ -144,7 +144,7 @@ public class RevenueService {
         List<User> users = userService.findAll();
         List<Work> workList = new ArrayList<>();
         for (User user : users) {
-            workList.addAll(workService.findByPeriodAndUserUUID(periodStart, periodEnd, user.getUUID()));
+            workList.addAll(workService.findByPeriodAndUserUUID(periodStart, periodEnd, user.getUuid()));
         }
         List<TaskWorkerConstraint> taskWorkerConstraints = taskWorkerConstraintService.findAll("");
 

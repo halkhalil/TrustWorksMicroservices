@@ -89,7 +89,7 @@ public class Task implements Serializable {
     public String toString() {
         return "Task{" +
                 "name='" + name + '\'' +
-                ", UUID='" + UUID + '\'' +
+                ", uuid='" + UUID + '\'' +
                 ", projectUUID='" + projectUUID + '\'' +
                 ", type='" + type + '\'' +
                 ", project=" + project +

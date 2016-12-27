@@ -256,7 +256,7 @@ public class UserRepository {
     public void create(User user) throws SQLException {
         try (org.sql2o.Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO user (uuid, active, created, email, firstname, lastname, password, username)" +
-                    " VALUES (:UUID, :active, :created, :email, :firstname, :lastname, :password, :username)")
+                    " VALUES (:uuid, :active, :created, :email, :firstname, :lastname, :password, :username)")
                     .bind(user)
                     /*
                     .addParameter("uuid", jsonNode.get("uuid").asText())
@@ -277,7 +277,7 @@ public class UserRepository {
                     " VALUES (:uuid, :useruuid, :status, :statusdate, :allocation)")
                     .bind(user.getUserstatus())
                     /*
-                    .addParameter("uuid", UUID.randomUUID().toString())
+                    .addParameter("uuid", uuid.randomUUID().toString())
                     .addParameter("useruuid", jsonNode.get("uuid").asText())
                     .addParameter("status", jsonNode.get("status").asText())
                     .addParameter("statusdate", new java.sql.Date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonNode.get("statusdate").asText()).getTime()))

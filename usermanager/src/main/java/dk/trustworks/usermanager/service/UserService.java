@@ -66,7 +66,7 @@ public class UserService {
     @RoleRight("tm.admin")
     public List<String> getUserRoles(String username, String password) {
         User user = findByUsernameAndPasswordAndActiveTrue(username, password);
-        List<String> roles = roleRepository.findByUserUUID(user.getUUID());
+        List<String> roles = roleRepository.findByUserUUID(user.getUuid());
         return roles;
     }
 

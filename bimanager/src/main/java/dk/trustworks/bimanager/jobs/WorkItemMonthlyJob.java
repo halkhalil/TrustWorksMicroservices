@@ -31,7 +31,7 @@ public class WorkItemMonthlyJob implements Job {
         Map<String, ProjectYearEconomy> projectYearBudgetsMap = new HashMap<>();
 
         for (User user : restClient.getUsers()) {
-            //Map<String, ProjectYearEconomy> workByMonthProject = calculateWorkByMonthAndProject(getProjectBudgets(projectYearBudgetsMap, true, user.getUUID(), 2015), true, user.getUUID(), CacheHandler.workItems.values());
+            //Map<String, ProjectYearEconomy> workByMonthProject = calculateWorkByMonthAndProject(getProjectBudgets(projectYearBudgetsMap, true, user.getUuid(), 2015), true, user.getUuid(), CacheHandler.workItems.values());
             //CacheHandler.userWorkByMonthProject.put(user.getUUID(), workByMonthProject);
         }
     }

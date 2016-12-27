@@ -73,7 +73,7 @@ public class WeekItemRepository {
             con.createQuery("INSERT INTO week (uuid, taskuuid, useruuid, weeknumber, year)" +
                     " VALUES (:uuid, :taskuuid, :useruuid, :weeknumber, :year)").bind(weekItem)
                     /*
-                    .addParameter("uuid", UUID.randomUUID().toString())
+                    .addParameter("uuid", uuid.randomUUID().toString())
                     .addParameter("taskuuid", jsonNode.get("taskuuid").asText())
                     .addParameter("useruuid", jsonNode.get("useruuid").asText())
                     .addParameter("weeknumber", jsonNode.get("weeknumber").asInt())

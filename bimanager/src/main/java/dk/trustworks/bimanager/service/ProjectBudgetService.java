@@ -223,25 +223,25 @@ public class ProjectBudgetService extends DefaultLocalService {
             }
 
             for (Project project : projects) {
-                if(projectYearBudgetsMap.containsKey(project.getUUID())) {
+                if(projectYearBudgetsMap.containsKey(project.getUuid())) {
                     for (Month month : Month.values()) {
                         double sumIncome = 0.0;
                         for (WorkItem workItem : BiApplication.workItems.values()) {
-                            if(workItem.projectUUID.equals(project.getUUID()) &&
+                            if(workItem.projectUUID.equals(project.getUuid()) &&
                                     workItem.month == month.getValue()-1 &&
                                     workItem.year == 2015 &&
                                     workItem.userUUID.equals(userUUID)
                                     ) sumIncome += workItem.hours * workItem.rate;
                         }
-                        economyByMonth projectYearEconomy = projectYearBudgetsMap.get(project.getUUID());
+                        economyByMonth projectYearEconomy = projectYearBudgetsMap.get(project.getUuid());
                         projectYearEconomy.getActual()[month.getValue()-1] = sumIncome;
                     }
                 } else {
-                    economyByMonth projectYearEconomy = projectYearBudgetsMap.put(project.getUUID(), new economyByMonth(project.getUUID(), project.getName()));
+                    economyByMonth projectYearEconomy = projectYearBudgetsMap.put(project.getUuid(), new economyByMonth(project.getUuid(), project.getName()));
                     for (Month month : Month.values()) {
                         double sumIncome = 0.0;
                         for (WorkItem workItem : BiApplication.workItems.values()) {
-                            if(workItem.projectUUID.equals(project.getUUID()) &&
+                            if(workItem.projectUUID.equals(project.getUuid()) &&
                                     workItem.month == month.getValue()-1 &&
                                     workItem.year == 2015 &&
                                     workItem.userUUID.equals(userUUID)
@@ -262,16 +262,16 @@ public class ProjectBudgetService extends DefaultLocalService {
             for (Work work : allWork) {
                 for (Project project : projects) {
                     IMap<String, Task> tasks = hzInstance.getMap("task");
-                    for (Task task : tasks.values(Predicates.equal("uuid", project.getUUID()))) {
-                        if (work.getTaskUUID().equals(task.getUUID())) {
+                    for (Task task : tasks.values(Predicates.equal("uuid", project.getUuid()))) {
+                        if (work.getTaskUUID().equals(task.getUuid())) {
                             IMap<String, TaskWorkerConstraint> taskWorkerConstraints = hzInstance.getMap("taskworkerconstraints");
-                            for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints.values(Predicates.equal("uuid", task.getUUID()))) {
+                            for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints.values(Predicates.equal("uuid", task.getUuid()))) {
                                 if (work.getUserUUID().equals(taskWorkerConstraint.getUserUUID())) {
-                                    if(projectYearBudgetsMap.containsKey(project.getUUID())) {
-                                        if(useRate) projectYearBudgetsMap.get(project.getUUID()).getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
-                                        else projectYearBudgetsMap.get(project.getUUID()).getActual()[work.getMonth()] += work.getWorkDuration();
+                                    if(projectYearBudgetsMap.containsKey(project.getUuid())) {
+                                        if(useRate) projectYearBudgetsMap.get(project.getUuid()).getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
+                                        else projectYearBudgetsMap.get(project.getUuid()).getActual()[work.getMonth()] += work.getWorkDuration();
                                     } else {
-                                        economyByMonth economy = projectYearBudgetsMap.put(project.getUUID(), new economyByMonth(project.getUUID(), project.getName()));
+                                        economyByMonth economy = projectYearBudgetsMap.put(project.getUuid(), new economyByMonth(project.getUuid(), project.getName()));
                                         if(useRate) economy.getActual()[work.getMonth()] += work.getWorkDuration() * taskWorkerConstraint.getPrice();
                                         else economy.getActual()[work.getMonth()] += work.getWorkDuration();
                                     }
@@ -329,11 +329,11 @@ public class ProjectBudgetService extends DefaultLocalService {
 
             StreamSupport.stream(projectsAndTasksAndTaskWorkerConstraints.spliterator(), true).map((project) -> {
 
-                economyByMonth budgetSummary = new economyByMonth(project.getUUID(), project.getName());
-                List<Task> tasks = project.getTasks();//restClient.getAllProjectTasks(project.getUUID());
+                economyByMonth budgetSummary = new economyByMonth(project.getUuid(), project.getName());
+                List<Task> tasks = project.getTasks();//restClient.getAllProjectTasks(project.getUuid());
                 for (int month = 0; month < 12; month++) {
                     for (Task task : tasks) {
-                        for (TaskWorkerConstraint taskWorkerConstraint : task.getTaskWorkerConstraints()) { // restClient.getTaskWorkerConstraint(task.getUUID()
+                        for (TaskWorkerConstraint taskWorkerConstraint : task.getTaskWorkerConstraints()) { // restClient.getTaskWorkerConstraint(task.getUuid()
                             Calendar calendar = Calendar.getInstance();
                             calendar.set(year, month, 1, 0, 0);
                             if (year < 2016 && month < 6) calendar = Calendar.getInstance();

@@ -279,7 +279,7 @@ public class WorkRepository {
             con.createQuery("INSERT INTO work (uuid, day, month, year, taskuuid, useruuid, workduration, created)" +
                     " VALUES (:uuid, :day, :month, :year, :taskuuid, :useruuid, :workduration, :created)").bind(work)
                     /*
-                    .addParameter("uuid", UUID.randomUUID().toString())
+                    .addParameter("uuid", uuid.randomUUID().toString())
                     .addParameter("day", jsonNode.get("day").asInt())
                     .addParameter("month", jsonNode.get("month").asInt())
                     .addParameter("year", jsonNode.get("year").asInt())

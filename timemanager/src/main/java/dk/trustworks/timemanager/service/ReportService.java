@@ -37,7 +37,7 @@ public class ReportService {
     public ArrayList<Report> findByYearAndMonth(int year, int month) {
         ArrayList<Report> reportDTOs = new ArrayList<>();
         List<Client> clients =  clientService.findAll("project/task/taskworkerconstraint");//restDelegate.getAllClientsGraph();
-        Map<String, User> usersMap = userService.findAll().stream().collect(Collectors.toMap(User::getUUID, Function.identity()));
+        Map<String, User> usersMap = userService.findAll().stream().collect(Collectors.toMap(User::getUuid, Function.identity()));
         System.out.println("clients.size() = " + clients.size());
         for (Work work : workService.findByYearAndMonth(year, month)) { // restClient.getRegisteredWorkByMonth(Integer.parseInt(queryParameters.get("year").getFirst()), Integer.parseInt(queryParameters.get("month").getFirst()))) {
             Report reportDTO = null;

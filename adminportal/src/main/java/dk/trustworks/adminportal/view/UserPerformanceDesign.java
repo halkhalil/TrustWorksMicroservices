@@ -9,7 +9,6 @@ import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import com.vaadin.ui.declarative.Design;
 import dk.trustworks.adminportal.domain.AmountPerItem;
-import dk.trustworks.adminportal.domain.Capacity;
 import dk.trustworks.adminportal.domain.DataAccess;
 import dk.trustworks.framework.model.User;
 import org.joda.time.DateTime;
@@ -264,7 +263,7 @@ public class UserPerformanceDesign extends CssLayout {
                     avgRevenueList.add(new DataSeriesItem("Average revenue", avgRevenue));
                 }
 
-                Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, user.UUID);
+                Long[] budgetPerMonth = dataAccess.getBudgetPerMonthByUser(year, user.uuid);
                 DataSeries budgetSeries = new DataSeries("Budget");
                 for (int i = 0; i < 12; i++) {
                     budgetSeries.add(new DataSeriesItem(Month.of(i+1).getDisplayName(TextStyle.FULL, Locale.ENGLISH), budgetPerMonth[i]));
@@ -381,7 +380,7 @@ public class UserPerformanceDesign extends CssLayout {
             getConfiguration().getLegend().setEnabled((users.size() > 1));
 
             for (User user : users) {
-                double[] amountPerItemList = dataAccess.getBillableHoursPerUserPerDay(year, user.getUUID());
+                double[] amountPerItemList = dataAccess.getBillableHoursPerUserPerDay(year, user.getUuid());
 
                 DataSeries revenueList = new DataSeries(user.username);
 

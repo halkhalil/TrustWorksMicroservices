@@ -70,7 +70,7 @@ public class TaskWorkerConstraint implements Serializable {
     @Override
     public String toString() {
         return "TaskWorkerConstraint{" +
-                "UUID='" + UUID + '\'' +
+                "uuid='" + UUID + '\'' +
                 ", price=" + price +
                 ", userUUID='" + userUUID + '\'' +
                 ", taskUUID='" + taskUUID + '\'' +

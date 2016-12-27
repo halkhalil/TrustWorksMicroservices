@@ -1,26 +1,20 @@
 package dk.trustworks.salesportal;
 
-import com.ejt.vaadin.loginform.DefaultVerticalLoginForm;
-import com.ejt.vaadin.loginform.LoginForm;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import dk.trustworks.salesportal.server.VaadinBootstrapListener;
 import dk.trustworks.salesportal.view.SalesHeatMap;
+import dk.trustworks.salesportal.view.SalesView;
+import org.joda.time.LocalDate;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by hans on 19/12/2016.
@@ -32,7 +26,14 @@ public class SalesPortalUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        setContent(new SalesHeatMap().getChart());
+        LocalDate localDateStart = LocalDate.now();
+        LocalDate localDateEnd = LocalDate.now().plusYears(1);
+
+        SalesView salesView = new SalesView();
+        SalesHeatMap salesHeatMap = new SalesHeatMap(localDateStart, localDateEnd);
+        salesView.addComponent(salesHeatMap.getChart());
+        salesView.addComponent(salesHeatMap.getAvailabilityChart());
+        setContent(salesView);
     }
 
     @WebServlet(urlPatterns = "/*", name = "SalesPortalServlet", asyncSupported = true)

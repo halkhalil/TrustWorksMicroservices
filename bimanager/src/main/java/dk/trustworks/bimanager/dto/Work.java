@@ -107,7 +107,7 @@ public class Work {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Work{");
-        sb.append("UUID='").append(UUID).append('\'');
+        sb.append("uuid='").append(UUID).append('\'');
         sb.append(", day=").append(day);
         sb.append(", month=").append(month);
         sb.append(", year=").append(year);

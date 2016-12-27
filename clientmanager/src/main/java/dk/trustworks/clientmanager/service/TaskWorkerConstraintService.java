@@ -107,7 +107,7 @@ public class TaskWorkerConstraintService {
     }
 
     private List<TaskWorkerConstraint> addUsersToTaskWorkerConstraint(List<TaskWorkerConstraint> taskWorkerConstraints) {
-        Map<String, User> usersMap = userService.findAll().stream().collect(Collectors.toMap(User::getUUID, Function.identity()));
+        Map<String, User> usersMap = userService.findAll().stream().collect(Collectors.toMap(User::getUuid, Function.identity()));
         for (TaskWorkerConstraint taskWorkerConstraint : taskWorkerConstraints) {
             taskWorkerConstraint.user = usersMap.get(taskWorkerConstraint.useruuid);
         }

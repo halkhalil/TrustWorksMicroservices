@@ -6,7 +6,6 @@ import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.annotations.DesignRoot;
 import com.vaadin.annotations.Theme;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
 import dk.trustworks.salesportal.db.ConnectionHelper;
 import dk.trustworks.salesportal.model.AmountPerItem;
 import dk.trustworks.salesportal.model.UserBudget;
@@ -31,15 +30,47 @@ import java.util.function.Predicate;
 
 @DesignRoot
 @Theme("valo")
-public class SalesHeatMap extends VerticalLayout {
+public class SalesHeatMap {
 
-    public Component getChart() {
-        LocalDate localDateStart = LocalDate.now();
-        LocalDate localDateEnd = LocalDate.now().plusYears(1);
-        double monthPeriod = new Period(localDateStart, localDateEnd, PeriodType.months()).getMonths();
+    private LocalDate localDateStart;
+    private LocalDate localDateEnd;
 
-        Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+    private List<UserBudget> userBudgets;
+    private Map<String, Double> userAvailability;
 
+    private Sql2o sql2o;
+
+    private int monthPeriod;
+
+    private String[] monthNames;
+
+    public SalesHeatMap(LocalDate localDateStart, LocalDate localDateEnd) {
+        this.localDateStart = localDateStart;
+        this.localDateEnd = localDateEnd;
+        monthPeriod = new Period(localDateStart, localDateEnd, PeriodType.months()).getMonths();
+        sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
+        System.out.println(1);
+        getUserBudgets();
+        System.out.println(2);
+        getAmountPerItem();
+        System.out.println(3);
+        getMonthNames();
+        System.out.println(4);
+        System.out.println("localDateStart = " + localDateStart);
+        System.out.println("localDateEnd = " + localDateEnd);
+        System.out.println(5);
+        System.out.println("monthPeriod = " + monthPeriod);
+        System.out.println(6);
+    }
+
+    private void getMonthNames() {
+        monthNames = new String[new Period(localDateStart, localDateEnd, PeriodType.months()).getMonths()];
+        for (int i = 0; i < monthNames.length; i++) {
+            monthNames[i] = localDateStart.plusMonths(i+1).monthOfYear().getAsShortText();
+        }
+    }
+
+    private void getUserBudgets() {
         String sql = "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) name, (((b.year*10000)+((b.month+1)*100))+1) date, SUM(b.budget / twc.price) budget " +
                 "FROM clientmanager.taskworkerconstraint_latest b " +
                 "INNER JOIN clientmanager.taskworkerconstraint twc ON twc.uuid = b.taskworkerconstraintuuid " +
@@ -47,22 +78,42 @@ public class SalesHeatMap extends VerticalLayout {
                 "WHERE ((b.year*10000)+((b.month+1)*100)) between :periodStart and :periodEnd " +
                 "GROUP BY u.uuid, b.year, b.month " +
                 "ORDER BY u.lastname DESC, uuid, date;";
-        List<UserBudget> userBudgets = new ArrayList<>();
         try(Connection con = sql2o.open()) {
-            System.out.println(1);
             userBudgets = con.createQuery(sql)
                     .addParameter("periodStart", localDateStart.toString("yyyyMMdd"))
                     .addParameter("periodEnd", localDateEnd.toString("yyyyMMdd"))
                     .executeAndFetch(UserBudget.class);
-            System.out.println(2);
             con.close();
-            System.out.println(3);
         } catch (Exception e) {
-            System.out.println(4);
             e.printStackTrace();
         }
+    }
 
-        sql = "SELECT uuid, SUM(amount) amount, description FROM ( ";
+    private int getCapacityByMonth(LocalDate localDate) {
+        String sql = "SELECT sum(allocation) allocation FROM usermanager.user u RIGHT JOIN ( " +
+                "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                "from usermanager.userstatus t " +
+                "inner join ( " +
+                "select useruuid, status, max(statusdate) as MaxDate " +
+                "from usermanager.userstatus  WHERE statusdate < :monthdate " +
+                "group by useruuid \n" +
+                ") \n" +
+                "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
+                ") usi ON u.uuid = usi.useruuid;";
+        try(Connection con = sql2o.open()) {
+            Integer capacity = con.createQuery(sql)
+                    .addParameter("monthdate", localDate.toString("yyyy-MM-dd"))
+                    .executeScalar(Integer.class);
+            con.close();
+            return capacity;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private void getAmountPerItem() {
+        String sql = "SELECT uuid, SUM(amount) amount, description FROM ( ";
         LocalDate localDate = localDateStart;
         do {
             sql += "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount FROM usermanager.user u RIGHT JOIN ( " +
@@ -82,11 +133,17 @@ public class SalesHeatMap extends VerticalLayout {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Map<String, Double> userAvailability = new HashMap<>();
+        userAvailability = new HashMap<>();
         for (AmountPerItem amountPerItem : amountPerItemList) {
+            System.out.println("amountPerItem = " + amountPerItem);
             userAvailability.put(amountPerItem.uuid, (amountPerItem.amount / monthPeriod) / 5.0);
+            System.out.println("userAvailability = " + userAvailability.get(amountPerItem.uuid));
         }
+    }
 
+    public Component getChart() {
+        System.out.println("userBudgets = " + userBudgets.size());
+        System.out.println("userAvailability = " + userAvailability.size());
 
         Chart chart = new Chart();
 
@@ -96,15 +153,6 @@ public class SalesHeatMap extends VerticalLayout {
         config.getChart().setMarginBottom(40);
 
         config.getTitle().setText("Employee Availability Per Month");
-
-        /*
-        String[] users = userBudgets.stream().filter(distinctByKey(p -> p.name)).toArray(size -> new String[size]);
-
-        String[] monthNames = new String[new Period(localDateStart, localDateEnd, PeriodType.months()).getMonths()];
-        for (int i = 0; i < monthNames.length; i++) {
-            monthNames[i] = localDateStart.plusMonths(i).monthOfYear().getAsShortText();
-        }
-        */
 
         config.getColorAxis().setMin(0);
         config.getColorAxis().setMax(100);
@@ -117,20 +165,123 @@ public class SalesHeatMap extends VerticalLayout {
         config.getLegend().setVerticalAlign(VerticalAlign.TOP);
         config.getLegend().setY(25);
         config.getLegend().setSymbolHeight(320);
-        ((PlotOptionsHeatmap)config.getPlotOptions(ChartType.HEATMAP)).getStates().getHover().setFillColor(SolidColor.BLACK);
 
         HeatSeries rs = new HeatSeries("% availability");
         List<String> usersList = new ArrayList<>();
-        List<String> monthList = new ArrayList<>();
+        int month = 0;
+        int userNumber = -1;
+        String useruuid = "";
+        for (UserBudget userBudget : userBudgets) {
+            if(!useruuid.equals(userBudget.uuid)) {
+                if(userNumber>=0) {
+                    month++;
+                    for (int j = month; j < monthPeriod - 2; j++) {
+                        rs.addHeatPoint(j, userNumber, 100);
+                    }
+                }
+                month = 0;
+                usersList.add(userBudget.name);
+                useruuid = userBudget.uuid;
+                userNumber++;
+            } else {
+                month++;
+            }
+            //System.out.println("userBudget.budget = " + userBudget.budget);
+            //System.out.println("userAvailability = " + userAvailability.get(useruuid));
+            int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
+            double budget = Math.round(weekDays * userAvailability.get(useruuid) - userBudget.budget);
+            //System.out.println("budget = " + budget);
+            if(budget<0) budget = 0;
+            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid)) * 100.0);
+            //System.out.println("budget = " + budget);
+            rs.addHeatPoint(month, userNumber, Math.round(budget));
+        }
+        month++;
+        for (int j = month; j < monthPeriod-2; j++) {
+            System.out.println("month = " + j);
+            rs.addHeatPoint(j, userNumber, 100);
+        }
+
+        //config.getxAxis().setCategories(monthList.stream().toArray(size -> new String[size]));
+        config.getxAxis().setCategories(monthNames);
+        config.getyAxis().setCategories(usersList.stream().toArray(size -> new String[size]));
+
+        PlotOptionsHeatmap plotOptionsHeatmap = new PlotOptionsHeatmap();
+        plotOptionsHeatmap.setDataLabels(new DataLabels());
+        plotOptionsHeatmap.getDataLabels().setEnabled(true);
+        plotOptionsHeatmap.getStates().getHover().setFillColor(SolidColor.BLACK);
+
+        SeriesTooltip tooltip = new SeriesTooltip();
+        tooltip.setHeaderFormat("{series.name}<br/>");
+        tooltip.setPointFormat("Amount: <b>{point.value}</b> ");
+        plotOptionsHeatmap.setTooltip(tooltip);
+        config.setPlotOptions(plotOptionsHeatmap);
+
+        config.setSeries(rs);
+
+        chart.drawChart(config);
+
+        return chart;
+    }
+
+    public Component getAvailabilityChart() {
+        Chart chart = new Chart(ChartType.AREASPLINE);
+        chart.setHeight("450px");
+
+        Configuration conf = chart.getConfiguration();
+
+        conf.setTitle(new Title("Total % availability"));
+
+        Legend legend = new Legend();
+        legend.setLayout(LayoutDirection.VERTICAL);
+        legend.setAlign(HorizontalAlign.LEFT);
+        legend.setFloating(true);
+        legend.setVerticalAlign(VerticalAlign.TOP);
+        legend.setX(150);
+        legend.setY(100);
+        conf.setLegend(legend);
+
+        XAxis xAxis = new XAxis();
+        xAxis.setCategories(monthNames);
+        xAxis.setLineColor(SolidColor.GREEN);
+        // add blue background for the weekend
+        //PlotBand plotBand = new PlotBand(4.5, 6.5, SolidColor.GREEN);
+        //plotBand.setZIndex(1);
+        //xAxis.setPlotBands(plotBand);
+        conf.addxAxis(xAxis);
+
+        YAxis yAxis = new YAxis();
+        yAxis.setTitle(new AxisTitle("Total Availability"));
+        conf.addyAxis(yAxis);
+
+        Tooltip tooltip = new Tooltip();
+        // Customize tooltip formatting
+        tooltip.setHeaderFormat("");
+        tooltip.setPointFormat("{series.name}: {point.y} %");
+        conf.setTooltip(tooltip);
+
+        PlotOptionsAreaspline plotOptions = new PlotOptionsAreaspline();
+        plotOptions.setColor(SolidColor.GREEN);
+        //plotOptions.setNegativeColor(SolidColor.RED);
+        //plotOptions.setNegativeFillColor(SolidColor.RED);
+        //plotOptions.setThreshold(25);
+        plotOptions.setFillOpacity(0.5);
+        conf.setPlotOptions(plotOptions);
+
+        List<String> usersList = new ArrayList<>();
         int month = 0;
         int userNumber = -1;
         String useruuid = "";
 
+
+        int[] numbers = new int[12];
+        int[] capacity = new int[12];
         for (UserBudget userBudget : userBudgets) {
             if(!useruuid.equals(userBudget.uuid)) {
                 if(userNumber>=0) {
-                    for (int j = ++month; j < monthPeriod - 2; j++) {
-                        rs.addHeatPoint(j, userNumber, 100);
+                    month++;
+                    for (int j = month; j < monthPeriod - 2; j++) {
+                        numbers[j] = numbers[j] + 100;
                     }
                 }
                 month = 0;
@@ -142,38 +293,28 @@ public class SalesHeatMap extends VerticalLayout {
             }
 
             int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
+            capacity[month] += weekDays * userAvailability.get(useruuid);
             double budget = Math.round(weekDays * userAvailability.get(useruuid) - userBudget.budget);
             if(budget<0) budget = 0;
             budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid)) * 100.0);
-
-            monthList.add(localDateStart.plusMonths(month).monthOfYear().getAsShortText());
-            //System.out.println("userBudget = " + userBudget);
-            //System.out.println("month = " + month);
-            //System.out.println("userNumber = " + userNumber);
-            rs.addHeatPoint(month, userNumber, Math.round(budget));
+            numbers[month] = numbers[month] + (int)Math.round(budget);
         }
-        for (int j = ++month; j < monthPeriod-2; j++) {
-            rs.addHeatPoint(j, userNumber, 100);
+        month++;
+        for (int j = month; j < monthPeriod-2; j++) {
+            System.out.println("month = " + j);
+            numbers[j] = numbers[j] + 100;
+            //rs.addHeatPoint(j, userNumber, 100);
+        }
+        ListSeries listSeries = new ListSeries();
+        for (int j = 0; j < monthPeriod-2; j++) {
+            //if(capacity[month] <= 0) continue;
+            listSeries.addData(numbers[j] / usersList.size());
+            month++;
         }
 
-        System.out.println("usersList = " + usersList.size());
+        conf.addSeries(listSeries);
 
-        config.getxAxis().setCategories(monthList.stream().toArray(size -> new String[size]));
-        config.getyAxis().setCategories(usersList.stream().toArray(size -> new String[size]));
-
-        PlotOptionsHeatmap plotOptionsHeatmap = new PlotOptionsHeatmap();
-        plotOptionsHeatmap.setDataLabels(new DataLabels());
-        plotOptionsHeatmap.getDataLabels().setEnabled(true);
-
-        SeriesTooltip tooltip = new SeriesTooltip();
-        tooltip.setHeaderFormat("{series.name}<br/>");
-        tooltip.setPointFormat("Amount: <b>{point.value}</b> ");
-        plotOptionsHeatmap.setTooltip(tooltip);
-        config.setPlotOptions(plotOptionsHeatmap);
-
-        config.setSeries(rs);
-
-        chart.drawChart(config);
+        chart.drawChart(conf);
 
         return chart;
     }
@@ -202,24 +343,4 @@ public class SalesHeatMap extends VerticalLayout {
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
-    /**
-     * Raw data to the heatmap chart
-     *
-     * @return Array of arrays of numbers.
-     */
-    private Number[][] getRawData() {
-        return new Number[][] { { 0, 0, 0 }, { 0, 1, 19 }, { 0, 2, 8 },
-                { 0, 3, 24 }, { 0, 4, 67 }, { 1, 0, 92 }, { 1, 1, 58 },
-                { 1, 2, 78 }, { 1, 3, 117 }, { 1, 4, 48 }, { 2, 0, 35 },
-                { 2, 1, 15 }, { 2, 2, 123 }, { 2, 3, 64 }, { 2, 4, 52 },
-                { 3, 0, 72 }, { 3, 1, 132 }, { 3, 2, 114 }, { 3, 3, 19 },
-                { 3, 4, 16 }, { 4, 0, 38 }, { 4, 1, 5 }, { 4, 2, 8 },
-                { 4, 3, 117 }, { 4, 4, 115 }, { 5, 0, 88 }, { 5, 1, 32 },
-                { 5, 2, 12 }, { 5, 3, 6 }, { 5, 4, 120 }, { 6, 0, 13 },
-                { 6, 1, 44 }, { 6, 2, 88 }, { 6, 3, 98 }, { 6, 4, 96 },
-                { 7, 0, 31 }, { 7, 1, 1 }, { 7, 2, 82 }, { 7, 3, 32 },
-                { 7, 4, 30 }, { 8, 0, 85 }, { 8, 1, 97 }, { 8, 2, 123 },
-                { 8, 3, 64 }, { 8, 4, 84 }, { 9, 0, 47 }, { 9, 1, 114 },
-                { 9, 2, 31 }, { 9, 3, 48 }, { 9, 4, 91 } };
-    }
 }

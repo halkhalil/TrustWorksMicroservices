@@ -12,10 +12,12 @@
     <file type="gwt" url="file://$PROJECT_DIR$/salesportal" />
     <file type="gwt" url="file://$PROJECT_DIR$/usermanager" />
     <file type="gwt" url="file://$PROJECT_DIR$/webadmin" />
+    <file type="gwt" url="file://$PROJECT_DIR$/whareareweportal" />
     <file type="web" url="file://$PROJECT_DIR$/adminportal" />
     <file type="web" url="file://$PROJECT_DIR$/invoiceportal" />
     <file type="web" url="file://$PROJECT_DIR$/salesportal" />
     <file type="web" url="file://$PROJECT_DIR$/webadmin" />
+    <file type="web" url="file://$PROJECT_DIR$/whareareweportal" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
@@ -32,6 +34,7 @@
         <option value="$PROJECT_DIR$/personalassistant/pom.xml" />
         <option value="$PROJECT_DIR$/employeemanager/pom.xml" />
         <option value="$PROJECT_DIR$/salesportal/pom.xml" />
+        <option value="$PROJECT_DIR$/whareareweportal/pom.xml" />
       </list>
     </option>
   </component>

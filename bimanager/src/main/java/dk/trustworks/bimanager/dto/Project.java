@@ -169,7 +169,7 @@ public class Project implements Serializable {
     @Override
     public String toString() {
         return "Project{" +
-                "UUID='" + UUID + '\'' +
+                "uuid='" + UUID + '\'' +
                 ", customerReference='" + customerReference + '\'' +
                 ", name='" + name + '\'' +
                 ", budget=" + budget +

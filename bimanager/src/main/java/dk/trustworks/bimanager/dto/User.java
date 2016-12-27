@@ -145,7 +145,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "UUID='" + UUID + '\'' +
+                "uuid='" + UUID + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", firstname='" + firstname + '\'' +

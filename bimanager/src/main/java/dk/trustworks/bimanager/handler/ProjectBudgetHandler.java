@@ -70,7 +70,7 @@ public class ProjectBudgetHandler extends DefaultHandler {
         System.out.println("workBudgetMap.size() = " + workBudgetMap.size());
         for (Work work : restClient.getRegisteredWorkByMonth(year, month)) {
             TaskWorkerConstraint taskWorkerConstraint = restClient.getTaskWorkerConstraint(work.getTaskUUID(), work.getUserUUID());
-            //System.out.println("work (" + taskWorkerConstraint.getUUID() + ") = " + work);
+            //System.out.println("work (" + taskWorkerConstraint.getUuid() + ") = " + work);
             //System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
             if (!workBudgetMap.containsKey(taskWorkerConstraint.getUUID())) {
                 workBudgetMap.put(taskWorkerConstraint.getUUID(), new TaskWorkerConstraintBudget(0.0, month, "", UUID.randomUUID().toString(), year));

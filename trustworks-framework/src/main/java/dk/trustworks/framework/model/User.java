@@ -2,9 +2,9 @@ package dk.trustworks.framework.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by hans on 16/03/15.
@@ -20,7 +20,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
 
-    public String UUID;
+    @JsonProperty("uuid")
+    public String uuid;
 
     public String useruuid;
 
@@ -48,12 +49,12 @@ public class User {
     public Revenue revenue;
 
     public User() {
-        UUID = java.util.UUID.randomUUID().toString();
+        uuid = java.util.UUID.randomUUID().toString();
         created = new Date();
     }
 
     public User(String UUID, String username, String password, String firstname, String lastname, String email, Date created, boolean active, String useruuid, String status, String statusdate, Long allocation) {
-        this.UUID = UUID;
+        this.uuid = UUID;
         this.useruuid = useruuid;
         this.username = username;
         this.password = password;
@@ -67,12 +68,12 @@ public class User {
         this.allocation = allocation;
     }
 
-    public String getUUID() {
-        return UUID;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setUUID(String UUID) {
-        this.UUID = UUID;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getPassword() {
@@ -126,7 +127,7 @@ public class User {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("User{");
-        sb.append("UUID='").append(UUID).append('\'');
+        sb.append("uuid='").append(uuid).append('\'');
         sb.append(", useruuid='").append(useruuid).append('\'');
         sb.append(", username='").append(username).append('\'');
         sb.append(", password='").append(password).append('\'');

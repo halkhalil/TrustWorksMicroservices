@@ -12,7 +12,6 @@ import dk.trustworks.adminportal.cache.DataContainer;
 import dk.trustworks.adminportal.component.SparklineChart;
 import dk.trustworks.adminportal.domain.*;
 import dk.trustworks.framework.model.User;
-import net.sf.cglib.core.Local;
 import org.joda.time.*;
 
 import java.text.DateFormatSymbols;
@@ -693,7 +692,7 @@ public class DashboardDesign extends CssLayout {
             */
             Map<String, User> userMap = new HashMap<>();
             for (User user : dataContainer.getUsers()) {
-                userMap.put(user.getUUID(), user);
+                userMap.put(user.getUuid(), user);
             }
 
             DataSeries netIncomeList = new DataSeries("Net Income");

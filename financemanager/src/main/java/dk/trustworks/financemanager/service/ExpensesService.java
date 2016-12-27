@@ -44,7 +44,7 @@ public class ExpensesService {
         System.out.println("ExpensesService.findByID");
         System.out.println("uuid = [" + uuid + "]");
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT * FROM expenses WHERE UUID LIKE :uuid")
+            return con.createQuery("SELECT * FROM expenses WHERE uuid LIKE :uuid")
                     .addParameter("uuid", uuid)
                     .executeAndFetchFirst(Expense.class);
         } catch (Exception e) {
