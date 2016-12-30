@@ -1,5 +1,6 @@
 package dk.trustworks.framework.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * Created by hans on 24/09/15.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Client {
 
     public String uuid;
