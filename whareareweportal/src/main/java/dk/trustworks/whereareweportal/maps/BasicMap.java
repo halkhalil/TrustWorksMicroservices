@@ -2,6 +2,8 @@ package dk.trustworks.whereareweportal.maps;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.FileResource;
+import com.vaadin.server.VaadinService;
 import com.vaadin.ui.*;
 import org.vaadin.addon.vol3.OLMap;
 import org.vaadin.addon.vol3.OLMapOptions;
@@ -23,6 +25,7 @@ import org.vaadin.addon.vol3.source.OLVectorSource;
 import org.vaadin.addon.vol3.source.OLVectorSourceOptions;
 import org.vaadin.addon.vol3.util.SimpleContextMenu;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 /**
@@ -39,7 +42,12 @@ public class BasicMap extends VerticalLayout implements View {
         createContextMenu();
         OLVectorSourceOptions vectorOptions=new OLVectorSourceOptions();
         OLVectorSource vectorSource=new OLVectorSource(vectorOptions);
-        vectorSource.addFeature(createPointFeature("feature-a-",12.589604,55.707043));
+        vectorSource.addFeature(createPointFeature("AP Pension",12.589604,55.707043, "appension", "hans.lassen", "nikolaj.birch", "lars.albert"));
+        vectorSource.addFeature(createPointFeature("DONG Energi",12.5161887,55.7578284, "dong.energi", "thomas.gammelvind", "gisla.faber"));
+        vectorSource.addFeature(createPointFeature("Banedanmark",12.593281,55.699177, "banedanmark", "tommy.soerensen"));
+        vectorSource.addFeature(createPointFeature("Kriminalforsorgen",12.5964017,55.676719, "kriminalforsorgen", "paula.hoiby"));
+        vectorSource.addFeature(createPointFeature("Kombit",12.5779859,55.6642418, "kombit", "peter.gaarde"));
+        //
         OLVectorLayer vectorLayer=new OLVectorLayer(vectorSource);
         vectorLayer.setLayerVisible(true);
         map.addLayer(vectorLayer);
@@ -49,6 +57,7 @@ public class BasicMap extends VerticalLayout implements View {
         this.setExpandRatio(this.iterator().next(),1.0f);
         this.addComponent(createControls());
         addViewChangeListener();
+        resetView();
     }
 
     @Override
@@ -129,13 +138,19 @@ public class BasicMap extends VerticalLayout implements View {
         return testFeature;
     }
 
-    protected OLFeature createPointFeature(String id, double x, double y) {
+    protected OLFeature createPointFeature(String id, double x, double y, String company, String... employees) {
         OLFeature pointFeature = createPointFeatureParent(id, x, y);
         OLStyle style= new OLStyle();
         style.iconStyle=new OLIconStyle();
-        //style.iconStyle.size=new double[]{32.0,32.0};
+        //style.iconStyle.size=new double[]{100.0,50.0};
         //style.iconStyle.src = "VAADIN/img/flag.png";
-        style.iconStyle.src = "http://www.loyaltygroup.dk/media/116564/appension_big.jpg";
+
+        String src = "/logo?company="+company;
+        for (String employee : employees) {
+            src = src + "&employees="+employee;
+        }
+
+        style.iconStyle.src = src;
         pointFeature.setStyle(style);
         return pointFeature;
     }
@@ -146,34 +161,21 @@ public class BasicMap extends VerticalLayout implements View {
         controls.setSpacing(true);
         controls.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         Button button=new Button("Reset view");
-        button.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                resetView();
-            }
-        });
+        button.addClickListener((Button.ClickListener) event -> resetView());
         controls.addComponent(button);
         button=new Button("Show view state");
-        button.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                OLCoordinate center=map.getView().getCenter();
-                StringBuilder message=new StringBuilder();
-                message.append("center: ").append(center.toString()).append("\n");
-                message.append("rotation: ").append(map.getView().getRotation()).append("\n");
-                message.append("zoom: ").append(map.getView().getZoom()).append("\n");
-                message.append("resolution: ").append(map.getView().getResolution()).append("\n");
-                Notification.show(message.toString());
-            }
+        button.addClickListener((Button.ClickListener) event -> {
+            OLCoordinate center=map.getView().getCenter();
+            StringBuilder message=new StringBuilder();
+            message.append("center: ").append(center.toString()).append("\n");
+            message.append("rotation: ").append(map.getView().getRotation()).append("\n");
+            message.append("zoom: ").append(map.getView().getZoom()).append("\n");
+            message.append("resolution: ").append(map.getView().getResolution()).append("\n");
+            Notification.show(message.toString());
         });
         controls.addComponent(button);
         button=new Button("Toggle map visibility");
-        button.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                map.setVisible(!map.isVisible());
-            }
-        });
+        button.addClickListener((Button.ClickListener) event -> map.setVisible(!map.isVisible()));
         controls.addComponent(button);
         button=new Button("Fit extent");
         button.addClickListener((Button.ClickListener) event -> map.getView().fitExtent(createExtent()));
