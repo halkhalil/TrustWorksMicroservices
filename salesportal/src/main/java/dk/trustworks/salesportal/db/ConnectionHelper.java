@@ -30,6 +30,7 @@ public class ConnectionHelper {
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("maximumPoolSize", 2);
 
         dataSource = new HikariDataSource(config);
     }

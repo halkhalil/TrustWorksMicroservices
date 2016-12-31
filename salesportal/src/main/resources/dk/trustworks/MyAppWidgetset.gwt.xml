@@ -13,4 +13,6 @@
     <inherits name="com.ejt.vaadin.loginform.WidgetSet" />
 
     <inherits name="dk.trustworks.MyAppWidgetset" />
+
+    <inherits name="dk.trustworks.salesportal.MyAppWidgetset" />
 </module>

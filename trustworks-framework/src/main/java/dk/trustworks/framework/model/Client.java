@@ -1,5 +1,6 @@
 package dk.trustworks.framework.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
 
@@ -18,6 +19,12 @@ public class Client {
     public DateTime created;
     public String name;
     public List<Project> projects = new ArrayList<>();
+
+    @JsonIgnore
+    public double latitude;
+
+    @JsonIgnore
+    public double longitude;
 
     public Client() {
     }
