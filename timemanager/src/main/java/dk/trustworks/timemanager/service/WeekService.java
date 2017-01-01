@@ -47,7 +47,7 @@ public class WeekService {
             Client client = restClient.getClient(project.clientuuid);
             weekRow.taskname = task.name + " / " + project.name + " / " + client.name;
 
-            LocalDate date = LocalDate.now().withYear(year).withWeekOfWeekyear(weekNumber).withDayOfWeek(1);
+            LocalDate date = new LocalDate(year, 6, 1).withWeekOfWeekyear(weekNumber).withDayOfWeek(1);
 
             for (Budget budget : restClient.getBudget(weekItem.taskuuid, weekItem.useruuid)) {
                 weekRow.budgetleft += budget.budget;
@@ -56,11 +56,7 @@ public class WeekService {
             for (int i = 1; i < 8; i++) {
                 List<Work> workList = workService.findByYearAndMonthAndDayAndTaskUUIDAndUserUUID(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(), weekItem.taskuuid, weekItem.useruuid);
 
-                System.out.println("weekRow.taskname = " + weekRow.taskname);
-                System.out.println("weekRow.budgetleft = " + weekRow.budgetleft);
-
                 for (Work work : workList) {
-                    System.out.println("work = " + work);
                     weekRow.hours[date.getDayOfWeek() - 1] += work.workduration;
                 }
                 date = date.plusDays(1);
