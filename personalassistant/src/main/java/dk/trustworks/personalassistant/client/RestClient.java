@@ -2,13 +2,13 @@ package dk.trustworks.personalassistant.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import dk.trustworks.framework.model.*;
 import dk.trustworks.personalassistant.client.timemanager.Locator;
-import net.sf.cglib.core.Local;
 import org.joda.time.LocalDate;
 
 import java.io.IOException;
@@ -122,6 +122,8 @@ public class RestClient {
                     .queryString("periodEnd", periodEnd)
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JodaModule());
+            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
         } catch (IOException e) {
             e.printStackTrace();
