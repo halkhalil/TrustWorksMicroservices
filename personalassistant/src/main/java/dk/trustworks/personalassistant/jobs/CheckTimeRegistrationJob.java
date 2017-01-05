@@ -48,7 +48,8 @@ public class CheckTimeRegistrationJob {
 
         for (User user : restClient.getUsers()) {
             if(!user.username.equals("hans.lassen")) continue;
-            if(user.allocation == 0) continue;
+            List<Capacity> userCapacities = restClient.getUserCapacities(user.useruuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
+            if(userCapacities.get(0).capacity == 0) continue;
             System.out.println("checking user = " + user);
             boolean hasWork = false;
             for (Work work : allWork) {
@@ -204,8 +205,10 @@ public class CheckTimeRegistrationJob {
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage);
 
-            long allocationPercentMonthOne = Math.round((totalBudgetMonthOne / ((user.allocation / 5) * businessDaysInNextMonth)) * 100);
-            long allocationPercentMonthTwo = Math.round((totalBudgetMonthTwo / ((user.allocation / 5) * businessDaysInNextNextMonth)) * 100);
+            List<Capacity> userCapacities = restClient.getUserCapacities(user.useruuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(2));
+
+            long allocationPercentMonthOne = Math.round((totalBudgetMonthOne / ((userCapacities.get(0).capacity / 5) * businessDaysInNextMonth)) * 100);
+            long allocationPercentMonthTwo = Math.round((totalBudgetMonthTwo / ((userCapacities.get(1).capacity / 5) * businessDaysInNextNextMonth)) * 100);
             String concludingMessage = "";
             //String concludingMessage += "This means you have a *"+allocationPercent+"%* allocation this coming month\n\n";
 

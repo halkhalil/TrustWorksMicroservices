@@ -44,6 +44,7 @@ public class User {
 
     public String statusdate;
 
+    @Deprecated
     public Long allocation;
 
     public Revenue revenue;

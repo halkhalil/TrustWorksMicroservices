@@ -6,11 +6,9 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import dk.trustworks.framework.model.Project;
-import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
-import dk.trustworks.framework.model.User;
-import dk.trustworks.framework.model.Work;
+import dk.trustworks.framework.model.*;
 import dk.trustworks.personalassistant.client.timemanager.Locator;
+import net.sf.cglib.core.Local;
 import org.joda.time.LocalDate;
 
 import java.io.IOException;
@@ -105,6 +103,26 @@ public class RestClient {
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<User>>() {});
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Capacity> getUserCapacities(String useruuid, LocalDate periodStart, LocalDate periodEnd) {
+        System.out.println("RestClient.getUserAvailabilities");
+        System.out.println("useruuid = [" + useruuid + "]");
+        try {
+            HttpResponse<JsonNode> jsonResponse;
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/"+useruuid+"/capacities")
+                    .header("accept", "application/json")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
         } catch (IOException e) {
             e.printStackTrace();
         } catch (UnirestException e) {
