@@ -1,6 +1,7 @@
 package dk.trustworks.clientmanager.service;
 
 import dk.trustworks.framework.model.Task;
+import dk.trustworks.framework.model.TaskWorkerConstraint;
 import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
 import dk.trustworks.clientmanager.persistence.TaskWorkerConstraintBudgetRepository;
 import dk.trustworks.framework.security.Authenticator;
@@ -19,6 +20,7 @@ import java.util.List;
 public class TaskWorkerConstraintBudgetService {
 
     private TaskWorkerConstraintBudgetRepository taskWorkerConstraintBudgetRepository;
+    private DataSource ds;
     //private TaskWorkerConstraintService taskWorkerConstraintService;
 
 
@@ -28,6 +30,7 @@ public class TaskWorkerConstraintBudgetService {
     public TaskWorkerConstraintBudgetService(DataSource ds) {
         taskWorkerConstraintBudgetRepository = new TaskWorkerConstraintBudgetRepository(ds);
         //taskWorkerConstraintService = new TaskWorkerConstraintService(ds);
+        this.ds = ds;
     }
 
     public static TaskWorkerConstraintBudgetService getInstance(DataSource ds) {
@@ -110,7 +113,7 @@ public class TaskWorkerConstraintBudgetService {
     }
 
     public void addUserTask() {
-        /*
+        TaskWorkerConstraintService taskWorkerConstraintService = new TaskWorkerConstraintService(ds);
         for (TaskWorkerConstraintBudget taskWorkerConstraintBudget : taskWorkerConstraintBudgetRepository.findAll()) {
             if(taskWorkerConstraintBudget.taskworkerconstraintuuid.trim().equals("")) continue;
             TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintService.findByUUID(taskWorkerConstraintBudget.taskworkerconstraintuuid);
@@ -119,6 +122,5 @@ public class TaskWorkerConstraintBudgetService {
             taskWorkerConstraintBudget.taskuuid = taskWorkerConstraint.taskuuid;
             taskWorkerConstraintBudgetRepository.addUserTask(taskWorkerConstraintBudget);
         }
-        */
     }
 }
