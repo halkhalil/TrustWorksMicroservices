@@ -22,7 +22,8 @@ public class CheckTimeRegistrationJob {
     private final RestClient restClient = new RestClient();
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
 
-    @Scheduled("0 0 12 * * ?")
+    //@Scheduled("0 0 12 * * ?")
+    @Scheduled("2m")
     public void checkTimeRegistration() {
         System.out.println("CheckTimeRegistrationJob.checkTimeRegistration");
         DateTime dateTime = DateTime.now();
@@ -93,8 +94,8 @@ public class CheckTimeRegistrationJob {
     }
 
     //0 15 10 ? * 6L
-    @Scheduled("0 0 9 ? * 6L")
-    //@Scheduled("5m")
+    //@Scheduled("0 0 9 ? * 6L")
+    @Scheduled("4m")
     public void checkBudget() {
         System.out.println("CheckBudgetJob.checkTimeRegistration");
         DateTime dateNextMonth = DateTime.now().plusMonths(1);
