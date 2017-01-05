@@ -116,7 +116,7 @@ public class CheckTimeRegistrationJob {
                 task.project = project;
                 for (TaskWorkerConstraint taskWorkerConstraint : task.taskworkerconstraints) {
                     taskWorkerConstraint.task = task;
-                    taskWorkerConstraintMap.put(taskWorkerConstraint.uuid, taskWorkerConstraint);
+                    taskWorkerConstraintMap.put(taskWorkerConstraint.useruuid+taskWorkerConstraint.taskuuid, taskWorkerConstraint);
                 }
             }
         }
@@ -146,9 +146,9 @@ public class CheckTimeRegistrationJob {
             double totalBudgetMonthTwo = 0.0;
             Map<String, Attachment> attachments = new HashMap<>();
             for (TaskWorkerConstraintBudget budget : budgets) {
-                TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(budget.taskworkerconstraintuuid);
+                TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(budget.useruuid+budget.taskuuid);
                 if(!budget.useruuid.equals(user.uuid)) continue;
-                System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
+                //System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
                 Task task = taskWorkerConstraint.task;
                 System.out.println("task = " + task);
                 Project project = task.project;
