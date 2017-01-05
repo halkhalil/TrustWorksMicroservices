@@ -22,7 +22,7 @@ public class Task implements Serializable {
 
     private Project project;
 
-    @JsonProperty("taskworkerconstraints")
+    @JsonProperty("taskuserprice")
     private List<TaskWorkerConstraint> taskWorkerConstraints = new ArrayList<>();
 
     public Project getProject() {
