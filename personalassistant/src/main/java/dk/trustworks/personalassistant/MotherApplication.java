@@ -66,7 +66,7 @@ public class MotherApplication extends Jooby {
         use(new Quartz().with(CheckTimeRegistrationJob.class));
         use(new Metrics(metricRegistry).request());
 
-        use("*/api/commands")
+        use("/api/commands")
                 .get("/", (req, resp) -> {
                     System.out.println("req = " + req);
                     final Timer timer = metricRegistry.timer(name("command", "all", "response"));
@@ -91,7 +91,7 @@ public class MotherApplication extends Jooby {
                     }
                 }).produces(MediaType.json);
 
-        use("*/servlets/metrics")
+        use("/servlets/metrics")
                 .get("/", (req, resp) -> {
                     resp.send(metricsMapper.valueToTree(metricRegistry));
                 });
