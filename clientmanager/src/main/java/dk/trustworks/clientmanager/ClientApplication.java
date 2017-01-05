@@ -303,7 +303,6 @@ public class ClientApplication extends Jooby {
                 .produces("json")
                 .consumes("json");
 
-
         use("/api/budget")
                 .get("/", (req, resp) -> {
                     DataSource db = req.require(DataSource.class);

@@ -100,13 +100,6 @@ public class WhereAreWePortalUI {
                 locations += "var "+location+" = ol.proj.fromLonLat(["+userLocationListMap.get(location).get(0).longitude+", "+userLocationListMap.get(location).get(0).latitude+"]);\n";
             }
 
-/*
-            String locations = "    var london = ol.proj.fromLonLat([12.589604, 55.707043]);\n" +
-                    "    var moscow = ol.proj.fromLonLat([12.5161887,55.7578284]);\n" +
-                    "    var istanbul = ol.proj.fromLonLat([12.593281,55.699177]);\n" +
-                    "    var rome = ol.proj.fromLonLat([12.5964017,55.676719]);\n" +
-                    "    var bern = ol.proj.fromLonLat([12.5779859,55.6642418]);";
-                    */
             html = html.replace("remlocationsrem", locations);
 
             String features = "";
@@ -130,13 +123,6 @@ public class WhereAreWePortalUI {
             }
             featureNames = featureNames.substring(0, featureNames.length()-2);
             companyNames = companyNames.substring(0, companyNames.length()-2);
-            /*
-            features += getFeature(12.589604,55.707043, "appension", "hans.lassen", "nikolaj.birch", "lars.albert");
-            features += getFeature(12.5161887,55.7578284, "dong", "thomas.gammelvind", "gisla.faber");
-            features += getFeature(12.593281,55.699177, "banedanmark", "tommy.soerensen");
-            features += getFeature(12.5964017,55.676719, "kriminalforsorgen", "paula.hoiby");
-            features += getFeature(12.5779859,55.6642418, "kombit", "peter.gaarde");
-            */
 
             features += "var vectorSource = new ol.source.Vector({\n" +
                     "        features: ["+featureNames+"]\n" +
