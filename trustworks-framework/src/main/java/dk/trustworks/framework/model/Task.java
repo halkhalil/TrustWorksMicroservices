@@ -31,7 +31,6 @@ public class Task implements Serializable {
         sb.append(", name='").append(name).append('\'');
         sb.append(", projectuuid='").append(projectuuid).append('\'');
         sb.append(", type='").append(type).append('\'');
-        sb.append(", project=").append(project);
         sb.append(", taskworkerconstraints=").append(taskworkerconstraints);
         sb.append('}');
         return sb.toString();
