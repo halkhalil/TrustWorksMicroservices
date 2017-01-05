@@ -11,6 +11,7 @@ import dk.trustworks.personalassistant.dto.timemanager.Project;
 import dk.trustworks.personalassistant.dto.timemanager.TaskWorkerConstraintBudget;
 import dk.trustworks.personalassistant.dto.timemanager.User;
 import dk.trustworks.personalassistant.dto.timemanager.Work;
+import org.joda.time.LocalDate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,11 +44,13 @@ public class RestClient {
     public List<TaskWorkerConstraintBudget> getBudgetsByMonthAndYear(int month, int year) {
         System.out.println("RestClient.getBudgetsByMonthAndYear");
         System.out.println("month = [" + month + "], year = [" + year + "]");
+        LocalDate periodStart = new LocalDate(year, month, 1);
+        LocalDate periodEnd = periodStart.plusMonths(1);
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/taskworkerconstraintbudgets/search/findByMonthAndYear")
-                    .queryString("month", month)
-                    .queryString("year", year)
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/budget/search/findByPeriod")
+                    .queryString("periodStart", periodStart)
+                    .queryString("periodEnd", periodEnd)
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
@@ -63,7 +66,7 @@ public class RestClient {
         System.out.println("RestClient.getProjectsAndTasksAndTaskWorkerConstraints");
         try {
         HttpResponse<JsonNode> jsonResponse = Unirest.get(Locator.getInstance().resolveURL("clientservice") + "/api/projects")
-                    .queryString("children", "taskuuid/taskworkerconstraintuuid")
+                    .queryString("projection", "task/taskworkerconstraint")
                     .header("accept", "application/json")
                     .asJson();
         ObjectMapper mapper = new ObjectMapper();

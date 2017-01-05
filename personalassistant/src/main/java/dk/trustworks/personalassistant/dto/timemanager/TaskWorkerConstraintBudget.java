@@ -27,6 +27,10 @@ public class TaskWorkerConstraintBudget implements Serializable {
     @JsonProperty("taskworkerconstraint")
     private TaskWorkerConstraint taskWorkerConstraint;
 
+    public String useruuid;
+
+    public String taskuuid;
+
     public TaskWorkerConstraintBudget() {
     }
 
