@@ -46,7 +46,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
-            //if(!user.getUsername().equals("hans.lassen")) continue;
+            if(!user.getUsername().equals("hans.lassen")) continue;
             if(user.getAllocation() == 0) continue;
             System.out.println("checking user = " + user);
             boolean hasWork = false;
@@ -132,7 +132,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
-            //if(!user.getUsername().equals("hans.lassen")) continue;
+            if(!user.getUsername().equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
