@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
+
 public class TaskWorkerConstraint implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,6 +24,8 @@ public class TaskWorkerConstraint implements Serializable {
 
     @JsonIgnore
     private Task task;
+
+    public User user;
 
     public TaskWorkerConstraint() {
     }
