@@ -1,6 +1,7 @@
 package dk.trustworks.framework.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -22,6 +23,9 @@ public class TaskWorkerConstraint {
     public List<TaskWorkerConstraintBudget> taskWorkerConstraintBudgets = new ArrayList<>();
 
     public User user;
+
+    @JsonIgnore
+    public Task task;
 
     public TaskWorkerConstraint() {
     }

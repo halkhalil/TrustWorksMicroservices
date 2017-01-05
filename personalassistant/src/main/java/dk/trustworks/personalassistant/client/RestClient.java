@@ -6,11 +6,11 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import dk.trustworks.framework.model.Project;
+import dk.trustworks.framework.model.TaskWorkerConstraintBudget;
+import dk.trustworks.framework.model.User;
+import dk.trustworks.framework.model.Work;
 import dk.trustworks.personalassistant.client.timemanager.Locator;
-import dk.trustworks.personalassistant.dto.timemanager.Project;
-import dk.trustworks.personalassistant.dto.timemanager.TaskWorkerConstraintBudget;
-import dk.trustworks.personalassistant.dto.timemanager.User;
-import dk.trustworks.personalassistant.dto.timemanager.Work;
 import org.joda.time.LocalDate;
 
 import java.io.IOException;

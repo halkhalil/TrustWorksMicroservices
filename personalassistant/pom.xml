@@ -142,6 +142,13 @@
             <artifactId>guava</artifactId>
             <version>19.0</version>
         </dependency>
+
+        <!-- trustworks api -->
+        <dependency>
+            <groupId>dk.trustworks</groupId>
+            <artifactId>trustworks-framework</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <properties>
