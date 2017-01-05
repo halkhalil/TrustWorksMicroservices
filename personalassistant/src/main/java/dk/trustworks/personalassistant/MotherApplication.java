@@ -55,6 +55,7 @@ public class MotherApplication extends Jooby {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 /*
         System.setProperty("application.port", System.getProperty("MOTHERSERVICE_PORT"));
         System.setProperty("application.host", System.getProperty("APPLICATION_URL"));*/
