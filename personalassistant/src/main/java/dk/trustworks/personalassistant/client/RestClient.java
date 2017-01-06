@@ -1,6 +1,7 @@
 package dk.trustworks.personalassistant.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mashape.unirest.http.HttpResponse;
@@ -123,6 +124,7 @@ public class RestClient {
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JodaModule());
+            mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
         } catch (IOException e) {
             e.printStackTrace();
