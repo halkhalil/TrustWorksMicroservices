@@ -150,8 +150,8 @@ public class CheckTimeRegistrationJob {
                 TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(budget.useruuid+budget.taskuuid);
                 if(!budget.useruuid.equals(user.uuid)) continue;
                 //System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
-                //Task task = taskWorkerConstraint.task;
-                System.out.println("task = " + task);
+                Task task = taskWorkerConstraint.task;
+                //System.out.println("task = " + task);
                 Project project = task.project;
                 //System.out.println("project = " + project);
                 double budgetHours = (budget.budget / taskWorkerConstraint.price);
@@ -206,6 +206,11 @@ public class CheckTimeRegistrationJob {
             halWebApiClient.postMessage(textMessage);
 
             List<Capacity> userCapacities = restClient.getUserCapacities(user.useruuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(2));
+            System.out.println("userCapacities.get(0).capacity = " + userCapacities.get(0).capacity);
+            System.out.println("userCapacities.get(1).capacity = " + userCapacities.get(1).capacity);
+            System.out.println("businessDaysInNextMonth = " + businessDaysInNextMonth);
+            System.out.println("totalBudgetMonthOne = " + totalBudgetMonthOne);
+
 
             long allocationPercentMonthOne = Math.round((totalBudgetMonthOne / ((userCapacities.get(0).capacity / 5) * businessDaysInNextMonth)) * 100);
             long allocationPercentMonthTwo = Math.round((totalBudgetMonthTwo / ((userCapacities.get(1).capacity / 5) * businessDaysInNextNextMonth)) * 100);
