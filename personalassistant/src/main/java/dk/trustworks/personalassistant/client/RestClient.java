@@ -123,7 +123,6 @@ public class RestClient {
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JodaModule());
-            mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
             return mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Capacity>>() {});
         } catch (IOException e) {
             e.printStackTrace();
