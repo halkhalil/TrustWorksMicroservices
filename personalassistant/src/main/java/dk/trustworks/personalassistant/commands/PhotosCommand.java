@@ -51,7 +51,7 @@ public class PhotosCommand implements Command {
         if(!(intentOutcome.getParameters().getGeoCountry()==null) && !intentOutcome.getParameters().getGeoCountry().trim().equals("")) {
             location = intentOutcome.getParameters().getGeoCountry();
         }
-        if(!(intentOutcome.getParameters().getGeoCountry()==null) && !intentOutcome.getParameters().getGeoCountry().trim().equals("")) {
+        if(!(intentOutcome.getParameters().getAdditionalProperties().get("subject")==null) && !intentOutcome.getParameters().getAdditionalProperties().get("subject").toString().trim().equals("")) {
             location = intentOutcome.getParameters().getAdditionalProperties().get("subject").toString();
         }
 
