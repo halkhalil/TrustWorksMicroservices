@@ -22,8 +22,8 @@ public class CheckTimeRegistrationJob {
     private final RestClient restClient = new RestClient();
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
 
-    //@Scheduled("0 0 12 * * ?")
-    @Scheduled("2m")
+    @Scheduled("0 0 12 * * ?")
+    //@Scheduled("2m")
     public void checkTimeRegistration() {
         System.out.println("CheckTimeRegistrationJob.checkTimeRegistration");
         DateTime dateTime = DateTime.now();
@@ -47,7 +47,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
-            if(!user.username.equals("hans.lassen")) continue;
+            //if(!user.username.equals("hans.lassen")) continue;
             List<Capacity> userCapacities = restClient.getUserCapacities(user.useruuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
             if(userCapacities.get(0).capacity == 0) continue;
             System.out.println("checking user = " + user);
@@ -95,8 +95,8 @@ public class CheckTimeRegistrationJob {
     }
 
     //0 15 10 ? * 6L
-    //@Scheduled("0 0 9 ? * 6L")
-    @Scheduled("4m")
+    @Scheduled("0 0 9 ? * 6L")
+    //@Scheduled("4m")
     public void checkBudget() {
         System.out.println("CheckBudgetJob.checkTimeRegistration");
         DateTime dateNextMonth = DateTime.now().plusMonths(1);
@@ -134,7 +134,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
-            if(!user.username.equals("hans.lassen")) continue;
+            //if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
@@ -233,17 +233,17 @@ public class CheckTimeRegistrationJob {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage3.setAs_user(true);
                 System.out.println("Sending message");
-                //halWebApiClient.postMessage(textMessage3);
+                halWebApiClient.postMessage(textMessage3);
 
                 ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage4.setAs_user(true);
                 System.out.println("Sending message");
-                //halWebApiClient.postMessage(textMessage4);
+                halWebApiClient.postMessage(textMessage4);
 
                 ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
-                //halWebApiClient.postMessage(textMessage5);
+                halWebApiClient.postMessage(textMessage5);
             }
         }
 
