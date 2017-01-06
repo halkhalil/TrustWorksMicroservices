@@ -30,6 +30,8 @@ public class PhotosCommand implements Command {
         libraries.put("paris", "/Shared/TrustWorks/Billeder/Paris");
         libraries.put("new york", "/Shared/TrustWorks/Billeder/New York");
         libraries.put("madrid", "/Shared/TrustWorks/Billeder/Madrid");
+        libraries.put("vr", "/Shared/TrustWorks/Billeder/VR demo");
+        libraries.put("carpe diem", "/carpediem");
     }
 
     @Override
@@ -49,6 +51,10 @@ public class PhotosCommand implements Command {
         if(!(intentOutcome.getParameters().getGeoCountry()==null) && !intentOutcome.getParameters().getGeoCountry().trim().equals("")) {
             location = intentOutcome.getParameters().getGeoCountry();
         }
+        if(!(intentOutcome.getParameters().getGeoCountry()==null) && !intentOutcome.getParameters().getGeoCountry().trim().equals("")) {
+            location = intentOutcome.getParameters().getAdditionalProperties().get("subject").toString();
+        }
+
 
         SlackResponseClient.sendResponse(command.response_url, new SlackMessage("Attention. Finding a random photo from "+location+" - ETA 10 seconds", "ephemeral"));
 
