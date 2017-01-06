@@ -1,9 +1,10 @@
 package dk.trustworks.framework.model;
 
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.joda.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.joda.ser.LocalDateSerializer;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.LocalDate;
 
 /**
@@ -15,6 +16,7 @@ public class Capacity {
 
     @JsonDeserialize(using= LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonProperty("activedate")
     public LocalDate activeDate;
 
     public Capacity() {
