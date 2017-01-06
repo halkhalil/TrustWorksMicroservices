@@ -48,7 +48,7 @@ public class CheckTimeRegistrationJob {
 
         for (User user : restClient.getUsers()) {
             //if(!user.username.equals("hans.lassen")) continue;
-            List<Capacity> userCapacities = restClient.getUserCapacities(user.useruuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
+            List<Capacity> userCapacities = restClient.getUserCapacities(user.uuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
             if(userCapacities.get(0).capacity == 0) continue;
             System.out.println("checking user = " + user);
             boolean hasWork = false;
