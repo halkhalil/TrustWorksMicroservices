@@ -150,10 +150,10 @@ public class CheckTimeRegistrationJob {
                 TaskWorkerConstraint taskWorkerConstraint = taskWorkerConstraintMap.get(budget.useruuid+budget.taskuuid);
                 if(!budget.useruuid.equals(user.uuid)) continue;
                 //System.out.println("taskWorkerConstraint = " + taskWorkerConstraint);
-                Task task = taskWorkerConstraint.task;
+                //Task task = taskWorkerConstraint.task;
                 System.out.println("task = " + task);
                 Project project = task.project;
-                System.out.println("project = " + project);
+                //System.out.println("project = " + project);
                 double budgetHours = (budget.budget / taskWorkerConstraint.price);
 
                 if(budget.month == (DateTime.now().plusMonths(1).getMonthOfYear()-1)) {
@@ -228,17 +228,17 @@ public class CheckTimeRegistrationJob {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage3.setAs_user(true);
                 System.out.println("Sending message");
-                halWebApiClient.postMessage(textMessage3);
+                //halWebApiClient.postMessage(textMessage3);
 
                 ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage4.setAs_user(true);
                 System.out.println("Sending message");
-                halWebApiClient.postMessage(textMessage4);
+                //halWebApiClient.postMessage(textMessage4);
 
                 ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
-                halWebApiClient.postMessage(textMessage5);
+                //halWebApiClient.postMessage(textMessage5);
             }
         }
 
