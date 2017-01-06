@@ -114,7 +114,7 @@ public class RestClient {
 
     public List<Capacity> getUserCapacities(String useruuid, LocalDate periodStart, LocalDate periodEnd) {
         System.out.println("RestClient.getUserAvailabilities");
-        System.out.println("useruuid = [" + useruuid + "]");
+        System.out.println("useruuid = [" + useruuid + "], periodStart = [" + periodStart + "], periodEnd = [" + periodEnd + "]");
         try {
             HttpResponse<JsonNode> jsonResponse;
             jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/"+useruuid+"/capacities")

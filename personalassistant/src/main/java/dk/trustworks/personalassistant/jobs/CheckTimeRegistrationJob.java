@@ -205,7 +205,7 @@ public class CheckTimeRegistrationJob {
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage);
 
-            List<Capacity> userCapacities = restClient.getUserCapacities(user.useruuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(2));
+            List<Capacity> userCapacities = restClient.getUserCapacities(user.uuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(2));
             System.out.println("userCapacities.get(0).capacity = " + userCapacities.get(0).capacity);
             System.out.println("userCapacities.get(1).capacity = " + userCapacities.get(1).capacity);
             System.out.println("businessDaysInNextMonth = " + businessDaysInNextMonth);
