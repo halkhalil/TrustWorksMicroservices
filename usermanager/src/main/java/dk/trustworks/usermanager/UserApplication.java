@@ -136,6 +136,12 @@ public class UserApplication extends Jooby {
                     resp.send(UserService.getInstance(db).findByUUID(uuid));
                 })
 
+                .post("/:uuid", (req, resp) -> {
+                    String uuid = req.param("uuid").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).findByUUID(uuid));
+                })
+
                 .get("/{uuid}/capacities", (req, resp) -> {
                     long l = System.currentTimeMillis();
                     LocalDate periodStart = LocalDate.parse(req.param("periodStart").value("2016-01-01"), DateTimeFormat.forPattern("yyyy-MM-dd"));

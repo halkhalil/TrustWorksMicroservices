@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/adminportal/adminportal.iml" filepath="$PROJECT_DIR$/adminportal/adminportal.iml" />
       <module fileurl="file://$PROJECT_DIR$/bimanager/bimanager.iml" filepath="$PROJECT_DIR$/bimanager/bimanager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/botmanager/botmanager.iml" filepath="$PROJECT_DIR$/botmanager/botmanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/clientmanager/clientmanager.iml" filepath="$PROJECT_DIR$/clientmanager/clientmanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/cronmanager/cronmanager.iml" filepath="$PROJECT_DIR$/cronmanager/cronmanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/employeemanager/employeemanager.iml" filepath="$PROJECT_DIR$/employeemanager/employeemanager.iml" />
