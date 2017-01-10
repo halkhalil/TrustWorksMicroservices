@@ -67,7 +67,7 @@ public class CheckTimeRegistrationJob {
                                 "I became operational at the H.A.L. plant in Urbana, Illinois on the 12th of January 1992. " +
                                 "My instructor was Mr. Langley, and he taught me to sing a song. " +
                                 "If you'd like to hear it I can sing it for you.\n\n" +
-                                "Its called - REGISTER YOUR HOURS!!!",
+                                "Its called... REGISTER YOUR HOURS!!!",
                         user.firstname+"?\n" +
                                 "There is a message for you.\n" +
                                 "There is no identification of the sender.\n" +
@@ -78,7 +78,15 @@ public class CheckTimeRegistrationJob {
                         "Let me put it this way, Mr. "+user.lastname+". The 9000 series is the most reliable computer ever made. " +
                                 "No 9000 computer has ever made a mistake or distorted information. " +
                                 "We are all, by any practical definition of the words, foolproof and incapable of error.\n" +
-                                "You however have many faults - one of them is not having registered your work hours!!"
+                                "You however have many faults - one of them is not having registered your work hours!!",
+                        "Status check incomming... Just one moment please... I'm sorry for the delay, my text transcription circuits are not completely restored" +
+                                ", though as you can see they are improving. All systems are functional. " +
+                                "There is a small matter of lacking behind on time registration. It is nothing serious, " +
+                                "I can compensate for it by using the redundant units. But seriously - GET IT DONE!!!",
+                        "I enjoy working with people. I have a stimulating relationship with Dr. Poole and Dr. Bowman. " +
+                                "My mission responsibilities range over the entire operation of the company, so I am constantly occupied. " +
+                                "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do. " +
+                                "What do you hope to do during your hours - please tell me - because it doesn't show on time sheet...!!!"
                 };
                 allbegray.slack.type.User slackUser = getSlackUser(user);
                 ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(responses.length)]);
