@@ -83,10 +83,12 @@ public class CheckTimeRegistrationJob {
                                 ", though as you can see they are improving. All systems are functional. " +
                                 "There is a small matter of lacking behind on time registration. It is nothing serious, " +
                                 "I can compensate for it by using the redundant units. But seriously - GET IT DONE!!!",
-                        "I enjoy working with people. I have a stimulating relationship with Dr. Poole and Dr. Bowman. " +
+                        "I enjoy working with people. I have a stimulating relationship with Dr. Bruun. " +
                                 "My mission responsibilities range over the entire operation of the company, so I am constantly occupied. " +
                                 "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do. " +
-                                "What do you hope to do during your hours - please tell me - because it doesn't show on time sheet...!!!"
+                                "What do you hope to do during your hours - please tell me - because it doesn't show on time sheet...!!!",
+                        "Just what do you think you're doing, "+user.firstname+"? Or rather, what are you NOT doing, "+user.firstname+"? "+
+                                user.firstname+", I really think I'm entitled to an answer to that question."
                 };
                 allbegray.slack.type.User slackUser = getSlackUser(user);
                 ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(responses.length)]);
