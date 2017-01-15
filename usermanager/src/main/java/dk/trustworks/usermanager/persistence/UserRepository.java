@@ -36,7 +36,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -60,7 +60,7 @@ public class UserRepository {
     public User findByUUID(String uuid) {
         System.out.println("uuid = " + uuid);
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid")
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid")
                     .addParameter("uuid", uuid)
                     .executeAndFetchFirst(User.class);
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -95,7 +95,7 @@ public class UserRepository {
 
     public List<User> findByActiveTrueOrderByFirstnameAsc() {
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -113,7 +113,7 @@ public class UserRepository {
 
     public User findByEmail(String email) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -132,7 +132,7 @@ public class UserRepository {
 
     public User findBySlackUsername(String slackusername) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            User user = con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            User user = con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -154,7 +154,7 @@ public class UserRepository {
 
     public User findByUsername(String username) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -174,7 +174,7 @@ public class UserRepository {
 
     public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
