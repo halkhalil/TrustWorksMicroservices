@@ -97,7 +97,7 @@ public class TaskWorkerConstraintRepository {
     public void create(TaskWorkerConstraint taskWorkerConstraint) throws SQLException {
         logger.debug("TaskWorkerConstraintRepository.create");
         taskWorkerConstraint.uuid = UUID.randomUUID().toString();
-        taskWorkerConstraint.price = 0.0;
+        //taskWorkerConstraint.price = 0.0;
 
         try (Connection con = sql2o.open()) {
             con.createQuery("INSERT INTO taskworkerconstraint (uuid, price, taskuuid, useruuid) VALUES (:uuid, :price, :taskuuid, :useruuid)")

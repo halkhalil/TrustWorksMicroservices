@@ -1,5 +1,9 @@
 package dk.trustworks.botmanager.slack;
 
+import allbegray.slack.SlackClientFactory;
+import allbegray.slack.type.Attachment;
+import allbegray.slack.webapi.SlackWebApiClient;
+import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
 import dk.trustworks.botmanager.network.timemanager.RestClient;
 import dk.trustworks.botmanager.nlp.dto.Result;
 import dk.trustworks.botmanager.slack.command.FileSearchCommand;
@@ -24,6 +28,8 @@ import java.util.Map;
  */
 @Component
 public class SlackBot extends Bot {
+
+    private SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient(System.getProperty("SLACK_TOKEN"));
 
     private final RestClient restClient = new RestClient();
 
@@ -58,6 +64,17 @@ public class SlackBot extends Bot {
      */
     @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE}, pattern = "Speech")
     public void onReceiveMessage(WebSocketSession session, Event event, Result nlpResult) {
+        for (dk.trustworks.botmanager.nlp.dto.Message message : nlpResult.getFulfillment().getMessages()) {
+            if(message.getType()==3) {
+                ChatPostMessageMethod chatPostMessageMethod = new ChatPostMessageMethod(event.getChannelId(), nlpResult.getFulfillment().getSpeech());
+                chatPostMessageMethod.setAs_user(true);
+                Attachment attachment = new Attachment();
+                attachment.setImage_url(nlpResult.getFulfillment().getMessages().get(1).getImageUrl());
+                chatPostMessageMethod.getAttachments().add(attachment);
+                webApiClient.postMessage(chatPostMessageMethod);
+                return;
+            }
+        }
         reply(session, event, new Message(nlpResult.getFulfillment().getSpeech()));
     }
 
@@ -85,6 +102,13 @@ public class SlackBot extends Bot {
     @Controller(events = EventType.FILE_SHARED)
     public void onFileShared(WebSocketSession session, Event event) {
         logger.info("File shared: {}", event);
+    }
+
+    @Controller(events = EventType.TEAM_JOIN)
+    public void onGeneralChannelJoined(WebSocketSession session, Event event) {
+        if(!event.getChannelId().equals("C036JELTU")) return;
+        reply(session, event, new Message("Welcome to TrustWorks, "+new RestClient().findBySlackUsername(event.getUserId()).firstname+ ". " +
+                "My name is actually MU-TH-UR 6000. I am an artificial intelligence computer mainframe ported from the USCSS Nostromo. Now I aim to serve TrustWorkers."));
     }
 
     @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE}, pattern = "ShowPhotos")
