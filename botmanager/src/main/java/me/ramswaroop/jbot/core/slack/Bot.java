@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 import org.springframework.web.socket.client.WebSocketConnectionManager;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
@@ -114,6 +111,24 @@ public abstract class Bot {
         }
     }
 
+    private void testConnection(WebSocketSession session) {
+        logger.info("Bot.testConnection");
+        try {
+            session.sendMessage(new PingMessage());
+            logger.debug("WS Ping");
+        } catch (IOException e) {
+            logger.error("WS PING error", e);
+        }
+        try {
+            session.sendMessage(new TextMessage("{" +
+                    "\"id\": 1234, " +
+                    "\"type\": \"ping\"}"));
+            logger.debug("Slack Ping");
+        } catch (IOException e) {
+            logger.error("Slack PING error", e);
+        }
+    }
+
     /**
      * Invoked after a successful web socket connection is
      * established. You can override this method in the child classes.
@@ -123,6 +138,15 @@ public abstract class Bot {
      */
     public void afterConnectionEstablished(WebSocketSession session) {
         logger.debug("WebSocket connected: {}", session);
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                testConnection(session);
+            }
+        }, 0, 120000);
     }
 
     /**
@@ -135,6 +159,7 @@ public abstract class Bot {
      */
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         logger.debug("WebSocket closed: {}, Close Status: {}", session, status.toString());
+        startWebSocketConnection();
     }
 
     /**
@@ -160,6 +185,9 @@ public abstract class Bot {
         try {
             Event event = mapper.readValue(textMessage.getPayload(), Event.class);
             if (event.getType() != null) {
+                if(event.getUserId()!=null && event.getUserId().equals(slackService.getCurrentUser().getId())) {
+                    return;
+                }
                 if (event.getType().equalsIgnoreCase(EventType.IM_OPEN.name())) {
                     slackService.addDmChannel(event.getChannelId());
                 } else if (event.getType().equalsIgnoreCase(EventType.MESSAGE.name())) {
@@ -357,7 +385,6 @@ public abstract class Bot {
             while (listIterator.hasNext()) {
                 MethodWrapper methodWrapper = listIterator.next();
                 String pattern = methodWrapper.getPattern();
-                System.out.println("pattern = " + pattern);
                 String text = event.getText();
                 Result result = ApiAIClient.sendQuery(text);
 
@@ -367,7 +394,6 @@ public abstract class Bot {
                     if (m.find()) {
                         methodWrapper.setMatcher(m);
                         methodWrapper.setNlpResult(result);
-                        System.out.println("methodWrapper = " + methodWrapper);
                         return methodWrapper;
                     } else {
                         listIterator.remove();  // remove methods from the original list whose pattern do not match
@@ -392,11 +418,13 @@ public abstract class Bot {
      */
     @PostConstruct
     private void startWebSocketConnection() {
+        logger.debug("startWebSocketConnection()");
         slackService.startRTM(getSlackToken());
         if (slackService.getWebSocketUrl() != null) {
             WebSocketConnectionManager manager = new WebSocketConnectionManager(client(), handler(), slackService.getWebSocketUrl());
             manager.start();
         } else {
+            logger.info("No websocket url returned by Slack.");
             logger.error("No websocket url returned by Slack.");
         }
     }

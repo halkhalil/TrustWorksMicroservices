@@ -2,7 +2,7 @@ package dk.trustworks.framework.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 
@@ -48,6 +48,8 @@ public class User {
     public Long allocation;
 
     public Revenue revenue;
+
+    public String slackusername;
 
     public User() {
         uuid = java.util.UUID.randomUUID().toString();

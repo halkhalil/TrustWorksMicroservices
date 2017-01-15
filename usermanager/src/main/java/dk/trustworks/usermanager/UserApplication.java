@@ -25,10 +25,7 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.UriSpec;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import org.jooby.Jooby;
-import org.jooby.RequestLogger;
-import org.jooby.Result;
-import org.jooby.Results;
+import org.jooby.*;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
@@ -118,12 +115,6 @@ public class UserApplication extends Jooby {
                 .orElse(() -> use(new JwtModule(true)));
 
         use("/api/users")
-                /**
-                 * @ApiImplicitParams({ @ApiImplicitParam(name = "methodArgumentName",
-                 * value = "Some info.",
-                 * dataType = "string",
-                 * paramType = "header") })
-                 */
                 .get("/", (req, resp) -> {
                     DataSource db = req.require(DataSource.class);
                     List<User> users = UserService.getInstance(db).findAll();
@@ -136,10 +127,15 @@ public class UserApplication extends Jooby {
                     resp.send(UserService.getInstance(db).findByUUID(uuid));
                 })
 
-                .post("/:uuid", (req, resp) -> {
+                .post("/:uuid/password", (req, resp) -> {
+                    System.out.println("UserApplication.instance initializer");
                     String uuid = req.param("uuid").value();
+                    System.out.println("uuid = " + uuid);
+                    String password = req.body(String.class);
+                    System.out.println("password = " + password);
                     DataSource db = req.require(DataSource.class);
-                    resp.send(UserService.getInstance(db).findByUUID(uuid));
+                    UserService.getInstance(db).updatePassword(password, uuid);
+                    resp.send("{ \"status\" : \"ok\" }");
                 })
 
                 .get("/{uuid}/capacities", (req, resp) -> {
@@ -197,11 +193,15 @@ public class UserApplication extends Jooby {
                     resp.send(UserService.getInstance(db).findByActiveTrue());
                 })
 
-
                 .get("/search/findByUsername", (req, resp) -> {
                     String username = req.param("username").value();
                     DataSource db = req.require(DataSource.class);
                     resp.send(UserService.getInstance(db).findByUsername(username));
+                })
+                .get("/search/findBySlackUsername", (req, resp) -> {
+                    String slackusername = req.param("slackusername").value();
+                    DataSource db = req.require(DataSource.class);
+                    resp.send(UserService.getInstance(db).findBySlackUsername(slackusername));
                 })
 
                 .get("/search/findByUsernameAndPasswordAndActiveTrue", (req, resp) -> {

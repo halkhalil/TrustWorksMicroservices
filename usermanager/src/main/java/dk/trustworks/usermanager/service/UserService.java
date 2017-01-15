@@ -57,6 +57,11 @@ public class UserService {
     }
 
     @RoleRight("tm.user")
+    public User findBySlackUsername(String slackusername) {
+        return userRepository.findBySlackUsername(slackusername);
+    }
+
+    @RoleRight("tm.user")
     public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
         User credentials = userRepository.findByUsernameAndPasswordAndActiveTrue(username, password);
         System.out.println("credentials = " + credentials);
@@ -142,7 +147,12 @@ public class UserService {
     }
 
     @RoleRight("tm.admin")
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
-        userRepository.update(jsonNode, uuid);
+    public void updatePassword(String password, String uuid) throws SQLException {
+        userRepository.updatePassword(password, uuid);
+    }
+
+    @RoleRight("tm.admin")
+    public void update(User user, String uuid) throws SQLException {
+        userRepository.update(user, uuid);
     }
 }

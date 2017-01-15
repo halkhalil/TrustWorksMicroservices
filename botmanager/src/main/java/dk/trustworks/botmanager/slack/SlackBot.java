@@ -1,6 +1,10 @@
 package dk.trustworks.botmanager.slack;
 
+import dk.trustworks.botmanager.network.timemanager.RestClient;
 import dk.trustworks.botmanager.nlp.dto.Result;
+import dk.trustworks.botmanager.slack.command.FileSearchCommand;
+import dk.trustworks.botmanager.slack.command.PhotosCommand;
+import dk.trustworks.botmanager.slack.command.TemplateCommand;
 import me.ramswaroop.jbot.core.slack.Bot;
 import me.ramswaroop.jbot.core.slack.Controller;
 import me.ramswaroop.jbot.core.slack.EventType;
@@ -14,13 +18,14 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 /**
  * Created by hans on 06/01/2017.
  */
 @Component
 public class SlackBot extends Bot {
+
+    private final RestClient restClient = new RestClient();
 
     private static final Logger logger = LoggerFactory.getLogger(SlackBot.class);
 
@@ -44,21 +49,6 @@ public class SlackBot extends Bot {
     }
 
     /**
-     * Invoked when the bot receives a direct mention (@botname: message)
-     * or a direct message. NOTE: These two event types are added by jbot
-     * to make your task easier, Slack doesn't have any direct way to
-     * determine these type of events.
-     *
-     * @param session
-     * @param event
-     */
-
-    @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
-    public void onReceiveDM(WebSocketSession session, Event event) {
-        reply(session, event, new Message("Hi, I am " + slackService.getCurrentUser().getName()));
-    }
-
-    /**
      * Invoked when bot receives an event of type message with text satisfying
      * the pattern {@code ([a-z ]{2})(\d+)([a-z ]{2})}. For example,
      * messages like "ab12xy" or "ab2bc" etc will invoke this method.
@@ -66,12 +56,9 @@ public class SlackBot extends Bot {
      * @param session
      * @param event
      */
-    @Controller(events = EventType.MESSAGE, pattern = "^([a-z ]{2})(\\d+)([a-z ]{2})$")
-    public void onReceiveMessage(WebSocketSession session, Event event, Result nlpResult, Matcher matcher) {
-        reply(session, event, new Message("First group: " + matcher.group(0) + "\n" +
-                "Second group: " + matcher.group(1) + "\n" +
-                "Third group: " + matcher.group(2) + "\n" +
-                "Fourth group: " + matcher.group(3)));
+    @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE}, pattern = "Speech")
+    public void onReceiveMessage(WebSocketSession session, Event event, Result nlpResult) {
+        reply(session, event, new Message(nlpResult.getFulfillment().getSpeech()));
     }
 
     /**
@@ -82,7 +69,7 @@ public class SlackBot extends Bot {
      */
     @Controller(events = EventType.PIN_ADDED)
     public void onPinAdded(WebSocketSession session, Event event) {
-        reply(session, event, new Message("Thanks for the pin! You can find all pinned items under channel details."));
+        //reply(session, event, new Message("Thanks for the pin! You can find all pinned items under channel details."));
     }
 
     /**
@@ -100,6 +87,22 @@ public class SlackBot extends Bot {
         logger.info("File shared: {}", event);
     }
 
+    @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE}, pattern = "ShowPhotos")
+    public void showPhoto(WebSocketSession session, Event event, Result nlpResult) {
+        reply(session, event, new Message("Attention. Finding a random photo from "+nlpResult.getParameters().getGeoCity()+" - ETA 10 seconds"));
+        new PhotosCommand().execute(nlpResult, event.getChannelId());
+    }
+
+    @Controller(events = {EventType.DIRECT_MESSAGE}, pattern = "FileSearch")
+    public void fileSearch(WebSocketSession session, Event event, Result nlpResult) {
+        reply(session, event, new Message("Searching for: "+nlpResult.getParameters().getAdditionalProperties().get("any").toString()+" - ETA 10 seconds"));
+        new FileSearchCommand().execute(nlpResult, event.getChannelId());
+    }
+
+    @Controller(events = {EventType.DIRECT_MESSAGE}, pattern = "SendTemplate")
+    public void sendTemplate(WebSocketSession session, Event event, Result nlpResult) {
+        new TemplateCommand().execute(nlpResult, event.getChannelId());
+    }
 
     @Controller(events = {EventType.DIRECT_MESSAGE}, pattern = "(timemanager.password)", next = "enterPassword")
     public void changePassword(WebSocketSession session, Event event, Result nlpResult) {
@@ -110,7 +113,7 @@ public class SlackBot extends Bot {
 
     @Controller(events = {EventType.DIRECT_MESSAGE}, next = "confirmPassword")
     public void enterPassword(WebSocketSession session, Event event) {
-        if(event.getText().trim().length() < 7) {
+        if(event.getText().trim().length() < 6) {
             reply(session, event, new Message("The password is too short, please ask me to change your password again when you are ready"));
             stopConversation(event);
         } else {
@@ -125,6 +128,7 @@ public class SlackBot extends Bot {
         if(!event.getText().trim().equals(channelValues.get(event.getChannelId()))) {
             reply(session, event, new Message("The passwords didn't match, please ask me to change your password again when you are ready"));
         } else {
+            restClient.updatePassword(event.getText().trim(), restClient.findBySlackUsername(event.getUserId()).uuid);
             reply(session, event, new Message("Excellent - I've changed your password"));
         }
         stopConversation(event);

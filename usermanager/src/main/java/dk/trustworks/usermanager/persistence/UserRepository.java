@@ -36,7 +36,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -60,7 +60,7 @@ public class UserRepository {
     public User findByUUID(String uuid) {
         System.out.println("uuid = " + uuid);
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid")
+            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user WHERE uuid LIKE :uuid")
                     .addParameter("uuid", uuid)
                     .executeAndFetchFirst(User.class);
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +
@@ -95,7 +95,7 @@ public class UserRepository {
 
     public List<User> findByActiveTrueOrderByFirstnameAsc() {
         try (Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -113,7 +113,7 @@ public class UserRepository {
 
     public User findByEmail(String email) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -130,9 +130,31 @@ public class UserRepository {
         return null;
     }
 
+    public User findBySlackUsername(String slackusername) {
+        try (org.sql2o.Connection con = sql2o.open()) {
+            User user = con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                    "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                    "from userstatus t " +
+                    "inner join ( " +
+                    "select useruuid, status, max(statusdate) as MaxDate " +
+                    "from userstatus " +
+                    "group by useruuid " +
+                    ") " +
+                    "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
+                    ") usi ON u.uuid = usi.useruuid WHERE u.slackusername LIKE :slackusername;")
+                    .addParameter("slackusername", slackusername)
+                    .executeAndFetch(User.class).get(0);
+            con.close();
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public User findByUsername(String username) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -145,13 +167,14 @@ public class UserRepository {
                     .addParameter("username", username)
                     .executeAndFetch(User.class).get(0);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
 
     public User findByUsernameAndPasswordAndActiveTrue(String username, String password) {
         try (org.sql2o.Connection con = sql2o.open()) {
-            return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+            return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                     "select t.useruuid, t.status, t.statusdate, t.allocation " +
                     "from userstatus t " +
                     "inner join ( " +
@@ -289,12 +312,25 @@ public class UserRepository {
     */
     }
 
-    public void update(JsonNode jsonNode, String uuid) throws SQLException {
+    public void updatePassword(String password, String uuid) throws SQLException {
+        System.out.println("UserRepository.updatePassword");
+        System.out.println("password = [" + password + "], uuid = [" + uuid + "]");
+        try (org.sql2o.Connection con = sql2o.open()) {
+            con.createQuery("UPDATE user u SET u.password = :password WHERE u.uuid LIKE :uuid")
+                    .addParameter("password", password)
+                    .addParameter("uuid", uuid)
+                    .executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(User user, String uuid) throws SQLException {
         try (org.sql2o.Connection con = sql2o.open()) {
             con.createQuery("UPDATE user u SET u.email = :email, u.firstname = :firstname, u.lastname = :lastname WHERE u.uuid LIKE :uuid")
-                    .addParameter("email", jsonNode.get("email").asText())
-                    .addParameter("firstname", jsonNode.get("firstname").asText())
-                    .addParameter("lastname", jsonNode.get("lastname").asText())
+                    //.addParameter("email", jsonNode.get("email").asText())
+                    //.addParameter("firstname", jsonNode.get("firstname").asText())
+                    //.addParameter("lastname", jsonNode.get("lastname").asText())
                     .addParameter("uuid", uuid)
                     .executeUpdate();
         } catch (Exception e) {
@@ -305,9 +341,9 @@ public class UserRepository {
                     " VALUES (:uuid, :useruuid, :status, :statusdate, :allocation)")
                     .addParameter("uuid", UUID.randomUUID().toString())
                     .addParameter("useruuid", uuid)
-                    .addParameter("status", jsonNode.get("status").asText())
-                    .addParameter("statusdate", new java.sql.Date(new SimpleDateFormat().parse(jsonNode.get("statusdate").asText()).getTime()))
-                    .addParameter("allocation", jsonNode.get("allocation").asText())
+                    //.addParameter("status", jsonNode.get("status").asText())
+                    //.addParameter("statusdate", new java.sql.Date(new SimpleDateFormat().parse(jsonNode.get("statusdate").asText()).getTime()))
+                    //.addParameter("allocation", jsonNode.get("allocation").asText())
                     .executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

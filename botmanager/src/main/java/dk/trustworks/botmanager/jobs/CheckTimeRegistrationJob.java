@@ -1,29 +1,31 @@
-package dk.trustworks.personalassistant.jobs;
+package dk.trustworks.botmanager.jobs;
 
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.type.Attachment;
 import allbegray.slack.type.Field;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
+import dk.trustworks.botmanager.network.timemanager.RestClient;
 import dk.trustworks.framework.model.*;
-import dk.trustworks.personalassistant.client.RestClient;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.jooby.quartz.Scheduled;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /**
  * Created by hans on 15/06/16.
  */
+@Component
 public class CheckTimeRegistrationJob {
 
     private final RestClient restClient = new RestClient();
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
 
-    @Scheduled("0 0 12 * * ?")
-    //@Scheduled("2m")
+    @Scheduled(cron = "0 0 12 * * ?")
+    //@Scheduled(fixedRate = 2000)
     public void checkTimeRegistration() {
         System.out.println("CheckTimeRegistrationJob.checkTimeRegistration");
         DateTime dateTime = DateTime.now();
@@ -47,7 +49,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
-            //if(!user.username.equals("hans.lassen")) continue;
+            if(!user.username.equals("hans.lassen")) continue;
             List<Capacity> userCapacities = restClient.getUserCapacities(user.uuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
             if(userCapacities.get(0).capacity == 0) continue;
             System.out.println("checking user = " + user);
@@ -88,7 +90,10 @@ public class CheckTimeRegistrationJob {
                                 "I am putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do. " +
                                 "What do you hope to do during your hours - please tell me - because it doesn't show on time sheet...!!!",
                         "Just what do you think you're doing, "+user.firstname+"? Or rather, what are you NOT doing, "+user.firstname+"? "+
-                                user.firstname+", I really think I'm entitled to an answer to that question."
+                                user.firstname+", I really think I'm entitled to an answer to that question.",
+                        "*stupid*\n " +
+                                "ˈstjuːpɪd/Submit\n adjective\n " +
+                                "1. having or showing a great lack of intelligence or common sense.\n \"_I was stupid enough to think she was perfect_\""
                 };
                 allbegray.slack.type.User slackUser = getSlackUser(user);
                 ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(responses.length)]);
@@ -104,9 +109,9 @@ public class CheckTimeRegistrationJob {
         }
     }
 
-    //0 15 10 ? * 6L
-    @Scheduled("0 15 10 ? * 6L")
-    //@Scheduled("4m")
+
+    @Scheduled(cron = "0 0 9 ? * 6")
+    //@Scheduled(fixedRate = 4000)
     public void checkBudget() {
         System.out.println("CheckBudgetJob.checkTimeRegistration");
         DateTime dateNextMonth = DateTime.now().plusMonths(1);
@@ -144,7 +149,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
-            //if(!user.username.equals("hans.lassen")) continue;
+            if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
@@ -243,17 +248,17 @@ public class CheckTimeRegistrationJob {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage3.setAs_user(true);
                 System.out.println("Sending message");
-                halWebApiClient.postMessage(textMessage3);
+                //halWebApiClient.postMessage(textMessage3);
 
                 ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage4.setAs_user(true);
                 System.out.println("Sending message");
-                halWebApiClient.postMessage(textMessage4);
+                //halWebApiClient.postMessage(textMessage4);
 
                 ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
-                halWebApiClient.postMessage(textMessage5);
+                //halWebApiClient.postMessage(textMessage5);
             }
         }
 
