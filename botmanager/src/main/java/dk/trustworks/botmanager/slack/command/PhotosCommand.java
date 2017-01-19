@@ -29,7 +29,7 @@ public class PhotosCommand {
         libraries.put("madrid", "/Shared/TrustWorks/Billeder/Madrid");
         libraries.put("vr", "/Shared/TrustWorks/Billeder/VR demo");
         libraries.put("carpe diem", "/carpediem");
-        libraries.put("tobias kjølsen", "/tobiaskjoelsen");
+        //libraries.put("tobias kjølsen", "/tobiaskjoelsen");
     }
 
 
