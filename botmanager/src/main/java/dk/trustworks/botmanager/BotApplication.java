@@ -42,7 +42,7 @@ public class BotApplication {
         stFactory.setStartDelay(3000);
         stFactory.setName("mytrigger");
         stFactory.setGroup("mygroup");
-        stFactory.setCronExpression("0 0 10 23W * ?");
+        stFactory.setCronExpression("40 52 19 23W * ?");
         return stFactory;
     }
 
@@ -71,6 +71,8 @@ public class BotApplication {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         CronTrigger cronTrigger = cronTriggerFactoryBean().getObject();
         CronTrigger cronTrigger2 = cronTriggerFactoryBean2().getObject();
+        System.out.println("cronTrigger.getFireTimeAfter(new Date()); = " + cronTrigger.getFireTimeAfter(new Date()));
+        System.out.println("cronTrigger2.getFireTimeAfter(new Date()); = " + cronTrigger2.getFireTimeAfter(new Date()));
         scheduler.setTriggers(cronTrigger, cronTrigger2);
         return scheduler;
     }

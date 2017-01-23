@@ -36,7 +36,7 @@ public class UserRepository {
         try {
             return activeUsersCache.get("allActive", () -> {
                 try (Connection con = sql2o.open()) {
-                    return con.createQuery("SELECT uuid, username, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                    return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
                             "select t.useruuid, t.status, t.statusdate, t.allocation " +
                             "from userstatus t " +
                             "inner join ( " +

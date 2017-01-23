@@ -30,10 +30,11 @@ public class CheckBudgetJob extends QuartzJobBean {
 
     protected void executeInternal(JobExecutionContext ctx) throws JobExecutionException {
         System.out.println("CheckBudgetJob.checkTimeRegistration");
-        DateTime dateNextMonth = DateTime.now().plusMonths(1);
+        LocalDate dateNextMonth = LocalDate.now().plusMonths(2);
         System.out.println("dateNextMonth = " + dateNextMonth);
 
         List<TaskWorkerConstraintBudget> budgets = restClient.getBudgetsByMonthAndYear(dateNextMonth.getMonthOfYear() - 1, dateNextMonth.getYear());
+        System.out.println("budgets.get(0).month = " + budgets.get(0).month);
         dateNextMonth = dateNextMonth.plusMonths(1);
         budgets.addAll(restClient.getBudgetsByMonthAndYear(dateNextMonth.getMonthOfYear() - 1, dateNextMonth.getYear()));
         System.out.println("budgets.size() = " + budgets.size());
@@ -65,6 +66,7 @@ public class CheckBudgetJob extends QuartzJobBean {
         System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
+            System.out.println("user.slackusername = " + user.slackusername);
             if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
