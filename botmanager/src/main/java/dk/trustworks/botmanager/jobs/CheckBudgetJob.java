@@ -67,7 +67,7 @@ public class CheckBudgetJob extends QuartzJobBean {
 
         for (User user : restClient.getUsers()) {
             System.out.println("user.slackusername = " + user.slackusername);
-            if(!user.username.equals("hans.lassen")) continue;
+            //if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
@@ -134,7 +134,8 @@ public class CheckBudgetJob extends QuartzJobBean {
             }
 
 
-            ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), message);
+            //ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), message);
+            ChatPostMessageMethod textMessage = new ChatPostMessageMethod(user.slackusername, message);
             textMessage.setAs_user(true);
             textMessage.setAttachments(new ArrayList<>(attachments.values()));
             System.out.println("Sending message");
@@ -154,7 +155,8 @@ public class CheckBudgetJob extends QuartzJobBean {
 
             concludingMessage += "If this seems ok, do nothing. If this seems wrong, please contact your project leads and tell them to fix it!";
 
-            textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), concludingMessage);
+            //textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), concludingMessage);
+            textMessage = new ChatPostMessageMethod(user.slackusername, concludingMessage);
             textMessage.setAs_user(true);
             System.out.println("Sending concluding message");
             halWebApiClient.postMessage(textMessage);
@@ -165,17 +167,17 @@ public class CheckBudgetJob extends QuartzJobBean {
             halWebApiClient.postMessage(textMessage2);
 
             if(allocationPercentMonthOne < 75.0 || allocationPercentMonthOne > 100.0 || allocationPercentMonthTwo < 75.0 || allocationPercentMonthTwo > 100.0) {
-                ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
+                ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage3.setAs_user(true);
                 System.out.println("Sending message");
                 //halWebApiClient.postMessage(textMessage3);
 
-                ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
+                ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage4.setAs_user(true);
                 System.out.println("Sending message");
                 //halWebApiClient.postMessage(textMessage4);
 
-                ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
+                ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
                 //halWebApiClient.postMessage(textMessage5);

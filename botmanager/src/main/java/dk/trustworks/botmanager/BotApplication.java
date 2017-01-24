@@ -42,7 +42,7 @@ public class BotApplication {
         stFactory.setStartDelay(3000);
         stFactory.setName("mytrigger");
         stFactory.setGroup("mygroup");
-        stFactory.setCronExpression("40 52 19 23W * ?");
+        stFactory.setCronExpression("00 45 10 24W * ?");
         return stFactory;
     }
 
@@ -62,7 +62,7 @@ public class BotApplication {
         stFactory.setStartDelay(3000);
         stFactory.setName("mytrigger2");
         stFactory.setGroup("mygroup2");
-        stFactory.setCronExpression("0 0 10 10W * ?");
+        stFactory.setCronExpression("0 45 10 10W * ?");
         return stFactory;
     }
 
