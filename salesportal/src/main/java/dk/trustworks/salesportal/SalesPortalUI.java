@@ -26,8 +26,8 @@ public class SalesPortalUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        LocalDate localDateStart = LocalDate.now();
-        LocalDate localDateEnd = LocalDate.now().plusYears(1);
+        LocalDate localDateStart = LocalDate.now().plusMonths(1).withDayOfMonth(1);
+        LocalDate localDateEnd = localDateStart.plusYears(1);
 
         SalesView salesView = new SalesView();
         SalesHeatMap salesHeatMap = new SalesHeatMap(localDateStart, localDateEnd);

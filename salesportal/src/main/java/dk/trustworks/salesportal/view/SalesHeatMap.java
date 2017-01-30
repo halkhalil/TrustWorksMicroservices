@@ -14,6 +14,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.sql2o.Connection;
+import org.sql2o.Query;
 import org.sql2o.Sql2o;
 
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ public class SalesHeatMap {
     private String[] monthNames;
 
     public SalesHeatMap(LocalDate localDateStart, LocalDate localDateEnd) {
+        System.out.println("SalesHeatMap.SalesHeatMap");
+        System.out.println("localDateStart = [" + localDateStart + "], localDateEnd = [" + localDateEnd + "]");
         this.localDateStart = localDateStart;
         this.localDateEnd = localDateEnd;
         monthPeriod = new Period(localDateStart, localDateEnd, PeriodType.months()).getMonths();
@@ -66,7 +69,7 @@ public class SalesHeatMap {
     private void getMonthNames() {
         monthNames = new String[new Period(localDateStart, localDateEnd, PeriodType.months()).getMonths()];
         for (int i = 0; i < monthNames.length; i++) {
-            monthNames[i] = localDateStart.plusMonths(i+1).monthOfYear().getAsShortText();
+            monthNames[i] = localDateStart.plusMonths(i).monthOfYear().getAsShortText();
         }
     }
 
@@ -80,8 +83,8 @@ public class SalesHeatMap {
                 "ORDER BY u.lastname DESC, uuid, date;";
         try(Connection con = sql2o.open()) {
             userBudgets = con.createQuery(sql)
-                    .addParameter("periodStart", localDateStart.toString("yyyyMMdd"))
-                    .addParameter("periodEnd", localDateEnd.toString("yyyyMMdd"))
+                    .addParameter("periodStart", localDateStart.minusMonths(1).toString("yyyyMMdd"))
+                    .addParameter("periodEnd", localDateEnd.minusMonths(1).toString("yyyyMMdd"))
                     .executeAndFetch(UserBudget.class);
             con.close();
         } catch (Exception e) {
@@ -113,6 +116,10 @@ public class SalesHeatMap {
     }
 
     private void getAmountPerItem() {
+
+
+/*
+        System.out.println("SalesHeatMap.getAmountPerItem");
         String sql = "SELECT uuid, SUM(amount) amount, description FROM ( ";
         LocalDate localDate = localDateStart;
         do {
@@ -122,23 +129,46 @@ public class SalesHeatMap {
                     "ON t.useruuid = tm.useruuid AND t.statusdate = tm.MaxDate ) usi " +
                     "ON u.uuid = usi.useruuid GROUP BY uuid";
             localDate = localDate.plusMonths(1);
-            if(!localDate.isEqual(localDateEnd)) sql += " UNION ALL ";
-        } while (!localDate.isEqual(localDateEnd));
+            System.out.println("localDate = " + localDate.toString());
+            if(!localDate.isAfter(localDateEnd)) sql += " UNION ALL ";
+        } while (!localDate.isAfter(localDateEnd));
         sql += ") m2 GROUP BY uuid;";
+*/
+        //System.out.println("sql = " + sql);
+        List<List<AmountPerItem>> amountPerItemListList = new ArrayList<>();
 
-        System.out.println("sql = " + sql);
-        List<AmountPerItem> amountPerItemList = new ArrayList<>();
         try(Connection con = sql2o.open()) {
-            amountPerItemList = con.createQuery(sql).executeAndFetch(AmountPerItem.class);
+            LocalDate localDate = localDateStart;
+            do {
+                List<AmountPerItem> amountPerItemList = new ArrayList<>();
+                String sql = "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount FROM usermanager.user u RIGHT JOIN ( " +
+                        "SELECT t.useruuid, t.status, t.statusdate, t.allocation from usermanager.userstatus t inner join ( " +
+                        "SELECT useruuid, status, max(statusdate) as MaxDate from usermanager.userstatus WHERE statusdate <= :date group by useruuid ) tm " +
+                        "ON t.useruuid = tm.useruuid AND t.statusdate = tm.MaxDate ) usi " +
+                        "ON u.uuid = usi.useruuid GROUP BY uuid";
+                //Query query = con.createQuery(sql);
+                amountPerItemList = con.createQuery(sql)
+                        .addParameter("date", localDate.toString("yyyy-MM-dd"))
+                        .executeAndFetch(AmountPerItem.class);
+                amountPerItemListList.add(amountPerItemList);
+                localDate = localDate.plusMonths(1);
+            } while (!localDate.isAfter(localDateEnd));
+
+            //amountPerItemList = con.createQuery(sql).executeAndFetch(AmountPerItem.class);
             con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
         userAvailability = new HashMap<>();
-        for (AmountPerItem amountPerItem : amountPerItemList) {
-            System.out.println("amountPerItem = " + amountPerItem);
-            userAvailability.put(amountPerItem.uuid, (amountPerItem.amount / monthPeriod) / 5.0);
-            System.out.println("userAvailability = " + userAvailability.get(amountPerItem.uuid));
+        int month = 0;
+        for (List<AmountPerItem> amountPerItemList : amountPerItemListList) {
+            for (AmountPerItem amountPerItem : amountPerItemList) {
+                //System.out.println("amountPerItem = " + amountPerItem);
+                userAvailability.put(amountPerItem.uuid+month, (amountPerItem.amount / 5.0));
+                //userAvailability.put(amountPerItem.uuid+month, (amountPerItem.amount / monthPeriod) / 5.0);
+                //System.out.println("userAvailability = " + userAvailability.get(amountPerItem.uuid+month));
+            }
+            month++;
         }
     }
 
@@ -176,7 +206,7 @@ public class SalesHeatMap {
             if(!useruuid.equals(userBudget.uuid)) {
                 if(userNumber>=0) {
                     month++;
-                    for (int j = month; j < monthPeriod - 2; j++) {
+                    for (int j = month; j < monthPeriod; j++) {
                         rs.addHeatPoint(j, userNumber, 100);
                     }
                 }
@@ -190,15 +220,15 @@ public class SalesHeatMap {
             //System.out.println("userBudget.budget = " + userBudget.budget);
             //System.out.println("userAvailability = " + userAvailability.get(useruuid));
             int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
-            double budget = Math.round(weekDays * userAvailability.get(useruuid) - userBudget.budget);
+            double budget = Math.round((weekDays * userAvailability.get(useruuid+month)) - userBudget.budget);
             //System.out.println("budget = " + budget);
             if(budget<0) budget = 0;
-            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid)) * 100.0);
+            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid+month)) * 100.0);
             //System.out.println("budget = " + budget);
             rs.addHeatPoint(month, userNumber, Math.round(budget));
         }
         month++;
-        for (int j = month; j < monthPeriod-2; j++) {
+        for (int j = month; j < monthPeriod; j++) {
             System.out.println("month = " + j);
             rs.addHeatPoint(j, userNumber, 100);
         }
@@ -277,11 +307,12 @@ public class SalesHeatMap {
 
         int[] numbers = new int[12];
         int[] capacity = new int[12];
+        //System.out.println("userBudgets = " + userBudgets.size());
         for (UserBudget userBudget : userBudgets) {
             if(!useruuid.equals(userBudget.uuid)) {
                 if(userNumber>=0) {
                     month++;
-                    for (int j = month; j < monthPeriod - 2; j++) {
+                    for (int j = month; j < monthPeriod; j++) {
                         numbers[j] = numbers[j] + 100;
                     }
                 }
@@ -294,21 +325,30 @@ public class SalesHeatMap {
             }
 
             int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
-            capacity[month] += weekDays * userAvailability.get(useruuid);
-            double budget = Math.round(weekDays * userAvailability.get(useruuid) - userBudget.budget);
+            capacity[month] += weekDays * userAvailability.get(useruuid+month);
+            double budget = Math.round(weekDays * userAvailability.get(useruuid+month) - userBudget.budget);
             if(budget<0) budget = 0;
-            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid)) * 100.0);
+            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid+month)) * 100.0);
             numbers[month] = numbers[month] + (int)Math.round(budget);
+            if(useruuid.equals("ee232edf-97e0-11e4-a1f7-07091a64aa27")) {
+                System.out.println("localDateStart = " + localDateStart.plusMonths(month));
+                System.out.println("weekDays = " + weekDays);
+                System.out.println("userAvailability.get(useruuid+month) = " + userAvailability.get(useruuid + month));
+                System.out.println("userBudget.budget = " + userBudget.budget);
+                System.out.println("budget = " + budget);
+            }
         }
         month++;
-        for (int j = month; j < monthPeriod-2; j++) {
-            System.out.println("month = " + j);
+        for (int j = month; j < monthPeriod; j++) {
+            //System.out.println("month = " + j);
             numbers[j] = numbers[j] + 100;
             //rs.addHeatPoint(j, userNumber, 100);
         }
         ListSeries listSeries = new ListSeries();
-        for (int j = 0; j < monthPeriod-2; j++) {
+        for (int j = 0; j < monthPeriod; j++) {
             //if(capacity[month] <= 0) continue;
+            //System.out.println("numbers[j] = " + numbers[j]);
+            //System.out.println("usersList = " + usersList.size());
             listSeries.addData(numbers[j] / usersList.size());
             month++;
         }
@@ -336,6 +376,7 @@ public class SalesHeatMap {
             else
                 weekday = weekday.plusDays(1);
         }
+        System.out.println(periodStart + " - " +periodEnd + " = " + count);
         return count;
     }
 
