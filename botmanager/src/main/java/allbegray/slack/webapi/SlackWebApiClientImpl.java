@@ -1236,7 +1236,7 @@ public class SlackWebApiClientImpl implements SlackWebApiClient {
 
 		if (errors.size() > 0) {
 
-			StringBuffer sb = new StringBuffer("*** slack argument error ***");
+			StringBuffer sb = new StringBuffer("*** allbegray.allbegray.slack argument error ***");
 			for (ValidationError error : errors) {
 				if (sb.length() > 0) {
 					sb.append("\n");

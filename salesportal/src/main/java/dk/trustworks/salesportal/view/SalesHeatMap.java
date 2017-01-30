@@ -73,7 +73,7 @@ public class SalesHeatMap {
     private void getUserBudgets() {
         String sql = "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) name, (((b.year*10000)+((b.month+1)*100))+1) date, SUM(b.budget / twc.price) budget " +
                 "FROM clientmanager.taskworkerconstraint_latest b " +
-                "INNER JOIN clientmanager.taskworkerconstraint twc ON twc.uuid = b.taskworkerconstraintuuid " +
+                "INNER JOIN clientmanager.taskworkerconstraint twc ON twc.taskuuid = b.taskuuid and twc.useruuid = b.useruuid " +
                 "INNER JOIN usermanager.user u ON u.uuid = twc.useruuid " +
                 "WHERE ((b.year*10000)+((b.month+1)*100)) between :periodStart and :periodEnd " +
                 "GROUP BY u.uuid, b.year, b.month " +
@@ -126,6 +126,7 @@ public class SalesHeatMap {
         } while (!localDate.isEqual(localDateEnd));
         sql += ") m2 GROUP BY uuid;";
 
+        System.out.println("sql = " + sql);
         List<AmountPerItem> amountPerItemList = new ArrayList<>();
         try(Connection con = sql2o.open()) {
             amountPerItemList = con.createQuery(sql).executeAndFetch(AmountPerItem.class);

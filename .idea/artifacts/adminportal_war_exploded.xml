@@ -70,6 +70,9 @@
           <element id="library" level="project" name="Maven: org.ow2.asm:asm:5.1" />
           <element id="library" level="project" name="Maven: org.apache.ant:ant:1.9.6" />
           <element id="library" level="project" name="Maven: org.apache.ant:ant-launcher:1.9.6" />
+          <element id="archive" name="trustworks-model-1.0-SNAPSHOT.jar">
+            <element id="module-output" name="trustworks-model" />
+          </element>
           <element id="library" level="project" name="Maven: com.vaadin:vaadin-server:7.7.6" />
           <element id="library" level="project" name="Maven: com.vaadin:vaadin-sass-compiler:0.9.13" />
           <element id="library" level="project" name="Maven: org.w3c.css:sac:1.3" />

@@ -59,7 +59,7 @@ public class WhereAreWePortalUI {
 
             String sql = "SELECT u.username username, c.name clientname, c.latitude latitude, c.longitude longitude " +
                     "FROM clientmanager.taskworkerconstraint_latest b " +
-                    "INNER JOIN clientmanager.taskworkerconstraint twc ON twc.uuid = b.taskworkerconstraintuuid " +
+                    "INNER JOIN clientmanager.taskworkerconstraint twc ON ON twc.taskuuid = b.taskuuid and twc.useruuid = b.useruuid " +
                     "INNER JOIN clientmanager.task t ON twc.taskuuid = t.uuid " +
                     "INNER JOIN clientmanager.project p ON t.projectuuid = p.uuid " +
                     "INNER JOIN clientmanager.client c ON p.clientuuid = c.uuid " +

@@ -23,8 +23,8 @@ public class SlackbotClient {
 		if (slackbotUrl == null) {
 			throw new SlackArgumentException("Missing Slackbot URL Configuration @ SlackApi");
 
-		} else if (!slackbotUrl.contains(".slack.com/services/hooks/slackbot?token=")) {
-			throw new SlackArgumentException("Invalid Service URL. Slackbot URL Format: https://{yourteam}.slack.com/services/hooks/slackbot?token={token}");
+		} else if (!slackbotUrl.contains(".allbegray.allbegray.slack.com/services/hooks/slackbot?token=")) {
+			throw new SlackArgumentException("Invalid Service URL. Slackbot URL Format: https://{yourteam}.allbegray.allbegray.slack.com/services/hooks/slackbot?token={token}");
 		}
 
 		this.slackbotUrl = slackbotUrl;

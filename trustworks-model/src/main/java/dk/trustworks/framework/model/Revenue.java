@@ -1,6 +1,5 @@
 package dk.trustworks.framework.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.joda.time.LocalDate;
 
 /**

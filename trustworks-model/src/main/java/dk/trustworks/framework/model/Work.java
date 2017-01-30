@@ -3,8 +3,6 @@ package dk.trustworks.framework.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
-import java.time.LocalDate;
-
 /**
  * Created by hans on 30/10/2016.
  */

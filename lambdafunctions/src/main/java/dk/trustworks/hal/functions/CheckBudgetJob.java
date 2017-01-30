@@ -1,35 +1,29 @@
-package dk.trustworks.botmanager.jobs;
+package dk.trustworks.hal.functions;
 
 import allbegray.slack.SlackClientFactory;
 import allbegray.slack.type.Attachment;
 import allbegray.slack.type.Field;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
-import dk.trustworks.botmanager.network.timemanager.RestClient;
+import dk.trustworks.client.timemanager.RestClient;
 import dk.trustworks.framework.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.PersistJobDataAfterExecution;
-import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import java.util.*;
 
-/**
- * Created by hans on 16/01/2017.
- */
-@PersistJobDataAfterExecution
-@DisallowConcurrentExecution
-public class CheckBudgetJob extends QuartzJobBean {
+
+public class CheckBudgetJob {
 
     private final RestClient restClient = new RestClient();
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
 
-    protected void executeInternal(JobExecutionContext ctx) throws JobExecutionException {
-        System.out.println("CheckBudgetJob.checkTimeRegistration");
+    public void execute() {
+        System.out.println("CheckBudgetJob.execute");
+        System.out.println("System.getenv(\"HAL_SLACK_TOKEN\") = " + System.getenv("HAL_SLACK_TOKEN"));
+        System.out.println("System.getProperty(\"HAL_SLACK_TOKEN\") = " + System.getProperty("HAL_SLACK_TOKEN"));
+
         LocalDate dateNextMonth = LocalDate.now().plusMonths(2);
         System.out.println("dateNextMonth = " + dateNextMonth);
 
@@ -40,8 +34,6 @@ public class CheckBudgetJob extends QuartzJobBean {
         System.out.println("budgets.size() = " + budgets.size());
         List<Project> projects = restClient.getProjectsAndTasksAndTaskWorkerConstraints();
         System.out.println("projects.size() = " + projects.size());
-        //List<Work> thisMonthWork = restClient.getRegisteredWorkByMonth(LocalDate.now().getYear(), LocalDate.now().getMonthOfYear() - 1);
-        //System.out.println("thisMonthWork.size() = " + thisMonthWork.size());
 
         Map<String, TaskWorkerConstraint> taskWorkerConstraintMap = new HashMap<>();
         for (Project project : projects) {
@@ -67,7 +59,7 @@ public class CheckBudgetJob extends QuartzJobBean {
 
         for (User user : restClient.getUsers()) {
             System.out.println("user.slackusername = " + user.slackusername);
-            //if(!user.username.equals("hans.lassen")) continue;
+            if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
@@ -88,7 +80,6 @@ public class CheckBudgetJob extends QuartzJobBean {
                 Task task = taskWorkerConstraint.task;
                 System.out.println("task = " + task);
                 Project project = task.project;
-                //System.out.println("project = " + project);
                 double budgetHours = (budget.budget / taskWorkerConstraint.price);
 
                 if(budget.month == (DateTime.now().plusMonths(1).getMonthOfYear()-1)) {
@@ -120,21 +111,9 @@ public class CheckBudgetJob extends QuartzJobBean {
                     // Tilføj budgettet
                     attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.month+1).monthOfYear().getAsText(), (Math.round(budgetHours*100.0)/100.0)+" hours", true));
                 }
-
-                /*
-                double workHours = 0.0;
-                for (Work work : thisMonthWork) {
-                    if(work.getUserUUID().equals(user.getUUID()) && work.getTaskUUID().equals(task.getUUID())) {
-                        workHours += work.getWorkDuration();
-                    }
-                }
-
-                attachment.addField(new Field("Hours worked in "+LocalDate.now().monthOfYear().getAsText(), workHours+"", true));
-                */
             }
 
 
-            //ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), message);
             ChatPostMessageMethod textMessage = new ChatPostMessageMethod(user.slackusername, message);
             textMessage.setAs_user(true);
             textMessage.setAttachments(new ArrayList<>(attachments.values()));
@@ -151,11 +130,9 @@ public class CheckBudgetJob extends QuartzJobBean {
             long allocationPercentMonthOne = Math.round((totalBudgetMonthOne / ((userCapacities.get(0).capacity / 5) * businessDaysInNextMonth)) * 100);
             long allocationPercentMonthTwo = Math.round((totalBudgetMonthTwo / ((userCapacities.get(1).capacity / 5) * businessDaysInNextNextMonth)) * 100);
             String concludingMessage = "";
-            //String concludingMessage += "This means you have a *"+allocationPercent+"%* allocation this coming month\n\n";
 
             concludingMessage += "If this seems ok, do nothing. If this seems wrong, please contact your project leads and tell them to fix it!";
 
-            //textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), concludingMessage);
             textMessage = new ChatPostMessageMethod(user.slackusername, concludingMessage);
             textMessage.setAs_user(true);
             System.out.println("Sending concluding message");
@@ -165,7 +142,7 @@ public class CheckBudgetJob extends QuartzJobBean {
             textMessage2.setAs_user(true);
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage2);
-
+/*
             if(allocationPercentMonthOne < 75.0 || allocationPercentMonthOne > 100.0 || allocationPercentMonthTwo < 75.0 || allocationPercentMonthTwo > 100.0) {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage3.setAs_user(true);
@@ -182,6 +159,7 @@ public class CheckBudgetJob extends QuartzJobBean {
                 System.out.println("Sending message");
                 //halWebApiClient.postMessage(textMessage5);
             }
+            */
         }
 
     }

@@ -13,10 +13,10 @@ public abstract class SlackFieldValidationUtils {
 		"archive", "archived", "archives", "all", "channel",
 		"channels", "create", "delete", "deleted-channel", "edit",
 		"everyone", "general", "group", "groups", "here", "me",
-		"ms", "slack", "slackbot", "today", "you")
+		"ms", "allbegray.allbegray.slack", "slackbot", "today", "you")
 	);
 	
-	public static final String ERROR_MSG = "check the link. https://slack.zendesk.com/hc/en-us/articles/201402297-Creating-a-channel";
+	public static final String ERROR_MSG = "check the link. https://allbegray.allbegray.slack.zendesk.com/hc/en-us/articles/201402297-Creating-a-channel";
 
 	/**
 	 * <p> Channel names can be up to 21 characters in length, and may include
@@ -27,7 +27,7 @@ public abstract class SlackFieldValidationUtils {
 	 * <p> Some names are reserved, which means they can't be used for channels
 	 * or @usernames in Slack. These are: archive, archived, archives, all,
 	 * channel, channels, create, delete, deleted-channel, edit, everyone,
-	 * general, group, groups, here, me, ms, slack, slackbot, today, you. </p>
+	 * general, group, groups, here, me, ms, allbegray.allbegray.slack, slackbot, today, you. </p>
 	 * 
 	 * @param name
 	 * @return

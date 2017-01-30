@@ -14,5 +14,5 @@
 
     <inherits name="dk.trustworks.MyAppWidgetset" />
 
-    <inherits name="dk.trustworks.salesportal.MyAppWidgetset" />
+    
 </module>

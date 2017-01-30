@@ -2,20 +2,17 @@ package dk.trustworks.framework.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import org.joda.time.DateTime;
 
 /**
  * Created by hans on 12/05/15.
  */
-@JsonTypeName("budget")
+//@JsonTypeName("budget")
 @JsonIgnoreProperties({"created"})
-@Api(value = "/budget", description = "Operations about user budgets related to tasks")
-public class Budget {
+//@Api(value = "/budget", description = "Operations about user budgets related to tasks")
+public class TaskWorkerConstraintBudget {
 
-    @JsonIgnore
+    //@JsonIgnore
     public String uuid;
 
     public double budget;
@@ -26,7 +23,6 @@ public class Budget {
 
     @Deprecated
     @JsonIgnore
-    @ApiModelProperty(access = "false", hidden = true)
     public String taskworkerconstraintuuid;
 
     public DateTime created;
@@ -35,7 +31,7 @@ public class Budget {
 
     public String taskuuid;
 
-    public Budget() {
+    public TaskWorkerConstraintBudget() {
     }
 
     @Override

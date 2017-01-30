@@ -2,8 +2,8 @@ package allbegray.slack.webapi;
 
 public interface SlackWebApiConstants {
 
-	String SLACK_WEB_API_URL = "https://slack.com/api";
-	String SLACK_WEB_API_DOCUMENT_URL = "https://api.slack.com/methods";
+	String SLACK_WEB_API_URL = "https://allbegray.allbegray.slack.com/api";
+	String SLACK_WEB_API_DOCUMENT_URL = "https://api.allbegray.allbegray.slack.com/methods";
 
 	int DEFAULT_TIMEOUT = 5000;
 

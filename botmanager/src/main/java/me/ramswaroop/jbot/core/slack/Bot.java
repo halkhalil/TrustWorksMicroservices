@@ -197,7 +197,7 @@ public abstract class Bot {
                         event.setType(EventType.DIRECT_MESSAGE.name());
                     }
                 }
-            } else { // slack does not send any TYPE for acknowledgement messages
+            } else { // allbegray.allbegray.slack does not send any TYPE for acknowledgement messages
                 event.setType(EventType.ACK.name());
             }
 
@@ -245,7 +245,7 @@ public abstract class Bot {
     }
 
     /**
-     * Check whether a conversation is up in a particular slack channel.
+     * Check whether a conversation is up in a particular allbegray.allbegray.slack channel.
      *
      * @param event
      * @return true if a conversation is on, false otherwise.
@@ -371,11 +371,11 @@ public abstract class Bot {
     /**
      * Search for a method whose {@link Controller#pattern()} match with the {@link Event#text}
      * in events received from Slack and also filter out the methods whose {@link Controller#pattern()} do not
-     * match with slack message received ({@link Event#text}) for cases where there are no matched methods.
+     * match with allbegray.allbegray.slack message received ({@link Event#text}) for cases where there are no matched methods.
      *
      * @param event
      * @param methodWrappers
-     * @return the MethodWrapper whose method pattern match with that of the slack message received, {@code null} if no
+     * @return the MethodWrapper whose method pattern match with that of the allbegray.allbegray.slack message received, {@code null} if no
      * such method is found.
      */
     private MethodWrapper getMethodWithMatchingPatternAndFilterUnmatchedMethods(Event event, List<MethodWrapper> methodWrappers) {

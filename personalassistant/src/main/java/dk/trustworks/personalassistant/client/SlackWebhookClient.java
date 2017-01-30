@@ -15,7 +15,7 @@ import java.io.ByteArrayInputStream;
  */
 public class SlackWebhookClient {
 
-    private final static String webhookURL = "https://hooks.slack.com/services/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";
+    private final static String webhookURL = "https://hooks.allbegray.slack.com/services/T036JELTL/B1E7W0TJB/jQMD9nYblJUro2h3O83v0pPn";
 
     private final static SlackWebApiClient webApiClient = SlackClientFactory.createWebApiClient("xoxb-37490350945-6qMz8NFyXcHTMtPMl8hDpsTE");
 
@@ -70,7 +70,7 @@ public class SlackWebhookClient {
         try {
             SlackWebhookFileMessage message = new SlackWebhookFileMessage(from, slackMessage.file, slackMessage.filetype, slackMessage.filename);
 
-            Unirest.post("https://slack.com/api/files.upload")
+            Unirest.post("https://allbegray.slack.com/api/files.upload")
                     .header("accept", "application/json")
                     .field("token", "xoxb-37490350945-2eVzVkvuHkNPlGJ96bcsHw61")
                     .field("file", slackMessage.file, "image.jpeg")
