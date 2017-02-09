@@ -14,7 +14,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.sql2o.Connection;
-import org.sql2o.Query;
 import org.sql2o.Sql2o;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class SalesHeatMap {
     private LocalDate localDateEnd;
 
     private List<UserBudget> userBudgets;
-    private Map<String, Double> userAvailability;
+    private Map<String, Double> userAvailabilityMap;
 
     private Sql2o sql2o;
 
@@ -141,11 +140,11 @@ public class SalesHeatMap {
             LocalDate localDate = localDateStart;
             do {
                 List<AmountPerItem> amountPerItemList = new ArrayList<>();
-                String sql = "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount FROM usermanager.user u RIGHT JOIN ( " +
+                String sql = "SELECT u.uuid uuid, CONCAT(u.firstname, ' ', u.lastname) description, SUM(allocation) amount, usi.status status FROM usermanager.user u LEFT JOIN ( " +
                         "SELECT t.useruuid, t.status, t.statusdate, t.allocation from usermanager.userstatus t inner join ( " +
                         "SELECT useruuid, status, max(statusdate) as MaxDate from usermanager.userstatus WHERE statusdate <= :date group by useruuid ) tm " +
                         "ON t.useruuid = tm.useruuid AND t.statusdate = tm.MaxDate ) usi " +
-                        "ON u.uuid = usi.useruuid GROUP BY uuid";
+                        "ON u.uuid = usi.useruuid WHERE status NOT LIKE 'TERMINATED' GROUP BY uuid";
                 //Query query = con.createQuery(sql);
                 amountPerItemList = con.createQuery(sql)
                         .addParameter("date", localDate.toString("yyyy-MM-dd"))
@@ -159,14 +158,14 @@ public class SalesHeatMap {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        userAvailability = new HashMap<>();
+        userAvailabilityMap = new HashMap<>();
         int month = 0;
         for (List<AmountPerItem> amountPerItemList : amountPerItemListList) {
             for (AmountPerItem amountPerItem : amountPerItemList) {
                 //System.out.println("amountPerItem = " + amountPerItem);
-                userAvailability.put(amountPerItem.uuid+month, (amountPerItem.amount / 5.0));
-                //userAvailability.put(amountPerItem.uuid+month, (amountPerItem.amount / monthPeriod) / 5.0);
-                //System.out.println("userAvailability = " + userAvailability.get(amountPerItem.uuid+month));
+                userAvailabilityMap.put(amountPerItem.uuid+month, (amountPerItem.amount / 5.0));
+                //userAvailabilityMap.put(amountPerItem.uuid+month, (amountPerItem.amount / monthPeriod) / 5.0);
+                //System.out.println("userAvailabilityMap = " + userAvailabilityMap.get(amountPerItem.uuid+month));
             }
             month++;
         }
@@ -174,7 +173,7 @@ public class SalesHeatMap {
 
     public Component getChart() {
         System.out.println("userBudgets = " + userBudgets.size());
-        System.out.println("userAvailability = " + userAvailability.size());
+        System.out.println("userAvailabilityMap = " + userAvailabilityMap.size());
 
         Chart chart = new Chart();
 
@@ -217,14 +216,12 @@ public class SalesHeatMap {
             } else {
                 month++;
             }
-            //System.out.println("userBudget.budget = " + userBudget.budget);
-            //System.out.println("userAvailability = " + userAvailability.get(useruuid));
             int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
-            double budget = Math.round((weekDays * userAvailability.get(useruuid+month)) - userBudget.budget);
-            //System.out.println("budget = " + budget);
+            Double userAvailability = userAvailabilityMap.get(useruuid + month);
+            if(userAvailability == null) userAvailability = 0.0;
+            double budget = Math.round((weekDays * userAvailability) - userBudget.budget);
             if(budget<0) budget = 0;
-            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid+month)) * 100.0);
-            //System.out.println("budget = " + budget);
+            budget = Math.round(budget / Math.round(weekDays * userAvailability) * 100.0);
             rs.addHeatPoint(month, userNumber, Math.round(budget));
         }
         month++;
@@ -233,7 +230,6 @@ public class SalesHeatMap {
             rs.addHeatPoint(j, userNumber, 100);
         }
 
-        //config.getxAxis().setCategories(monthList.stream().toArray(size -> new String[size]));
         config.getxAxis().setCategories(monthNames);
         config.getyAxis().setCategories(usersList.stream().toArray(size -> new String[size]));
 
@@ -325,15 +321,17 @@ public class SalesHeatMap {
             }
 
             int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
-            capacity[month] += weekDays * userAvailability.get(useruuid+month);
-            double budget = Math.round(weekDays * userAvailability.get(useruuid+month) - userBudget.budget);
+            Double userAvailability = userAvailabilityMap.get(useruuid + month);
+            if(userAvailability == null) userAvailability = 0.0;
+            capacity[month] += weekDays * userAvailability;
+            double budget = Math.round(weekDays * userAvailability - userBudget.budget);
             if(budget<0) budget = 0;
-            budget = Math.round(budget / Math.round(weekDays * userAvailability.get(useruuid+month)) * 100.0);
+            budget = Math.round(budget / Math.round(weekDays * userAvailability) * 100.0);
             numbers[month] = numbers[month] + (int)Math.round(budget);
             if(useruuid.equals("ee232edf-97e0-11e4-a1f7-07091a64aa27")) {
                 System.out.println("localDateStart = " + localDateStart.plusMonths(month));
                 System.out.println("weekDays = " + weekDays);
-                System.out.println("userAvailability.get(useruuid+month) = " + userAvailability.get(useruuid + month));
+                System.out.println("userAvailabilityMap.get(useruuid+month) = " + userAvailability);
                 System.out.println("userBudget.budget = " + userBudget.budget);
                 System.out.println("budget = " + budget);
             }

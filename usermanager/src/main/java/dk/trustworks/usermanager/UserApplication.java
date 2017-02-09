@@ -121,6 +121,12 @@ public class UserApplication extends Jooby {
                     resp.send(users);
                 })
 
+                .get("/v2", (req, resp) -> {
+                    DataSource db = req.require(DataSource.class);
+                    List<User> users = UserService.getInstance(db).findAllV2();
+                    resp.send(users);
+                })
+
                 .get("/:uuid", (req, resp) -> {
                     String uuid = req.param("uuid").value();
                     DataSource db = req.require(DataSource.class);

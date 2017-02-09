@@ -100,7 +100,7 @@ public class RestClient {
         System.out.println("RestClient.getUsers");
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users")
+            jsonResponse = Unirest.get(Locator.getInstance().resolveURL("userservice") + "/api/users/v2")
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();

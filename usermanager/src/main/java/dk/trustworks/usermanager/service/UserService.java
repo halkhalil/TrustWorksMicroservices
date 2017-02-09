@@ -42,6 +42,11 @@ public class UserService {
     }
 
     @RoleRight("tm.user")
+    public List<User> findAllV2() {
+        return userRepository.findAllV2();
+    }
+
+    @RoleRight("tm.user")
     public User findByUUID(String uuid) {
         return userRepository.findByUUID(uuid);
     }

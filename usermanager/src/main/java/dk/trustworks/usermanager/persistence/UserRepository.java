@@ -57,6 +57,32 @@ public class UserRepository {
         }
     }
 
+    public List<User> findAllV2() {
+        System.out.println("UserRepository.findAllV2");
+        try {
+            return activeUsersCache.get("allActive", () -> {
+                try (Connection con = sql2o.open()) {
+                    return con.createQuery("SELECT uuid, username, slackusername, firstname, lastname, email, created FROM user u RIGHT JOIN ( " +
+                            "select t.useruuid, t.status, t.statusdate, t.allocation " +
+                            "from userstatus t " +
+                            "inner join ( " +
+                            "select useruuid, status, max(statusdate) as MaxDate " +
+                            "from userstatus " +
+                            "group by useruuid " +
+                            ") " +
+                            "tm on t.useruuid = tm.useruuid and t.statusdate = tm.MaxDate " +
+                            ") usi ON u.uuid = usi.useruuid;").executeAndFetch(User.class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return new ArrayList<>();
+            });
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
     public User findByUUID(String uuid) {
         System.out.println("uuid = " + uuid);
         try (Connection con = sql2o.open()) {

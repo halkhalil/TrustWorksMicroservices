@@ -7,6 +7,7 @@ public class AmountPerItem implements  Comparable<AmountPerItem> {
     public String uuid;
     public String description;
     public double amount;
+    public String status;
 
     public AmountPerItem() {
     }
