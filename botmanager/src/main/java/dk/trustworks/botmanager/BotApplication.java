@@ -1,19 +1,9 @@
 package dk.trustworks.botmanager;
 
-import dk.trustworks.botmanager.jobs.CheckBudgetJob;
-import org.quartz.CronTrigger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by hans on 06/01/2017.
@@ -25,7 +15,7 @@ public class BotApplication {
     public static void main(String[] args) {
         SpringApplication.run(BotApplication.class, args);
     }
-
+/*
     @Bean
     public JobDetailFactoryBean jobDetailFactoryBean(){
         JobDetailFactoryBean factory = new JobDetailFactoryBean();
@@ -78,4 +68,5 @@ public class BotApplication {
         scheduler.setTriggers(cronTrigger, cronTrigger2);
         return scheduler;
     }
+    */
 }
