@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class RestClient {
 
+    private final String timeUrl = "http://ws.trustworks.dk/timeservice/api";
     private final String clientUrl = "http://ws.trustworks.dk/clientservice/api";
     private final String usersUrl = "http://ws.trustworks.dk/userservice/api";
 
@@ -92,6 +93,25 @@ public class RestClient {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Work> getRegisteredWorkByYearMonthDay(int year, int month, int day) {
+        System.out.println("RestClient.getRegisteredWorkByYearMonthDay");
+        System.out.println("year = [" + year + "], month = [" + month + "], day = [" + day + "]");
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(usersUrl + "/works/search/findByYearAndMonthAndDay")
+                    .queryString("month", month)
+                    .queryString("year", year)
+                    .queryString("day", day)
+                    .header("accept", "application/json")
+                    .asJson();
+            ObjectMapper mapper = new ObjectMapper();
+            List<Work> result = mapper.readValue(jsonResponse.getRawBody(), new TypeReference<List<Work>>() {});
+            return result;
+        } catch (UnirestException | IOException e) {
             e.printStackTrace();
         }
         return new ArrayList<>();

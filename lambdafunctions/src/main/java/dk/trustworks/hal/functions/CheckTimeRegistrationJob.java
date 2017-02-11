@@ -1,34 +1,30 @@
-package dk.trustworks.botmanager.jobs;
+package dk.trustworks.hal.functions;
 
 import allbegray.slack.SlackClientFactory;
-import allbegray.slack.type.Attachment;
-import allbegray.slack.type.Field;
 import allbegray.slack.webapi.SlackWebApiClient;
 import allbegray.slack.webapi.method.chats.ChatPostMessageMethod;
-import dk.trustworks.botmanager.network.timemanager.RestClient;
-import dk.trustworks.framework.model.*;
+import dk.trustworks.client.timemanager.RestClient;
+import dk.trustworks.framework.model.Capacity;
+import dk.trustworks.framework.model.User;
+import dk.trustworks.framework.model.Work;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Created by hans on 15/06/16.
  */
-@Component
 public class CheckTimeRegistrationJob {
 
     private final RestClient restClient = new RestClient();
-    private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
+    private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getenv("HAL_SLACK_TOKEN"));
 
-    //@Scheduled(cron = "0 0 12 * * ?")
-    //@Scheduled(fixedRate = 2000)
-    /*
-    public void checkTimeRegistration() {
-        System.out.println("CheckTimeRegistrationJob.checkTimeRegistration");
+    public void execute() {
+        System.out.println("CheckTimeRegistrationJob.execute");
         DateTime dateTime = DateTime.now();
         if(dateTime.getDayOfWeek() > 5) return; // do not check in weekends
         System.out.println("This is not in the weekend");
@@ -50,7 +46,7 @@ public class CheckTimeRegistrationJob {
         System.out.println("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
-            //if(!user.username.equals("hans.lassen")) continue;
+            if(!user.username.equals("hans.lassen")) continue;
             List<Capacity> userCapacities = restClient.getUserCapacities(user.uuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
             if(userCapacities.get(0).capacity == 0) continue;
             System.out.println("checking user = " + user);
@@ -109,7 +105,6 @@ public class CheckTimeRegistrationJob {
             }
         }
     }
-    */
 
     private allbegray.slack.type.User getSlackUser(User user) {
         int levenshsteinScore = 100;
