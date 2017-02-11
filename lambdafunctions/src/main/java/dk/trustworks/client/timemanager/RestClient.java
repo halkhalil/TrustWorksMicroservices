@@ -62,7 +62,7 @@ public class RestClient {
         System.out.println("RestClient.getUsers");
         try {
             HttpResponse<JsonNode> jsonResponse;
-            jsonResponse = Unirest.get(usersUrl + "/users")
+            jsonResponse = Unirest.get(usersUrl + "/users/v2")
                     .header("accept", "application/json")
                     .asJson();
             ObjectMapper mapper = new ObjectMapper();

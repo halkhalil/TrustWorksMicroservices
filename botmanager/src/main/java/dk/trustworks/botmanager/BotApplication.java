@@ -62,7 +62,8 @@ public class BotApplication {
         stFactory.setStartDelay(3000);
         stFactory.setName("mytrigger2");
         stFactory.setGroup("mygroup2");
-        stFactory.setCronExpression("0 45 10 8W * ?");
+        //stFactory.setCronExpression("0 45 10 10W * ?");
+        stFactory.setCronExpression("0 06 14 11 * ?");
         return stFactory;
     }
 
@@ -73,6 +74,7 @@ public class BotApplication {
         CronTrigger cronTrigger2 = cronTriggerFactoryBean2().getObject();
         System.out.println("cronTrigger.getFireTimeAfter(new Date()); = " + cronTrigger.getFireTimeAfter(new Date()));
         System.out.println("cronTrigger2.getFireTimeAfter(new Date()); = " + cronTrigger2.getFireTimeAfter(new Date()));
+        System.out.println("System.getProperty(\"HAL_SLACK_TOKEN\") = " + System.getProperty("HAL_SLACK_TOKEN"));
         scheduler.setTriggers(cronTrigger, cronTrigger2);
         return scheduler;
     }

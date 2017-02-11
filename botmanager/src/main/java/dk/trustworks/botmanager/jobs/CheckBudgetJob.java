@@ -67,7 +67,7 @@ public class CheckBudgetJob extends QuartzJobBean {
 
         for (User user : restClient.getUsers()) {
             System.out.println("user.slackusername = " + user.slackusername);
-            //if(!user.username.equals("hans.lassen")) continue;
+            if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
 
             String message = "*Here is a quick summary of "+LocalDate.now().plusMonths(1).monthOfYear().getAsText()+"*\n\n" +
@@ -165,7 +165,7 @@ public class CheckBudgetJob extends QuartzJobBean {
             textMessage2.setAs_user(true);
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage2);
-
+/*
             if(allocationPercentMonthOne < 75.0 || allocationPercentMonthOne > 100.0 || allocationPercentMonthTwo < 75.0 || allocationPercentMonthTwo > 100.0) {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage3.setAs_user(true);
@@ -181,7 +181,7 @@ public class CheckBudgetJob extends QuartzJobBean {
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
                 //halWebApiClient.postMessage(textMessage5);
-            }
+            }*/
         }
 
     }
