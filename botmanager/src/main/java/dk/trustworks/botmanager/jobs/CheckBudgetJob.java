@@ -29,6 +29,7 @@ public class CheckBudgetJob extends QuartzJobBean {
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getProperty("HAL_SLACK_TOKEN"));
 
     protected void executeInternal(JobExecutionContext ctx) throws JobExecutionException {
+        /*
         System.out.println("CheckBudgetJob.checkTimeRegistration");
         LocalDate dateNextMonth = LocalDate.now().plusMonths(2);
         System.out.println("dateNextMonth = " + dateNextMonth);
@@ -120,17 +121,6 @@ public class CheckBudgetJob extends QuartzJobBean {
                     // Tilføj budgettet
                     attachment.addField(new Field("Budget for "+LocalDate.now().withMonthOfYear(budget.month+1).monthOfYear().getAsText(), (Math.round(budgetHours*100.0)/100.0)+" hours", true));
                 }
-
-                /*
-                double workHours = 0.0;
-                for (Work work : thisMonthWork) {
-                    if(work.getUserUUID().equals(user.getUUID()) && work.getTaskUUID().equals(task.getUUID())) {
-                        workHours += work.getWorkDuration();
-                    }
-                }
-
-                attachment.addField(new Field("Hours worked in "+LocalDate.now().monthOfYear().getAsText(), workHours+"", true));
-                */
             }
 
 
@@ -165,7 +155,7 @@ public class CheckBudgetJob extends QuartzJobBean {
             textMessage2.setAs_user(true);
             System.out.println("Sending message");
             halWebApiClient.postMessage(textMessage2);
-/*
+
             if(allocationPercentMonthOne < 75.0 || allocationPercentMonthOne > 100.0 || allocationPercentMonthTwo < 75.0 || allocationPercentMonthTwo > 100.0) {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage3.setAs_user(true);
@@ -181,11 +171,11 @@ public class CheckBudgetJob extends QuartzJobBean {
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
                 //halWebApiClient.postMessage(textMessage5);
-            }*/
+            }
         }
-
+*/
     }
-
+/*
     private allbegray.slack.type.User getSlackUser(User user) {
         int levenshsteinScore = 100;
         allbegray.slack.type.User slackUser = null;
@@ -233,4 +223,5 @@ public class CheckBudgetJob extends QuartzJobBean {
 
         return workDays;
     }
+    */
 }

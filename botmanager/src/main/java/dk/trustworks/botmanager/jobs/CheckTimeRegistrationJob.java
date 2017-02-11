@@ -114,58 +114,11 @@ public class CheckTimeRegistrationJob {
         allbegray.slack.type.User slackUser = null;
         for (allbegray.slack.type.User slackUserIteration : halWebApiClient.getUserList()) {
             int levenshteinDistance = StringUtils.getLevenshteinDistance(user.firstname + " " + user.lastname, slackUserIteration.getProfile().getReal_name());
-            System.out.println("levenshteinDistance = " + levenshteinDistance);
-            System.out.println("slackUserIteration.getProfile().getReal_name() = " + slackUserIteration.getProfile().getReal_name());
             if(levenshteinDistance < levenshsteinScore) {
                 levenshsteinScore = levenshteinDistance;
                 slackUser = slackUserIteration;
             }
         }
-        System.out.println("Identified slackUser.getName() = " + slackUser.getName());
         return slackUser;
-    }
-
-    public static void main(String[] args) {
-
-
-        Date startDate = LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1).toDate();
-        System.out.println("startDate = " + startDate.getTime());
-        Date endDate = LocalDate.now().plusMonths(2).withDayOfMonth(1).minusDays(1).toDate();
-        System.out.println("endDate = " + endDate.getTime());
-
-        int businessDaysInMonth = getWorkingDaysBetweenTwoDates(startDate, endDate);
-        System.out.println("days = " + businessDaysInMonth);
-    }
-
-    public static int getWorkingDaysBetweenTwoDates(Date startDate, Date endDate) {
-        System.out.println("CheckTimeRegistrationJob.getWorkingDaysBetweenTwoDates");
-        System.out.println("startDate = [" + startDate + "], endDate = [" + endDate + "]");
-        Calendar startCal = Calendar.getInstance();
-        startCal.setTime(startDate);
-
-        Calendar endCal = Calendar.getInstance();
-        endCal.setTime(endDate);
-
-        int workDays = 0;
-
-        //Return 0 if start and end are the same
-        if (startCal.getTimeInMillis() == endCal.getTimeInMillis()) {
-            return 0;
-        }
-
-        if (startCal.getTimeInMillis() > endCal.getTimeInMillis()) {
-            startCal.setTime(endDate);
-            endCal.setTime(startDate);
-        }
-
-        do {
-            //excluding start date
-            startCal.add(Calendar.DAY_OF_MONTH, 1);
-            if (startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-                ++workDays;
-            }
-        } while (startCal.getTimeInMillis() < endCal.getTimeInMillis()); //excluding end date
-
-        return workDays;
     }
 }
