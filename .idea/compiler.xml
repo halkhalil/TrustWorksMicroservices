@@ -10,7 +10,6 @@
         <module name="bimanager" />
         <module name="botmanager" />
         <module name="clientmanager" />
-        <module name="cronmanager" />
         <module name="employeemanager" />
         <module name="financemanager" />
         <module name="lambdafunctions" />

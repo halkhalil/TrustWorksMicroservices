@@ -25,7 +25,6 @@
         <option value="$PROJECT_DIR$/usermanager/pom.xml" />
         <option value="$PROJECT_DIR$/bimanager/pom.xml" />
         <option value="$PROJECT_DIR$/clientmanager/pom.xml" />
-        <option value="$PROJECT_DIR$/cronmanager/pom.xml" />
         <option value="$PROJECT_DIR$/servicemanager/pom.xml" />
         <option value="$PROJECT_DIR$/timemanager/pom.xml" />
         <option value="$PROJECT_DIR$/trustworks-framework/pom.xml" />
