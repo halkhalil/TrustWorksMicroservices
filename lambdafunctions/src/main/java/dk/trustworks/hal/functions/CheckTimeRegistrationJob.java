@@ -8,6 +8,7 @@ import dk.trustworks.framework.model.Capacity;
 import dk.trustworks.framework.model.User;
 import dk.trustworks.framework.model.Work;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -20,14 +21,17 @@ import java.util.Random;
  */
 public class CheckTimeRegistrationJob {
 
+    static final Logger log = Logger.getLogger(CheckTimeRegistrationJob.class);
+
     private final RestClient restClient = new RestClient();
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getenv("HAL_SLACK_TOKEN"));
 
     public void execute() {
-        System.out.println("CheckTimeRegistrationJob.execute");
+        log.info("CheckTimeRegistrationJob.execute");
         DateTime dateTime = DateTime.now();
+        log.info("dateTime = " + dateTime);
         if(dateTime.getDayOfWeek() > 5) return; // do not check in weekends
-        System.out.println("This is not in the weekend");
+        log.info("This is not in the weekend");
 
         if(dateTime.getDayOfWeek() == 1) {
             dateTime = dateTime.minusDays(3);
@@ -36,25 +40,25 @@ public class CheckTimeRegistrationJob {
         } else {
             dateTime = dateTime.minusDays(2);
         }
-        System.out.println("dateTime = " + dateTime);
+        log.info("dateTime = " + dateTime);
 
         List<Work> allWork = new ArrayList<>();
         allWork.addAll(restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth()));
         dateTime = DateTime.now().minusDays(1);
         allWork.addAll(restClient.getRegisteredWorkByYearMonthDay(dateTime.getYear(), (dateTime.getMonthOfYear() - 1), dateTime.getDayOfMonth()));
 
-        System.out.println("workByYearMonthDay.size() = " + allWork.size());
+        log.info("workByYearMonthDay.size() = " + allWork.size());
 
         for (User user : restClient.getUsers()) {
-            if(!user.username.equals("hans.lassen")) continue;
+            //if(!user.username.equals("hans.lassen")) continue;
             List<Capacity> userCapacities = restClient.getUserCapacities(user.uuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(1));
             if(userCapacities.get(0).capacity == 0) continue;
-            System.out.println("checking user = " + user);
+            log.info("checking user = " + user);
             boolean hasWork = false;
             for (Work work : allWork) {
                 if(work.useruuid.equals(user.uuid)) hasWork = true;
             }
-            System.out.println("hasWork = " + hasWork);
+            log.info("hasWork = " + hasWork);
             if(!hasWork) {
                 String[] responses = {
                         "Look "+user.firstname+", I can see you're really upset about all this work. I honestly think you ought " +
@@ -95,12 +99,12 @@ public class CheckTimeRegistrationJob {
                 allbegray.slack.type.User slackUser = getSlackUser(user);
                 ChatPostMessageMethod textMessage = new ChatPostMessageMethod("@"+slackUser.getName(), responses[new Random().nextInt(responses.length)]);
                 textMessage.setAs_user(true);
-                System.out.println("Sending message");
+                log.info("Sending message");
                 halWebApiClient.postMessage(textMessage);
 
                 ChatPostMessageMethod textMessage2 = new ChatPostMessageMethod("@hans", "Notification sent to: "+user.username+" at "+slackUser.getName());
                 textMessage2.setAs_user(true);
-                System.out.println("Sending message");
+                log.info("Sending message");
                 halWebApiClient.postMessage(textMessage2);
             }
         }
