@@ -544,7 +544,11 @@ public class DashboardDesign extends CssLayout {
                 if(amountPerItem.isPresent()) weekDays -= amountPerItem.get().amount;
                 availability.amount *= weekDays; // total hours in period excl. weekends
                 Optional<AmountPerItem> userBillableHours = billableHoursPerUserList.stream().filter(p -> p.uuid.equals(availability.uuid)).findFirst();
-                if(amountPerItem.isPresent()) billableHoursPercentagePerUserList.add(new AmountPerItem(availability.uuid, availability.description, (userBillableHours.get().amount / availability.amount)* 100.0));
+                if(!userBillableHours.isPresent() || !amountPerItem.isPresent()) {
+                    System.out.println("userBillableHours = " + userBillableHours);
+                    System.out.println("amountPerItem = " + amountPerItem);
+                }
+                if(amountPerItem.isPresent() && userBillableHours.isPresent()) billableHoursPercentagePerUserList.add(new AmountPerItem(availability.uuid, availability.description, (userBillableHours.get().amount / availability.amount)* 100.0));
             }
 
             double sumHours = 0.0;
