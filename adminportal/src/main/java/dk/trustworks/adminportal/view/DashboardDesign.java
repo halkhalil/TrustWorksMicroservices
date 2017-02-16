@@ -50,7 +50,6 @@ public class DashboardDesign extends CssLayout {
 
     private void initPage() {
         Design.read(this);
-        // TODO: Make this work
 
         Double[] revenuePerDay = new DataAccess().getRevenuePerDay();
         final int[] intArray = new int[revenuePerDay.length];
@@ -58,7 +57,7 @@ public class DashboardDesign extends CssLayout {
             intArray[i] = revenuePerDay[i].intValue();
 
         //if(intArray.length>0) sparkline_horizontal.addComponent(new SparklineChart("income per day", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
-        sparkline_horizontal.addComponent(new SparklineChart("income per day 2", "kkr", "today ", new SolidColor("#AAAA00"), intArray));
+        sparkline_horizontal.addComponent(new SparklineChart("income per day", "kkr", "yesterday ", new SolidColor("#AAAA00"), intArray));
 
         NativeSelect year_select;
         year_select = new NativeSelect("");

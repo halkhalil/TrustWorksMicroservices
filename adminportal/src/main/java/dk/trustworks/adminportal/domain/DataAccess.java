@@ -400,7 +400,7 @@ public class DataAccess implements Serializable {
         for (int i = 0; i < revenuepermonth.length; i++) {
             if(revenuepermonth[i] == 0) continue;
             if(capacitypermonth[i] == 0) continue;
-            revenuepermonth[i] = Math.round((revenuepermonth[i] / capacitypermonth[i] * 37.0f));
+            revenuepermonth[i] = Math.round((revenuepermonth[i] / (capacitypermonth[i] / 37.0f)));
         }
         return revenuepermonth;
 

@@ -24,7 +24,7 @@ public class SparklineChart extends VerticalLayout {
         addStyleName("spark");
         setDefaultComponentAlignment(Alignment.TOP_CENTER);
 
-        Label current = new Label(prefix + values[values.length - 1] + unit);
+        Label current = new Label(prefix + values[1] + unit);
         current.setSizeUndefined();
         current.addStyleName(ValoTheme.LABEL_HUGE);
         addComponent(current);
