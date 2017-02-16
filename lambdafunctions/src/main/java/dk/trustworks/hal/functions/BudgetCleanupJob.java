@@ -17,7 +17,7 @@ public class BudgetCleanupJob {
     private final int year;
 
     public BudgetCleanupJob() {
-        month = LocalDate.now().getMonthOfYear()-2;
+        month = LocalDate.now().minusMonths(1).getMonthOfYear()-1;
         year = LocalDate.now().getYear();
     }
 

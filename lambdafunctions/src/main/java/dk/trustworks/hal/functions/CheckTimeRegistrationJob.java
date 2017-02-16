@@ -118,4 +118,8 @@ public class CheckTimeRegistrationJob {
         }
         return slackUser;
     }
+
+    public static void main(String[] args) {
+        new CheckTimeRegistrationJob().execute();
+    }
 }
