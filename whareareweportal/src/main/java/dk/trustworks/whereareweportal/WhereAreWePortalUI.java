@@ -59,7 +59,7 @@ public class WhereAreWePortalUI {
 
             String sql = "SELECT u.username username, c.name clientname, c.latitude latitude, c.longitude longitude " +
                     "FROM clientmanager.taskworkerconstraint_latest b " +
-                    "INNER JOIN clientmanager.taskworkerconstraint twc ON ON twc.taskuuid = b.taskuuid and twc.useruuid = b.useruuid " +
+                    "INNER JOIN clientmanager.taskworkerconstraint twc ON twc.taskuuid = b.taskuuid and twc.useruuid = b.useruuid " +
                     "INNER JOIN clientmanager.task t ON twc.taskuuid = t.uuid " +
                     "INNER JOIN clientmanager.project p ON t.projectuuid = p.uuid " +
                     "INNER JOIN clientmanager.client c ON p.clientuuid = c.uuid " +
@@ -79,8 +79,8 @@ public class WhereAreWePortalUI {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            userLocations.add(new UserLocation("", "dk.trustworks", 55.68319589999999, 12.570468300000016));
+            System.out.println("1");
+            userLocations.add(new UserLocation("", "trustworks", 55.68319589999999, 12.570468300000016));
 
             Map<String, List<UserLocation>> userLocationListMap = new HashMap<>();
             for (UserLocation userLocation : userLocations) {
@@ -88,7 +88,7 @@ public class WhereAreWePortalUI {
                 userLocationListMap.putIfAbsent(userLocation.clientname, new ArrayList<>());
                 userLocationListMap.get(userLocation.clientname).add(userLocation);
             }
-
+            System.out.println("2");
 
             String path = getServletContext().getRealPath(File.separator);
             response.setContentType("text/html");
@@ -99,7 +99,7 @@ public class WhereAreWePortalUI {
             for (String location : userLocationListMap.keySet()) {
                 locations += "var "+location+" = ol.proj.fromLonLat(["+userLocationListMap.get(location).get(0).longitude+", "+userLocationListMap.get(location).get(0).latitude+"]);\n";
             }
-
+            System.out.println("3");
             html = html.replace("remlocationsrem", locations);
 
             String features = "";
@@ -115,7 +115,7 @@ public class WhereAreWePortalUI {
                 companyNames += location + ", ";
 
                 UserLocation userLocation = userLocationListMap.get(location).get(0);
-                if(location.equals("dk.trustworks")) {
+                if(location.equals("trustworks")) {
                     features += getFeature(userLocation.longitude,userLocation.latitude, location, usernames.toArray(new String[usernames.size()]));
                 } else {
                     features += getFeature(userLocation.longitude, userLocation.latitude, location, employees);
@@ -123,7 +123,7 @@ public class WhereAreWePortalUI {
             }
             featureNames = featureNames.substring(0, featureNames.length()-2);
             companyNames = companyNames.substring(0, companyNames.length()-2);
-
+            System.out.println("4");
             features += "var vectorSource = new ol.source.Vector({\n" +
                     "        features: ["+featureNames+"]\n" +
                     "    });";
@@ -131,7 +131,8 @@ public class WhereAreWePortalUI {
             html = html.replace("remfeaturesrem", features);
 
             html = html.replace("remflylocationsrem", "var locations = ["+companyNames+"];");
-
+            System.out.println("5");
+            System.out.println("html = " + html);
             response.getOutputStream().print(html);
         }
     }
