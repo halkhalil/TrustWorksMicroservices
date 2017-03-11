@@ -40,6 +40,8 @@ public class SalesHeatMap {
     private int monthPeriod;
 
     private String[] monthNames;
+    private double[] monthAvailabilites = new double[12];
+    private double[] monthTotalAvailabilites = new double[12];
 
     public SalesHeatMap(LocalDate localDateStart, LocalDate localDateEnd) {
         System.out.println("SalesHeatMap.SalesHeatMap");
@@ -221,6 +223,8 @@ public class SalesHeatMap {
                             budget = Math.round(budget / Math.round(weekDays * userAvailability) * 100.0);
                             if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println(month + ", " + userNumberMap.get(userUUID) + ", " + Math.round(budget));
                             rs.addHeatPoint(month, userNumberMap.get(userUUID), Math.round(budget));
+                            monthAvailabilites[month] += Math.round(budget);
+                            monthTotalAvailabilites[month] += 100;
                             foundBudget = true;
                             break;
                         }
@@ -232,50 +236,11 @@ public class SalesHeatMap {
                         System.out.println("Didn't find date: " + month);
                     if(userUUID.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println(month + ", " + userNumberMap.get(userUUID) + ", " + 100);
                     rs.addHeatPoint(month, userNumberMap.get(userUUID), 100);
+                    monthAvailabilites[month] += Math.round(100);
+                    monthTotalAvailabilites[month] += 100;
                 }
             }
         }
-
-/*
-        for (UserBudget userBudget : userBudgets) {
-            if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("userBudget = " + userBudget);
-            if(!useruuid.equals(userBudget.uuid)) {
-                if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println(useruuid+" != " + userBudget.uuid);
-                if(userNumber>=0) {
-                    System.out.println("userNumber = " + userNumber);
-                    month++;
-                    System.out.println("month = " + month);
-                    for (int j = month; j < monthPeriod; j++) {
-                        if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("setting heatscore = " + 100);
-                        rs.addHeatPoint(j, userNumber, 100);
-                    }
-                }
-                month = 0;
-                if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("month = " + month);
-                usersList.add(userBudget.name);
-                if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("usersList.add(userBudget.name) = " + userBudget.name);
-                useruuid = userBudget.uuid;
-                if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("useruuid = " + useruuid);
-                userNumber++;
-                if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("userNumber = " + userNumber);
-            } else {
-                month++;
-                if(userBudget.uuid.equals("ade4859d-9c2f-4071-a492-d6fb8bf421ad")) System.out.println("month = " + month);
-            }
-            int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
-            Double userAvailability = userAvailabilityMap.get(useruuid + month);
-            if(userAvailability == null) userAvailability = 0.0;
-            double budget = Math.round((weekDays * userAvailability) - userBudget.budget);
-            if(budget<0) budget = 0;
-            budget = Math.round(budget / Math.round(weekDays * userAvailability) * 100.0);
-            rs.addHeatPoint(month, userNumber, Math.round(budget));
-        }
-        month++;
-        for (int j = month; j < monthPeriod; j++) {
-            System.out.println("userNumber = " + userNumber);
-            System.out.println("setting heatscore = " + 100);
-            rs.addHeatPoint(j, userNumber, 100);
-        }*/
 
         config.getxAxis().setCategories(monthNames);
         config.getyAxis().setCategories(usersList.stream().toArray(size -> new String[size]));
@@ -335,47 +300,11 @@ public class SalesHeatMap {
         plotOptions.setFillOpacity(0.5);
         conf.setPlotOptions(plotOptions);
 
-        List<String> usersList = new ArrayList<>();
-        int month = 0;
-        int userNumber = -1;
-        String useruuid = "";
-
-
-        int[] numbers = new int[12];
-        int[] capacity = new int[12];
-        for (UserBudget userBudget : userBudgets) {
-            if(!useruuid.equals(userBudget.uuid)) {
-                if(userNumber>=0) {
-                    month++;
-                    for (int j = month; j < monthPeriod; j++) {
-                        numbers[j] = numbers[j] + 100;
-                    }
-                }
-                month = 0;
-                usersList.add(userBudget.name);
-                useruuid = userBudget.uuid;
-                userNumber++;
-            } else {
-                month++;
-            }
-
-            int weekDays = countWeekDays(localDateStart.plusMonths(month), localDateStart.plusMonths(month + 1));
-            Double userAvailability = userAvailabilityMap.get(useruuid + month);
-            if(userAvailability == null) userAvailability = 0.0;
-            capacity[month] += weekDays * userAvailability;
-            double budget = Math.round(weekDays * userAvailability - userBudget.budget);
-            if(budget<0) budget = 0;
-            budget = Math.round(budget / Math.round(weekDays * userAvailability) * 100.0);
-            numbers[month] = numbers[month] + (int)Math.round(budget);
-        }
-        month++;
-        for (int j = month; j < monthPeriod; j++) {
-            numbers[j] = numbers[j] + 100;
-        }
         ListSeries listSeries = new ListSeries();
         for (int j = 0; j < monthPeriod; j++) {
-            listSeries.addData(numbers[j] / usersList.size());
-            month++;
+            System.out.println("monthAvailabilites[j] = " + monthAvailabilites[j]);
+            System.out.println("monthTotalAvailabilites[j] = " + monthTotalAvailabilites[j]);
+            listSeries.addData(Math.round(monthAvailabilites[j] / monthTotalAvailabilites[j] * 100.0));
         }
 
         conf.addSeries(listSeries);
