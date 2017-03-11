@@ -128,7 +128,7 @@ public class App extends Jooby {
                 .build();
 
         ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
+                .basePath("dk.trustworks")
                 .client(curatorFramework)
                 .thisInstance(serviceInstance)
                 .build()

@@ -19,6 +19,12 @@ public class CheckBudgetJob {
     private final RestClient restClient = new RestClient();
     private SlackWebApiClient halWebApiClient = SlackClientFactory.createWebApiClient(System.getenv("HAL_SLACK_TOKEN"));
 
+    public static void main(String[] args) {
+        CheckBudgetJob checkBudgetJob = new CheckBudgetJob();
+        checkBudgetJob.halWebApiClient = SlackClientFactory.createWebApiClient("xoxb-51526069511-Td7CCWgIHJYPYgFCVhxdzfTK");
+        checkBudgetJob.execute();
+    }
+
     public void execute() {
         LocalDate dateNextMonth = LocalDate.now().plusMonths(2);
         System.out.println("dateNextMonth = " + dateNextMonth);
@@ -60,6 +66,7 @@ public class CheckBudgetJob {
         System.out.println("businessDaysInMonth = " + businessDaysInNextNextMonth);
 
         for (User user : restClient.getUsers()) {
+            if(!user.active) continue;
             System.out.println("user.slackusername = " + user.slackusername);
             //if(!user.username.equals("hans.lassen")) continue;
             allbegray.slack.type.User slackUser = getSlackUser(user);
@@ -123,7 +130,7 @@ public class CheckBudgetJob {
             textMessage.setAs_user(true);
             textMessage.setAttachments(new ArrayList<>(attachments.values()));
             System.out.println("Sending message");
-            halWebApiClient.postMessage(textMessage);
+            //halWebApiClient.postMessage(textMessage);
 
             List<Capacity> userCapacities = restClient.getUserCapacities(user.uuid, LocalDate.now().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1).plusMonths(2));
             System.out.println("userCapacities.get(0).capacity = " + userCapacities.get(0).capacity);
@@ -143,7 +150,7 @@ public class CheckBudgetJob {
             textMessage = new ChatPostMessageMethod(user.slackusername, concludingMessage);
             textMessage.setAs_user(true);
             System.out.println("Sending concluding message");
-            halWebApiClient.postMessage(textMessage);
+            //halWebApiClient.postMessage(textMessage);
 
             ChatPostMessageMethod textMessage2 = new ChatPostMessageMethod("@hans", "User "+user.username+" has "+allocationPercentMonthOne+"% and "+allocationPercentMonthTwo+"% allocation.");
             textMessage2.setAs_user(true);
@@ -154,17 +161,22 @@ public class CheckBudgetJob {
                 ChatPostMessageMethod textMessage3 = new ChatPostMessageMethod("@tobias_kjoelsen", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage3.setAs_user(true);
                 System.out.println("Sending message");
-                //halWebApiClient.postMessage(textMessage3);
+                halWebApiClient.postMessage(textMessage3);
 
                 ChatPostMessageMethod textMessage4 = new ChatPostMessageMethod("@peter", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage4.setAs_user(true);
                 System.out.println("Sending message");
-                //halWebApiClient.postMessage(textMessage4);
+                halWebApiClient.postMessage(textMessage4);
 
                 ChatPostMessageMethod textMessage5 = new ChatPostMessageMethod("@thomasgammelvind", "User " + user.username + " has " + allocationPercentMonthOne + "% and " + allocationPercentMonthTwo + "% allocation.");
                 textMessage5.setAs_user(true);
                 System.out.println("Sending message");
-                //halWebApiClient.postMessage(textMessage5);
+                halWebApiClient.postMessage(textMessage5);
+            }
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 

@@ -14,7 +14,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>dk.trustworks.clientmanager.ClientApplication</start-class>
+        <start-class>dk.dk.trustworks.clientmanager.ClientApplication</start-class>
         <java.version>1.8</java.version>
         <jackson.version>2.8.4</jackson.version>
         <project.encoding>UTF-8</project.encoding>
@@ -145,7 +145,7 @@
             <version>0.7.0</version>
         </dependency>
 
-        <!-- trustworks -->
+        <!-- dk.trustworks -->
         <dependency>
             <groupId>dk.trustworks</groupId>
             <artifactId>trustworks-framework</artifactId>
@@ -201,8 +201,8 @@
             <version>2.7.1</version>
         </dependency>
         <dependency>
-            <groupId>dk.trustworks</groupId>
-            <artifactId>trustworks-framework</artifactId>
+            <groupId>dk.dk.trustworks</groupId>
+            <artifactId>dk.trustworks-framework</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -236,7 +236,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>dk.trustworks.clientmanager.ClientApplication</start-class>
+        <start-class>dk.dk.trustworks.clientmanager.ClientApplication</start-class>
         <java.version>1.8</java.version>
         <jackson.version>2.4.5</jackson.version>
     </properties>
@@ -272,7 +272,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>dk.trustworks.clientmanager.ClientApplication</mainClass>
+                            <mainClass>dk.dk.trustworks.clientmanager.ClientApplication</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

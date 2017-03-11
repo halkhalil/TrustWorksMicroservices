@@ -34,7 +34,7 @@
             <version>2.8.5</version>
         </dependency>
 
-        <!-- trustworks -->
+        <!-- dk.trustworks -->
         <dependency>
             <groupId>dk.trustworks</groupId>
             <artifactId>trustworks-model</artifactId>

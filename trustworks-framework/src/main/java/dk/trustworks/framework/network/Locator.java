@@ -35,7 +35,7 @@ public class Locator {
         try {
             serviceDiscovery = ServiceDiscoveryBuilder
                     .builder(Object.class)
-                    .basePath("trustworks")
+                    .basePath("dk.trustworks")
                     .client(curatorFramework).build();
             serviceDiscovery.start();
         } catch (Exception e) {

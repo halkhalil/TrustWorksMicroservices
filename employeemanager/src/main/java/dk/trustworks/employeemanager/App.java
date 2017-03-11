@@ -53,7 +53,7 @@ public class App extends Jooby {
             .type("html");
 
     {
-        Logger log = LoggerFactory.getLogger("dk.trustworks.employeemanager");
+        Logger log = LoggerFactory.getLogger("dk.dk.trustworks.employeemanager");
 
         System.setProperty("db.url", System.getenv("DATABASE_URI"));
         System.setProperty("db.user", System.getenv("DATABASE_USER"));
@@ -177,7 +177,7 @@ public class App extends Jooby {
                 .build();
 
         ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
+                .basePath("dk.trustworks")
                 .client(curatorFramework)
                 .thisInstance(serviceInstance)
                 .build()

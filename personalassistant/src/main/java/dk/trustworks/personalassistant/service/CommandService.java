@@ -19,7 +19,7 @@ public class CommandService {
     // command =
     // SlackSlashCommand{token='P5i2tVZ0P9WGGMsT0FkRhks2',
     // team_id='T036JELTL',
-    // team_domain='trustworks',
+    // team_domain='dk.trustworks',
     // channel_id='D13E9H2N9',
     // channel_name='directmessage',
     // user_id='U036JELTN',

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class StatusPeriodRepository {
 
-    Logger log = LoggerFactory.getLogger("dk.trustworks.employeemanager.repository");
+    Logger log = LoggerFactory.getLogger("dk.dk.trustworks.employeemanager.repository");
 
     private final Sql2o sql2o;
 

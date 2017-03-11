@@ -91,7 +91,7 @@ public class UserApplication extends Jooby {
 
                     //System.out.println("key = " + key.getEncoded().toString());
                     String compactJws = Jwts.builder()
-                            .setIssuer("trustworks")
+                            .setIssuer("dk.trustworks")
                             .setSubject(username)
                             .setAudience("client")
                             .setExpiration(LocalDate.now().plusDays(1).toDate())
@@ -308,7 +308,7 @@ public class UserApplication extends Jooby {
                 .build();
 
         ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
+                .basePath("dk.trustworks")
                 .client(curatorFramework)
                 .thisInstance(serviceInstance)
                 .build()

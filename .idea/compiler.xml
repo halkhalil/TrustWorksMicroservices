@@ -37,7 +37,7 @@
       <module name="salesportal" target="1.8" />
       <module name="servicemanager" target="1.8" />
       <module name="timemanager" target="1.8" />
-      <module name="timemanagerclient" target="1.5" />
+      <module name="timemanagerclient" target="1.8" />
       <module name="trustworks-framework" target="1.8" />
       <module name="trustworks-model" target="1.8" />
       <module name="usermanager" target="1.8" />

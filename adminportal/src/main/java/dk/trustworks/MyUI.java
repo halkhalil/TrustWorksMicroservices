@@ -12,23 +12,18 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
-import dk.trustworks.adminportal.domain.DataAccess;
-import dk.trustworks.adminportal.domain.JwtToken;
-import dk.trustworks.adminportal.server.VaadinBootstrapListener;
-import dk.trustworks.adminportal.view.MenuDesign;
-import org.joda.time.DateTime;
+import dk.trustworks.timemanager.adminportal.server.VaadinBootstrapListener;
+import dk.trustworks.timemanager.adminportal.view.MenuDesign;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
 @Theme("usermanagement")
-@Widgetset("dk.trustworks.MyAppWidgetset")
+@Widgetset("dk.dk.trustworks.MyAppWidgetset")
 public class MyUI extends UI {
 
     @Override

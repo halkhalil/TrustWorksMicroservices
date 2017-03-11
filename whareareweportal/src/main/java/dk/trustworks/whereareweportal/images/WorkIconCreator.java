@@ -20,7 +20,7 @@ public class WorkIconCreator {
 
         //BufferedImage result = new BufferedImage(100, (50 + ((int)(Math.floor(usernames.length/4.0) + 1.0) * 38)), BufferedImage.TYPE_INT_RGB);
         BufferedImage result = new BufferedImage(200 + (usernames.length * 65), 100, BufferedImage.TYPE_INT_RGB);
-        if(company.equals("trustworks")) {
+        if(company.equals("dk.trustworks")) {
             System.out.println("logo");
             //result = new BufferedImage(230, 200, BufferedImage.TYPE_INT_RGB);
             result = new BufferedImage(260, (271 + ((int)(Math.floor(usernames.length/4.0)) * 100)), BufferedImage.TYPE_INT_RGB);
@@ -31,7 +31,7 @@ public class WorkIconCreator {
 
         BufferedImage bi = ImageIO.read(new File(path + "/companies/" + company + ".png"));
         g.drawImage(bi, 0, 0, null);
-        if(company.equals("trustworks")) {
+        if(company.equals("dk.trustworks")) {
             System.out.println("people");
             int column = 0;
             int row = 271;

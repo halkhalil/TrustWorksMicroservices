@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @Configuration
 @EnableScheduling
-@SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "dk.trustworks.botmanager"})
+@SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "dk.dk.trustworks.botmanager"})
 public class BotApplication {
     public static void main(String[] args) {
         SpringApplication.run(BotApplication.class, args);

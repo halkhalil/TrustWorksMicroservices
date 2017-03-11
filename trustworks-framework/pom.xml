@@ -121,7 +121,7 @@
             <version>3.2.4</version>
         </dependency>
 
-        <!-- trustworks -->
+        <!-- dk.trustworks -->
         <dependency>
             <groupId>dk.trustworks</groupId>
             <artifactId>trustworks-model</artifactId>

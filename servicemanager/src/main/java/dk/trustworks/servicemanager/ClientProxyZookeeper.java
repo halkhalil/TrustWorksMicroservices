@@ -48,7 +48,7 @@ public class ClientProxyZookeeper implements ProxyClient {
 
             ServiceDiscovery<Object> serviceDiscovery = ServiceDiscoveryBuilder
                     .builder(Object.class)
-                    .basePath("trustworks")
+                    .basePath("dk.trustworks")
                     .client(curatorFramework).build();
             serviceDiscovery.start();
             serviceProvider = serviceDiscovery

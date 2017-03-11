@@ -80,7 +80,7 @@ public class WhereAreWePortalUI {
                 e.printStackTrace();
             }
 
-            userLocations.add(new UserLocation("", "trustworks", 55.68319589999999, 12.570468300000016));
+            userLocations.add(new UserLocation("", "dk.trustworks", 55.68319589999999, 12.570468300000016));
 
             Map<String, List<UserLocation>> userLocationListMap = new HashMap<>();
             for (UserLocation userLocation : userLocations) {
@@ -115,7 +115,7 @@ public class WhereAreWePortalUI {
                 companyNames += location + ", ";
 
                 UserLocation userLocation = userLocationListMap.get(location).get(0);
-                if(location.equals("trustworks")) {
+                if(location.equals("dk.trustworks")) {
                     features += getFeature(userLocation.longitude,userLocation.latitude, location, usernames.toArray(new String[usernames.size()]));
                 } else {
                     features += getFeature(userLocation.longitude, userLocation.latitude, location, employees);

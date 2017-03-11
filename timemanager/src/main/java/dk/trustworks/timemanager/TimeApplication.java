@@ -322,7 +322,7 @@ public class TimeApplication  extends Jooby {// extends BaseApplication {
                 .build();
 
         ServiceDiscoveryBuilder.builder(Object.class)
-                .basePath("trustworks")
+                .basePath("dk.trustworks")
                 .client(curatorFramework)
                 .thisInstance(serviceInstance)
                 .build()

@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="timemanagerclient:GWT">
+    <output-path>$PROJECT_DIR$/timemanagerclient/target/classes/VAADIN/widgetsets</output-path>
+    <root id="root">
+      <element id="directory" name="VAADIN">
+        <element id="directory" name="widgetsets">
+          <element id="gwt-compiler-output" facet="timemanagerclient/gwt/GWT" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

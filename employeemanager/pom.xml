@@ -12,7 +12,7 @@
         <jooby.version>1.0.0.CR8</jooby.version>
 
         <!-- Startup class -->
-        <application.class>dk.trustworks.employeemanager.App</application.class>
+        <application.class>dk.dk.trustworks.employeemanager.App</application.class>
     </properties>
 
     <dependencies>

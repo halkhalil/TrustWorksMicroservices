@@ -11,7 +11,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>dk.trustworks.bimanager.BiApplication</start-class>
+        <start-class>dk.dk.trustworks.bimanager.BiApplication</start-class>
         <java.version>1.8</java.version>
         <jackson.version>2.4.5</jackson.version>
         <project.encoding>UTF-8</project.encoding>
@@ -135,7 +135,7 @@
             <version>0.7.0</version>
         </dependency>
 
-        <!-- trustworks -->
+        <!-- dk.trustworks -->
         <dependency>
             <groupId>dk.trustworks</groupId>
             <artifactId>trustworks-framework</artifactId>
@@ -219,7 +219,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>dk.trustworks.bimanager.BiApplication</mainClass>
+                            <mainClass>dk.dk.trustworks.bimanager.BiApplication</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
