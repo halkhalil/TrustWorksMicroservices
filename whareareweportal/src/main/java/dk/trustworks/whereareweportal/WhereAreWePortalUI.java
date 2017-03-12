@@ -50,8 +50,8 @@ public class WhereAreWePortalUI {
     public static class MapServlet extends HttpServlet {
 
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            LocalDate localDateStart = LocalDate.now().withDayOfMonth(1).plusMonths(1);
-            LocalDate localDateEnd = LocalDate.now().withDayOfMonth(1).plusMonths(2);
+            LocalDate localDateStart = LocalDate.now().withDayOfMonth(1).plusMonths(0);
+            LocalDate localDateEnd = LocalDate.now().withDayOfMonth(1).plusMonths(1);
 
             Sql2o sql2o = new Sql2o(ConnectionHelper.getInstance().dataSource);
             List<UserLocation> userLocations = new ArrayList<>();
@@ -64,7 +64,7 @@ public class WhereAreWePortalUI {
                     "INNER JOIN clientmanager.project p ON t.projectuuid = p.uuid " +
                     "INNER JOIN clientmanager.client c ON p.clientuuid = c.uuid " +
                     "INNER JOIN usermanager.user u ON u.uuid = twc.useruuid " +
-                    "WHERE ((b.year*10000)+((b.month+1)*100)) between :periodStart and :periodEnd " +
+                    "WHERE ((b.year*10000)+((b.month+1)*100)) between :periodStart and :periodEnd and b.budget > 0 " +
                     "GROUP BY u.uuid, c.uuid " +
                     "ORDER BY u.lastname DESC, u.uuid;";
             try(Connection con = sql2o.open()) {
@@ -79,16 +79,15 @@ public class WhereAreWePortalUI {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("1");
             userLocations.add(new UserLocation("", "trustworks", 55.68319589999999, 12.570468300000016));
 
             Map<String, List<UserLocation>> userLocationListMap = new HashMap<>();
             for (UserLocation userLocation : userLocations) {
+                System.out.println("userLocation = " + userLocation);
                 userLocation.clientname = userLocation.clientname.replaceAll(" ", "").toLowerCase();
                 userLocationListMap.putIfAbsent(userLocation.clientname, new ArrayList<>());
                 userLocationListMap.get(userLocation.clientname).add(userLocation);
             }
-            System.out.println("2");
 
             String path = getServletContext().getRealPath(File.separator);
             response.setContentType("text/html");
@@ -99,7 +98,6 @@ public class WhereAreWePortalUI {
             for (String location : userLocationListMap.keySet()) {
                 locations += "var "+location+" = ol.proj.fromLonLat(["+userLocationListMap.get(location).get(0).longitude+", "+userLocationListMap.get(location).get(0).latitude+"]);\n";
             }
-            System.out.println("3");
             html = html.replace("remlocationsrem", locations);
 
             String features = "";
@@ -123,7 +121,6 @@ public class WhereAreWePortalUI {
             }
             featureNames = featureNames.substring(0, featureNames.length()-2);
             companyNames = companyNames.substring(0, companyNames.length()-2);
-            System.out.println("4");
             features += "var vectorSource = new ol.source.Vector({\n" +
                     "        features: ["+featureNames+"]\n" +
                     "    });";
@@ -131,8 +128,6 @@ public class WhereAreWePortalUI {
             html = html.replace("remfeaturesrem", features);
 
             html = html.replace("remflylocationsrem", "var locations = ["+companyNames+"];");
-            System.out.println("5");
-            System.out.println("html = " + html);
             response.getOutputStream().print(html);
         }
     }
