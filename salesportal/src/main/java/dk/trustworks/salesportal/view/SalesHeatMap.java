@@ -349,7 +349,7 @@ public class SalesHeatMap {
                     "                    INNER JOIN clientmanager.client c ON p.clientuuid = c.uuid  " +
                     "                    INNER JOIN usermanager.user u ON u.uuid = twc.useruuid  " +
                     "                    WHERE ((b.year*10000)+((b.month+1)*100)) between :periodStart and :periodEnd and b.budget > 0 " +
-                    "                    GROUP BY u.uuid, c.uuid, b.year, b.month " +
+                    "                    GROUP BY u.uuid, t.uuid, b.year, b.month " +
                     "                    ORDER BY u.lastname DESC, u.uuid) i GROUP BY username, clientname, projectname, taskname;";
 
             System.out.println("localDateStart.minusMonths(1).toString(\"yyyyMMdd\") = " + localDateStart.minusMonths(1).toString("yyyyMMdd"));
