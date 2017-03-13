@@ -33,6 +33,7 @@ public class SalesPortalUI extends UI {
         SalesHeatMap salesHeatMap = new SalesHeatMap(localDateStart, localDateEnd);
         salesView.addComponent(salesHeatMap.getChart());
         salesView.addComponent(salesHeatMap.getAvailabilityChart());
+        salesView.addComponent(salesHeatMap.getBudgetGrid());
         setContent(salesView);
     }
 

@@ -5,10 +5,18 @@ import com.vaadin.addon.charts.model.*;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.annotations.DesignRoot;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.sqlcontainer.SQLContainer;
+import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
+import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Table;
 import dk.trustworks.salesportal.db.ConnectionHelper;
 import dk.trustworks.salesportal.model.AmountPerItem;
+import dk.trustworks.salesportal.model.RawBudgetDataRow;
 import dk.trustworks.salesportal.model.UserBudget;
+import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
@@ -16,6 +24,7 @@ import org.joda.time.PeriodType;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -312,6 +321,82 @@ public class SalesHeatMap {
         chart.drawChart(conf);
 
         return chart;
+    }
+
+    public Component getBudgetGrid() {
+        List<RawBudgetDataRow> budgetDataRows = new ArrayList<>();
+        try(Connection con = sql2o.open()) {
+            String sql = "SELECT " +
+                    "i.username username, i.clientname clientname, i.projectname projectname, i.taskname, taskname, " +
+                    "sum(case when i.month = 0 then i.budget end) m1, " +
+                    "sum(case when i.month = 1 then i.budget end) m2, " +
+                    "sum(case when i.month = 2 then i.budget end) m3, " +
+                    "sum(case when i.month = 3 then i.budget end) m4, " +
+                    "sum(case when i.month = 4 then i.budget end) m5, " +
+                    "sum(case when i.month = 5 then i.budget end) m6, " +
+                    "sum(case when i.month = 6 then i.budget end) m7, " +
+                    "sum(case when i.month = 7 then i.budget end) m8, " +
+                    "sum(case when i.month = 8 then i.budget end) m9, " +
+                    "sum(case when i.month = 9 then i.budget end) m10, " +
+                    "sum(case when i.month = 10 then i.budget end) m11, " +
+                    "sum(case when i.month = 11 then i.budget end) m12 " +
+                    "FROM ( " +
+                    "SELECT b.year, b.month, u.username username, c.name clientname, p.name projectname, t.name taskname, c.latitude latitude, c.longitude longitude, (b.budget / twc.price) budget " +
+                    "                    FROM clientmanager.taskworkerconstraint_latest b  " +
+                    "                    INNER JOIN clientmanager.taskworkerconstraint twc ON twc.taskuuid = b.taskuuid and twc.useruuid = b.useruuid  " +
+                    "                    INNER JOIN clientmanager.task t ON twc.taskuuid = t.uuid  " +
+                    "                    INNER JOIN clientmanager.project p ON t.projectuuid = p.uuid  " +
+                    "                    INNER JOIN clientmanager.client c ON p.clientuuid = c.uuid  " +
+                    "                    INNER JOIN usermanager.user u ON u.uuid = twc.useruuid  " +
+                    "                    WHERE ((b.year*10000)+((b.month+1)*100)) between :periodStart and :periodEnd and b.budget > 0 " +
+                    "                    GROUP BY u.uuid, c.uuid, b.year, b.month " +
+                    "                    ORDER BY u.lastname DESC, u.uuid) i GROUP BY username, clientname, projectname, taskname;";
+
+            System.out.println("localDateStart.minusMonths(1).toString(\"yyyyMMdd\") = " + localDateStart.minusMonths(1).toString("yyyyMMdd"));
+            System.out.println("localDateEnd.minusMonths(1).toString(\"yyyyMMdd\") = " + localDateEnd.minusMonths(1).toString("yyyyMMdd"));
+            budgetDataRows = con.createQuery(sql)
+                    .addParameter("periodStart", localDateStart.minusMonths(1).toString("yyyyMMdd"))
+                    .addParameter("periodEnd", localDateEnd.minusMonths(1).toString("yyyyMMdd"))
+                    .executeAndFetch(RawBudgetDataRow.class);
+            con.close();
+        }
+
+        for (RawBudgetDataRow budgetDataRow : budgetDataRows) {
+            System.out.println("budgetDataRow = " + budgetDataRow);
+        }
+
+
+        final BeanItemContainer<RawBudgetDataRow> ds = new BeanItemContainer<>(RawBudgetDataRow.class, budgetDataRows);
+
+        Grid grid = new Grid("Raw data", ds);
+
+        grid.removeColumn("uuid");
+        String[] columnNames = {"username", "clientname", "projectname", "taskname", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12"};
+        columnNames = (String[]) ArrayUtils.addAll(
+            Arrays.copyOfRange(columnNames, 0, 4),
+                ArrayUtils.addAll(
+                        Arrays.copyOfRange(columnNames, 4 + localDateStart.minusMonths(1).getMonthOfYear(), columnNames.length),
+                        Arrays.copyOfRange(columnNames, 4, 4 + localDateStart.minusMonths(1).getMonthOfYear())
+                )
+        );
+
+        grid.setColumnOrder(columnNames);
+
+        grid.getHeaderRow(0).getCell("m1").setText("Jan");
+        grid.getHeaderRow(0).getCell("m2").setText("Feb");
+        grid.getHeaderRow(0).getCell("m3").setText("Mar");
+        grid.getHeaderRow(0).getCell("m4").setText("Apr");
+        grid.getHeaderRow(0).getCell("m5").setText("Maj");
+        grid.getHeaderRow(0).getCell("m6").setText("Jun");
+        grid.getHeaderRow(0).getCell("m7").setText("Jul");
+        grid.getHeaderRow(0).getCell("m8").setText("Aug");
+        grid.getHeaderRow(0).getCell("m9").setText("Sep");
+        grid.getHeaderRow(0).getCell("m10").setText("Okt");
+        grid.getHeaderRow(0).getCell("m11").setText("Nov");
+        grid.getHeaderRow(0).getCell("m12").setText("Dec");
+
+        grid.setSizeFull();
+        return grid;
     }
 
     public int countWeekDays(LocalDate periodStart, LocalDate periodEnd) {
