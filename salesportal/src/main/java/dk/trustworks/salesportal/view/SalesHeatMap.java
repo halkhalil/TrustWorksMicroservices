@@ -381,6 +381,7 @@ public class SalesHeatMap {
         );
 
         grid.setColumnOrder(columnNames);
+        grid.setFrozenColumnCount(4);
 
         grid.getHeaderRow(0).getCell("m1").setText("Jan");
         grid.getHeaderRow(0).getCell("m2").setText("Feb");
